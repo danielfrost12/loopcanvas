@@ -5248,24 +5248,58 @@ function demoExtendToVideo() {
   const video = document.getElementById('ce-preview-video');
   const feedback = document.getElementById('ce-iterate-feedback');
   const label = document.getElementById('ce-iterate-label');
+  const extendBtn = document.querySelector('.ce-action[onclick*="expandToMusicVideo"]');
 
-  // Show extending feedback
+  // Disable button immediately so user knows it was clicked
+  if (extendBtn) { extendBtn.style.opacity = '0.5'; extendBtn.style.pointerEvents = 'none'; extendBtn.innerHTML = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" style="width:18px;height:18px;animation:spin 1s linear infinite;"><circle cx="10" cy="10" r="7"/><path d="M10 3v4"/></svg> Extending...'; }
+
+  // Show extending feedback with blur
   if (video) video.classList.add('iterating');
   if (feedback) { label.textContent = 'Extending 7s canvas to full music video...'; feedback.classList.add('active'); }
   document.getElementById('ce-status-text').textContent = 'EXTENDING';
 
-  // Simulate stages of extension
-  setTimeout(() => { if (label) label.textContent = 'Generating 30-second sequences...'; }, 1500);
-  setTimeout(() => { if (label) label.textContent = 'Stitching scenes with beat-matched transitions...'; }, 3000);
-  setTimeout(() => { if (label) label.textContent = 'Applying cinematic color grade...'; }, 4500);
+  // Progressive status updates
+  setTimeout(() => { if (label) label.textContent = 'Generating 30-second sequences...'; }, 2000);
+  setTimeout(() => { if (label) label.textContent = 'Scene 1 of 8 complete...'; }, 3500);
+  setTimeout(() => { if (label) label.textContent = 'Stitching scenes with beat-matched transitions...'; }, 5000);
+  setTimeout(() => { if (label) label.textContent = 'Applying cinematic color grade...'; }, 6500);
   setTimeout(() => {
-    // Show same video but with "full video" label
-    if (video) { video.classList.remove('iterating'); video.classList.add('revealing'); setTimeout(() => video.classList.remove('revealing'), 800); }
+    // Pick a DIFFERENT video than what's currently playing to show change
+    const allDemos = ['memory_in_motion_demo.mp4','analog_memory_demo.mp4','midnight_city_demo.mp4',
+      'concrete_heat_demo.mp4','desert_drive_demo.mp4','euphoric_drift_demo.mp4',
+      'ghost_room_demo.mp4','velvet_dark_demo.mp4','sunrise_departure_demo.mp4',
+      'afterglow_ritual_demo.mp4','neon_calm_demo.mp4','peak_transmission_demo.mp4'];
+    const current = video?.src || '';
+    let pick = allDemos[Math.floor(Math.random() * allDemos.length)];
+    // Ensure it's different from current
+    for (let i = 0; i < 5 && current.includes(pick); i++) {
+      pick = allDemos[Math.floor(Math.random() * allDemos.length)];
+    }
+
+    // Swap to the new video
+    video.src = `/mood_demos/${pick}?v=${Date.now()}`;
+    video.load();
+    video.play().catch(() => {});
+
+    // Reveal with animation
+    video.classList.remove('iterating');
+    video.classList.add('revealing');
+    setTimeout(() => video.classList.remove('revealing'), 800);
+
     if (feedback) feedback.classList.remove('active');
     document.getElementById('ce-status-text').textContent = 'COMPLETE';
+
+    // Update meta and button
     const meta = document.getElementById('ce-track-meta');
     if (meta) meta.textContent = 'Full music video — 3:24';
-  }, 6000);
+    if (extendBtn) {
+      extendBtn.style.opacity = '1';
+      extendBtn.style.pointerEvents = '';
+      extendBtn.innerHTML = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" style="width:18px;height:18px;"><rect x="3" y="5" width="14" height="10" rx="2"/><polygon points="8,8 13,10 8,12"/></svg> Full Video Ready';
+      extendBtn.style.borderColor = 'var(--accent)';
+      extendBtn.style.color = 'var(--accent)';
+    }
+  }, 8000);
 }
 
 // Fun loading messages by stage
@@ -5436,7 +5470,7 @@ function pollJobStatus(jobId) {
 
         // Show result (transition to editor after a moment)
         setTimeout(() => {
-          showResult(job.filename || currentFile?.name || 'Track', job);
+          showResult(currentFile?.name || job.filename || 'Track', job);
         }, 3000);
         return;
 
