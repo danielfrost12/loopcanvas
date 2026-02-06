@@ -9,6 +9,9 @@ on:
     - cron: '0 3 * * *'  # Daily at 3am UTC
   workflow_dispatch:  # Manual trigger
 
+permissions:
+  contents: write  # Required for committing results back to repo
+
 jobs:
   optimize:
     runs-on: ubuntu-latest
@@ -24,20 +27,19 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: |
-          pip install numpy
+        run: pip install numpy
 
       - name: Run optimization loop
-        working-directory: loopcanvas_app
+        working-directory: canvas-engine
         run: |
-          cd canvas-engine
           python -m agents.optimization_loop
+        continue-on-error: true  # Don't block checklist if no optimization data yet
 
       - name: Commit evolved config
         run: |
           git config user.name "Canvas Optimization Bot"
           git config user.email "canvas-bot@loopcanvas.ai"
-          git add -A loopcanvas_app/canvas-engine/optimization_data/
+          git add -A canvas-engine/optimization_data/
           git diff --staged --quiet || git commit -m "chore: canvas optimization gen $(date +%Y%m%d)
 
           Auto-evolved parameters from quality feedback loop.
@@ -48,10 +50,13 @@ jobs:
   master-checklist:
     runs-on: ubuntu-latest
     needs: optimize
+    if: always()  # Run even if optimize fails (checklist is independent)
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: main  # Pull latest (optimize may have pushed)
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -62,7 +67,7 @@ jobs:
         run: pip install numpy
 
       - name: Run Part VII Master Checklist
-        working-directory: loopcanvas_app/canvas-engine
+        working-directory: canvas-engine
         run: |
           python -m agents.weekly_checklist
 
@@ -70,7 +75,7 @@ jobs:
         run: |
           git config user.name "Canvas Optimization Bot"
           git config user.email "canvas-bot@loopcanvas.ai"
-          git add -A loopcanvas_app/canvas-engine/checklist_data/
+          git add -A canvas-engine/checklist_data/
           git diff --staged --quiet || git commit -m "chore: weekly checklist eval $(date +%Y%m%d)
 
           Automated Part VII Master Checklist evaluation.
@@ -82,12 +87,13 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: checklist-report-${{ github.run_number }}
-          path: loopcanvas_app/canvas-engine/checklist_data/
+          path: canvas-engine/checklist_data/
           retention-days: 90
 
   quality-report:
     runs-on: ubuntu-latest
     needs: master-checklist
+    if: always()
 
     steps:
       - name: Checkout
@@ -99,13 +105,14 @@ jobs:
           python-version: '3.11'
 
       - name: Generate quality report
-        working-directory: loopcanvas_app/canvas-engine
+        working-directory: canvas-engine
         run: |
           python -m agents.optimization_loop report
+        continue-on-error: true
 
       - name: Upload report artifact
         uses: actions/upload-artifact@v4
         with:
           name: quality-report-${{ github.run_number }}
-          path: loopcanvas_app/canvas-engine/optimization_data/
+          path: canvas-engine/optimization_data/
           retention-days: 90
