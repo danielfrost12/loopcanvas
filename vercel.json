@@ -1,29 +1,11 @@
 {
   "version": 2,
-  "name": "loopcanvas",
-  "buildCommand": "",
-  "outputDirectory": "",
   "builds": [
-    {
-      "src": "api/**/*.py",
-      "use": "@vercel/python"
-    },
-    {
-      "src": "index.html",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "admin.html",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "cms/**",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "mood_demos/**",
-      "use": "@vercel/static"
-    }
+    { "src": "api/**/*.py", "use": "@vercel/python" },
+    { "src": "index.html", "use": "@vercel/static" },
+    { "src": "admin.html", "use": "@vercel/static" },
+    { "src": "cms/**", "use": "@vercel/static" },
+    { "src": "mood_demos/**", "use": "@vercel/static" }
   ],
   "routes": [
     { "src": "/api/v2/status/(.*)", "dest": "/api/v2/status/[job_id].py" },
@@ -35,26 +17,19 @@
     { "src": "/cms/(.*)", "dest": "/cms/$1" },
     { "src": "/mood_demos/(.*)", "dest": "/mood_demos/$1" },
     { "src": "/admin", "dest": "/admin.html" },
+    {
+      "src": "/api/(.*)",
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type"
+      },
+      "continue": true
+    },
     { "src": "/(.*)", "dest": "/index.html" }
   ],
   "env": {
     "LOOPCANVAS_MODE": "fast",
     "GENERATION_SERVER": ""
-  },
-  "headers": [
-    {
-      "source": "/mood_demos/(.*)",
-      "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
-      ]
-    },
-    {
-      "source": "/api/(.*)",
-      "headers": [
-        { "key": "Access-Control-Allow-Origin", "value": "*" },
-        { "key": "Access-Control-Allow-Methods", "value": "GET, POST, OPTIONS" },
-        { "key": "Access-Control-Allow-Headers", "value": "Content-Type" }
-      ]
-    }
-  ]
+  }
 }
