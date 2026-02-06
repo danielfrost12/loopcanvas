@@ -1964,6 +1964,41 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: filter 0.6s ease, opacity 0.4s ease;
+}
+.ce-video-wrap video.iterating {
+  filter: blur(12px) saturate(0.3) brightness(0.6);
+  opacity: 0.7;
+}
+.ce-video-wrap video.revealing {
+  filter: blur(0px) saturate(1.2) brightness(1.05);
+  opacity: 1;
+}
+/* Iteration feedback overlay */
+.ce-iterate-feedback {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 4;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.ce-iterate-feedback.active {
+  opacity: 1;
+}
+.ce-iterate-label {
+  padding: 10px 24px;
+  border-radius: 24px;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(16px);
+  color: rgba(255,255,255,0.9);
+  font-size: 14px;
+  font-weight: 500;
+  font-family: var(--font-body);
+  letter-spacing: 0.02em;
 }
 .ce-video-placeholder {
   position: absolute;
@@ -2042,12 +2077,16 @@ body {
   animation: cePulse 2s ease-in-out infinite;
 }
 .ce-quality-score {
-  font-size: 32px;
+  font-size: 24px;
   font-weight: 700;
   color: var(--accent);
   font-family: var(--font-body);
   transition: opacity 0.5s ease;
   text-shadow: 0 2px 20px rgba(29,185,84,0.4);
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(10px);
+  padding: 4px 12px;
+  border-radius: 12px;
 }
 
 .ce-overlay-bottom {
@@ -2055,25 +2094,32 @@ body {
   bottom: 0;
   left: 0;
   right: 0;
-  padding: 40px 24px 16px;
-  background: linear-gradient(0deg, rgba(0,0,0,0.7) 0%, transparent 100%);
+  padding: 48px 28px 20px;
+  background: linear-gradient(0deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 60%, transparent 100%);
   z-index: 2;
 }
 .ce-track-info {
   margin-bottom: 10px;
 }
 .ce-track-name {
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 700;
   color: #fff;
   font-family: var(--font-body);
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 80%;
 }
 .ce-track-meta {
   font-size: 13px;
   color: rgba(255,255,255,0.5);
-  margin-top: 2px;
+  margin-top: 4px;
   font-family: var(--font-body);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .ce-timeline {
   margin-top: 8px;
@@ -2203,10 +2249,10 @@ body {
   background: rgba(10,10,10,0.95);
   backdrop-filter: blur(20px);
   border-top: 1px solid rgba(255,255,255,0.06);
-  padding: 14px 20px;
+  padding: 16px 24px 20px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   animation: ceFadeUp 0.4s ease-out;
 }
 
@@ -4269,6 +4315,11 @@ select {
         <div class="ce-directions-list" id="ce-directions-list"></div>
       </div>
 
+      <!-- Iteration feedback overlay -->
+      <div class="ce-iterate-feedback" id="ce-iterate-feedback">
+        <div class="ce-iterate-label" id="ce-iterate-label">Applying changes...</div>
+      </div>
+
       <!-- Progress overlay during generation -->
       <div class="ce-gen-overlay" id="ce-gen-overlay" style="display:none;">
         <div class="ce-gen-label" id="ce-gen-label">Generating your canvas...</div>
@@ -5167,25 +5218,54 @@ async function selectDirection(directionId) {
 }
 
 function expandToMusicVideo() {
-  // Transition from Canvas Engine to Editor in Full Video mode
-  hideCanvasEngine();
-  const workspace = document.getElementById('editor-workspace');
-  workspace.classList.add('active');
-  // Set editor to full video mode
-  if (typeof editorState !== 'undefined') {
-    editorState.outputMode = 'full_video';
+  // If connected to GPU, extend via API
+  if (currentJobId && currentOutputDir) {
+    const feedback = document.getElementById('ce-iterate-feedback');
+    const label = document.getElementById('ce-iterate-label');
+    if (feedback) { label.textContent = 'Extending to full music video...'; feedback.classList.add('active'); }
+    document.getElementById('ce-status-text').textContent = 'EXTENDING';
+
+    fetch('/api/v2/extend', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ job_id: currentJobId, duration: 'full' })
+    }).then(r => r.json()).then(data => {
+      if (data.outputs && data.outputs.full_video) {
+        ceShowVideo(data.outputs.full_video);
+      }
+      if (feedback) feedback.classList.remove('active');
+      document.getElementById('ce-status-text').textContent = 'COMPLETE';
+    }).catch(() => {
+      // Demo mode extend
+      demoExtendToVideo();
+    });
+  } else {
+    demoExtendToVideo();
   }
-  // Show video in editor
-  const video = document.getElementById('canvas-video');
-  if (video && currentOutputDir) {
-    const src = typeof currentOutputDir === 'string' ? currentOutputDir :
-                currentOutputDir.canvas || currentOutputDir.full_video || '';
-    if (src) {
-      video.src = src + '?t=' + Date.now();
-      video.load();
-      video.play().catch(() => {});
-    }
-  }
+}
+
+function demoExtendToVideo() {
+  const video = document.getElementById('ce-preview-video');
+  const feedback = document.getElementById('ce-iterate-feedback');
+  const label = document.getElementById('ce-iterate-label');
+
+  // Show extending feedback
+  if (video) video.classList.add('iterating');
+  if (feedback) { label.textContent = 'Extending 7s canvas to full music video...'; feedback.classList.add('active'); }
+  document.getElementById('ce-status-text').textContent = 'EXTENDING';
+
+  // Simulate stages of extension
+  setTimeout(() => { if (label) label.textContent = 'Generating 30-second sequences...'; }, 1500);
+  setTimeout(() => { if (label) label.textContent = 'Stitching scenes with beat-matched transitions...'; }, 3000);
+  setTimeout(() => { if (label) label.textContent = 'Applying cinematic color grade...'; }, 4500);
+  setTimeout(() => {
+    // Show same video but with "full video" label
+    if (video) { video.classList.remove('iterating'); video.classList.add('revealing'); setTimeout(() => video.classList.remove('revealing'), 800); }
+    if (feedback) feedback.classList.remove('active');
+    document.getElementById('ce-status-text').textContent = 'COMPLETE';
+    const meta = document.getElementById('ce-track-meta');
+    if (meta) meta.textContent = 'Full music video — 3:24';
+  }, 6000);
 }
 
 // Fun loading messages by stage
@@ -5522,15 +5602,15 @@ function ceSubmitIntent() {
   const intent = input.value.trim();
   if (!intent) return;
 
-  // Show iterating state in status pill
+  const video = document.getElementById('ce-preview-video');
   const statusText = document.getElementById('ce-status-text');
-  if (statusText) statusText.textContent = 'ITERATING';
+  const feedback = document.getElementById('ce-iterate-feedback');
+  const feedbackLabel = document.getElementById('ce-iterate-label');
 
-  // Show generation overlay with intent message
-  const genOverlay = document.getElementById('ce-gen-overlay');
-  const genLabel = document.getElementById('ce-gen-label');
-  if (genOverlay) genOverlay.style.display = 'flex';
-  if (genLabel) genLabel.textContent = `Applying: "${intent}"...`;
+  // Visual: blur the current video, show feedback
+  if (statusText) statusText.textContent = 'ITERATING';
+  if (video) video.classList.add('iterating');
+  if (feedback) { feedbackLabel.textContent = `Applying: "${intent}"`; feedback.classList.add('active'); }
 
   // If connected to GPU server, send the intent
   if (currentJobId) {
@@ -5542,14 +5622,15 @@ function ceSubmitIntent() {
       if (data.outputs && data.outputs.canvas) {
         ceShowVideo(data.outputs.canvas);
       }
-      if (genOverlay) genOverlay.style.display = 'none';
+      if (video) { video.classList.remove('iterating'); video.classList.add('revealing'); setTimeout(() => video.classList.remove('revealing'), 800); }
+      if (feedback) feedback.classList.remove('active');
       if (statusText) statusText.textContent = 'COMPLETE';
     }).catch(() => {
       ceDemoIterate(intent);
     });
   } else {
-    // Demo mode iteration
-    setTimeout(() => ceDemoIterate(intent), 2000);
+    // Demo mode — blur for 1.5s, then swap
+    setTimeout(() => ceDemoIterate(intent), 1500);
   }
 
   input.value = '';
@@ -5561,7 +5642,7 @@ function ceDemoIterate(intent) {
     'ghost_room_demo.mp4','velvet_dark_demo.mp4','sunrise_departure_demo.mp4',
     'afterglow_ritual_demo.mp4','neon_calm_demo.mp4','peak_transmission_demo.mp4'];
 
-  // Match intent to a video style
+  // Match intent to a video style — curated mapping
   const warm = ['afterglow_ritual_demo.mp4','sunrise_departure_demo.mp4','analog_memory_demo.mp4'];
   const dark = ['midnight_city_demo.mp4','velvet_dark_demo.mp4','ghost_room_demo.mp4'];
   const energy = ['peak_transmission_demo.mp4','euphoric_drift_demo.mp4','concrete_heat_demo.mp4'];
@@ -5569,29 +5650,55 @@ function ceDemoIterate(intent) {
 
   let pool = allDemos;
   const lowerIntent = intent.toLowerCase();
-  if (lowerIntent.includes('warm') || lowerIntent.includes('golden') || lowerIntent.includes('sunrise')) pool = warm;
-  else if (lowerIntent.includes('dark') || lowerIntent.includes('night') || lowerIntent.includes('tokyo') || lowerIntent.includes('3am')) pool = dark;
+  if (lowerIntent.includes('warm') || lowerIntent.includes('golden') || lowerIntent.includes('sunrise') || lowerIntent.includes('warmer')) pool = warm;
+  else if (lowerIntent.includes('dark') || lowerIntent.includes('night') || lowerIntent.includes('tokyo') || lowerIntent.includes('3am') || lowerIntent.includes('darker')) pool = dark;
   else if (lowerIntent.includes('energy') || lowerIntent.includes('fast') || lowerIntent.includes('intense') || lowerIntent.includes('hype')) pool = energy;
-  else if (lowerIntent.includes('calm') || lowerIntent.includes('memory') || lowerIntent.includes('slow') || lowerIntent.includes('dream')) pool = calm;
+  else if (lowerIntent.includes('calm') || lowerIntent.includes('memory') || lowerIntent.includes('slow') || lowerIntent.includes('dream') || lowerIntent.includes('dreamy')) pool = calm;
   else if (lowerIntent.includes('grain') || lowerIntent.includes('film') || lowerIntent.includes('analog')) pool = ['analog_memory_demo.mp4','memory_in_motion_demo.mp4'];
-  else if (lowerIntent.includes('movement') || lowerIntent.includes('motion')) pool = ['euphoric_drift_demo.mp4','peak_transmission_demo.mp4'];
+  else if (lowerIntent.includes('movement') || lowerIntent.includes('motion') || lowerIntent.includes('more motion')) pool = ['euphoric_drift_demo.mp4','peak_transmission_demo.mp4'];
+  else if (lowerIntent.includes('rain') || lowerIntent.includes('melancholy') || lowerIntent.includes('soaked')) pool = ['ghost_room_demo.mp4','midnight_city_demo.mp4','velvet_dark_demo.mp4'];
+  else if (lowerIntent.includes('neon') || lowerIntent.includes('street') || lowerIntent.includes('urban') || lowerIntent.includes('concrete')) pool = ['neon_calm_demo.mp4','concrete_heat_demo.mp4','midnight_city_demo.mp4'];
 
-  // Pick one different from current
+  // Always pick one different from current
   const current = document.getElementById('ce-preview-video')?.src || '';
   let pick = pool[Math.floor(Math.random() * pool.length)];
   if (current.includes(pick) && pool.length > 1) {
     pick = pool[(pool.indexOf(pick) + 1) % pool.length];
   }
+  // If still the same, try a third option
+  if (current.includes(pick) && pool.length > 2) {
+    pick = pool[(pool.indexOf(pick) + 1) % pool.length];
+  }
 
-  ceShowVideo(`/mood_demos/${pick}?v=${Date.now()}`);
+  const video = document.getElementById('ce-preview-video');
+  const feedback = document.getElementById('ce-iterate-feedback');
 
-  // Hide generation overlay, update status
-  const genOverlay = document.getElementById('ce-gen-overlay');
-  if (genOverlay) genOverlay.style.display = 'none';
+  // Load new video (ceShowVideo handles the src swap)
+  const cleanUrl = `/mood_demos/${pick}?v=${Date.now()}`;
+  video.src = cleanUrl;
+  video.load();
+  video.play().catch(() => {});
+
+  // Reveal animation — unblur with a pop
+  video.classList.remove('iterating');
+  video.classList.add('revealing');
+  setTimeout(() => video.classList.remove('revealing'), 800);
+
+  // Hide feedback, show complete
+  if (feedback) feedback.classList.remove('active');
   document.getElementById('ce-status-text').textContent = 'COMPLETE';
+
+  // Update track meta to show what changed
+  const meta = document.getElementById('ce-track-meta');
+  if (meta) meta.textContent = `Applied: ${intent}`;
 }
 
 function ceUseSuggestion(el) {
+  // Highlight the selected chip
+  document.querySelectorAll('.ce-chip').forEach(c => c.style.borderColor = '');
+  el.style.borderColor = 'var(--accent)';
+  el.style.color = 'var(--accent)';
+  // Set intent and submit
   document.getElementById('ce-intent-input').value = el.textContent;
   ceSubmitIntent();
 }
