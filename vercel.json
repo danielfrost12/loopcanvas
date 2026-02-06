@@ -31,7 +31,6 @@
     { "src": "/(.*)", "dest": "/index.html" }
   ],
   "env": {
-    "LOOPCANVAS_MODE": "fast",
-    "GENERATION_SERVER": ""
+    "LOOPCANVAS_MODE": "fast"
   }
 }

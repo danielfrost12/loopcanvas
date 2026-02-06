@@ -1,16 +1,12 @@
 """
 POST /api/upload — Handle file upload on Vercel serverless
-Stores to /tmp (Vercel ephemeral storage) and returns job_id
+Proxies to GPU server if GENERATION_SERVER is set, otherwise stores to /tmp
 """
 import json
 import uuid
 import os
 import tempfile
 from http.server import BaseHTTPRequestHandler
-
-
-# In-memory job store (per-instance, ephemeral)
-jobs = {}
 
 
 class handler(BaseHTTPRequestHandler):
@@ -22,7 +18,31 @@ class handler(BaseHTTPRequestHandler):
             self._json(400, {"error": "Expected multipart/form-data"})
             return
 
-        # Parse boundary
+        body = self.rfile.read(content_length)
+
+        # If GPU server is available, proxy the entire upload
+        gen_server = os.environ.get('GENERATION_SERVER', '')
+        if gen_server:
+            import urllib.request
+            try:
+                req = urllib.request.Request(
+                    f"{gen_server}/api/upload",
+                    data=body,
+                    headers={
+                        "Content-Type": content_type,
+                        "Content-Length": str(len(body)),
+                    },
+                    method="POST"
+                )
+                with urllib.request.urlopen(req, timeout=60) as resp:
+                    result = json.loads(resp.read())
+                    self._json(200, result)
+                    return
+            except Exception as e:
+                print(f"[Upload] GPU proxy error: {e}")
+                # Fall through to local handling
+
+        # Local/demo mode: parse multipart and save to /tmp
         boundary = None
         for part in content_type.split(';'):
             part = part.strip()
@@ -34,9 +54,6 @@ class handler(BaseHTTPRequestHandler):
             self._json(400, {"error": "No boundary found"})
             return
 
-        body = self.rfile.read(content_length)
-
-        # Extract filename from multipart
         boundary_bytes = boundary.encode()
         parts = body.split(b'--' + boundary_bytes)
         filename = "track.mp3"
@@ -70,17 +87,6 @@ class handler(BaseHTTPRequestHandler):
         tmp_path = os.path.join(tempfile.gettempdir(), f"{job_id}_{filename}")
         with open(tmp_path, 'wb') as f:
             f.write(file_data)
-
-        # Store job
-        jobs[job_id] = {
-            "job_id": job_id,
-            "filename": filename,
-            "upload_path": tmp_path,
-            "status": "uploaded",
-            "progress": 5,
-            "message": "File uploaded",
-            "file_size": len(file_data),
-        }
 
         self._json(200, {
             "success": True,
