@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "hero_variant": "default",
+  "headline": "Turn Your Music Into Living Art",
+  "subtitle": "AI-powered Spotify Canvas videos that move with your sound",
+  "cta_text": "Upload Your Track",
+  "show_demo_reel": false,
+  "show_social_proof_above_fold": true,
+  "section_order": ["hero", "mood_library", "social_proof", "how_it_works"],
+  "stats_source": "real",
+  "ab_test_id": "",
+  "last_updated": "",
+  "last_change": ""
+}

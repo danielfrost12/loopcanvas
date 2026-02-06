@@ -47,10 +47,124 @@ jobs:
           Co-Authored-By: Canvas Optimization Bot <canvas-bot@loopcanvas.ai>"
           git push || echo "Nothing to push"
 
-  master-checklist:
+  retention:
     runs-on: ubuntu-latest
     needs: optimize
-    if: always()  # Run even if optimize fails (checklist is independent)
+    if: always()
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install numpy
+
+      - name: Run Retention Engineer
+        working-directory: canvas-engine
+        run: |
+          python -m agents.retention_engineer
+        continue-on-error: true
+
+      - name: Commit retention config
+        run: |
+          git config user.name "Canvas Optimization Bot"
+          git config user.email "canvas-bot@loopcanvas.ai"
+          git add -A retention_config.json templates/ canvas-engine/checklist_data/retention_*.jsonl canvas-engine/checklist_data/retention_summary.json
+          git diff --staged --quiet || git commit -m "chore: retention engineer cycle $(date +%Y%m%d)
+
+          Autonomous retention optimization — config + template updates.
+
+          Co-Authored-By: Canvas Optimization Bot <canvas-bot@loopcanvas.ai>"
+          git push || echo "Nothing to push"
+
+  onboarding:
+    runs-on: ubuntu-latest
+    needs: optimize
+    if: always()
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install numpy
+
+      - name: Run Onboarding Optimizer
+        working-directory: canvas-engine
+        run: |
+          python -m agents.onboarding_optimizer
+        continue-on-error: true
+
+      - name: Commit onboarding config
+        run: |
+          git config user.name "Canvas Optimization Bot"
+          git config user.email "canvas-bot@loopcanvas.ai"
+          git add -A onboarding_config.json landing_config.json templates/ canvas-engine/checklist_data/onboarding_*.jsonl canvas-engine/checklist_data/onboarding_summary.json
+          git diff --staged --quiet || git commit -m "chore: onboarding optimizer cycle $(date +%Y%m%d)
+
+          Autonomous onboarding/landing optimization — config + template updates.
+
+          Co-Authored-By: Canvas Optimization Bot <canvas-bot@loopcanvas.ai>"
+          git push || echo "Nothing to push"
+
+  growth:
+    runs-on: ubuntu-latest
+    needs: optimize
+    if: always()
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install numpy
+
+      - name: Run Growth Engineer
+        working-directory: canvas-engine
+        run: |
+          python -m agents.growth_engineer
+        continue-on-error: true
+
+      - name: Commit growth config
+        run: |
+          git config user.name "Canvas Optimization Bot"
+          git config user.email "canvas-bot@loopcanvas.ai"
+          git add -A growth_config.json templates/ canvas-engine/checklist_data/growth_*.jsonl canvas-engine/checklist_data/growth_summary.json
+          git diff --staged --quiet || git commit -m "chore: growth engineer cycle $(date +%Y%m%d)
+
+          Autonomous growth/viral optimization — config + template updates.
+
+          Co-Authored-By: Canvas Optimization Bot <canvas-bot@loopcanvas.ai>"
+          git push || echo "Nothing to push"
+
+  master-checklist:
+    runs-on: ubuntu-latest
+    needs: [optimize, retention, onboarding, growth]
+    if: always()  # Run even if agents fail (checklist is independent)
 
     steps:
       - name: Checkout

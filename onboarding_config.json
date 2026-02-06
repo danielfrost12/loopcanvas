@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "tips_enabled": true,
+  "tip_stages": ["upload", "directors", "export"],
+  "show_upload_tip": true,
+  "show_analysis_tip": false,
+  "show_director_tip": true,
+  "show_generate_tip": false,
+  "show_export_tip": true,
+  "auto_analyze": true,
+  "auto_generate_on_select": false,
+  "auto_show_export": true,
+  "highlight_recommended_director": true,
+  "director_previews": true,
+  "celebration_animation": true,
+  "share_prompt_after_export": true,
+  "progress_animation": true,
+  "show_facts_during_wait": false,
+  "estimated_time_remaining": true,
+  "upload_encouragement": false,
+  "supported_formats_prominent": true,
+  "max_file_size_display": true,
+  "generation_time_estimate": true,
+  "demo_mode_enabled": true,
+  "demo_canvases": [
+    {"mood": "ethereal", "director": "Kubrick", "thumb": "/mood_demos/ethereal.jpg"},
+    {"mood": "aggressive", "director": "Fincher", "thumb": "/mood_demos/aggressive.jpg"},
+    {"mood": "melancholic", "director": "Wong Kar-wai", "thumb": "/mood_demos/melancholic.jpg"}
+  ],
+  "last_updated": "",
+  "last_bottleneck": ""
+}

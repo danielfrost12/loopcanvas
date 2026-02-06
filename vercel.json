@@ -6,15 +6,20 @@
     { "src": "admin.html", "use": "@vercel/static" },
     { "src": "cms/**", "use": "@vercel/static" },
     { "src": "mood_demos/**", "use": "@vercel/static" },
-    { "src": "audio_previews/**", "use": "@vercel/static" }
+    { "src": "audio_previews/**", "use": "@vercel/static" },
+    { "src": "templates/**", "use": "@vercel/static" },
+    { "src": "*_config.json", "use": "@vercel/static" }
   ],
   "routes": [
+    { "src": "/api/configs", "dest": "/api/configs.py" },
+    { "src": "/api/track", "dest": "/api/track.py" },
     { "src": "/api/v2/status/(.*)", "dest": "/api/v2/status/[job_id].py" },
     { "src": "/api/v2/analyze", "dest": "/api/v2/analyze.py" },
     { "src": "/api/v2/select", "dest": "/api/v2/select.py" },
     { "src": "/api/status/(.*)", "dest": "/api/status/[job_id].py" },
     { "src": "/api/upload", "dest": "/api/upload.py" },
     { "src": "/api/generate", "dest": "/api/generate.py" },
+    { "src": "/templates/(.*)", "dest": "/templates/$1" },
     { "src": "/cms/(.*)", "dest": "/cms/$1" },
     { "src": "/mood_demos/(.*)", "dest": "/mood_demos/$1" },
     { "src": "/audio_previews/(.*)", "dest": "/audio_previews/$1" },

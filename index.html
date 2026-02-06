@@ -5012,6 +5012,38 @@ function ceSelectDirection(directionId, el) {
   selectDirection(directionId);
 }
 
+function ceShowModeBanner(mode, gpuError) {
+  // Remove existing banner if any
+  const existing = document.getElementById('ce-mode-banner');
+  if (existing) existing.remove();
+
+  const banner = document.createElement('div');
+  banner.id = 'ce-mode-banner';
+  banner.style.cssText = `
+    position: fixed; top: 12px; left: 50%; transform: translateX(-50%);
+    z-index: 10001; padding: 6px 16px; border-radius: 20px;
+    font-size: 11px; font-weight: 600; letter-spacing: 0.5px;
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    transition: opacity 0.3s ease; pointer-events: auto; cursor: pointer;
+  `;
+
+  if (mode === 'demo') {
+    banner.style.background = 'rgba(231, 76, 60, 0.85)';
+    banner.style.color = '#fff';
+    banner.textContent = '⚠ DEMO MODE — GPU server unreachable';
+    banner.title = gpuError || 'GPU server connection failed';
+  } else if (mode === 'gpu') {
+    banner.style.background = 'rgba(46, 204, 113, 0.85)';
+    banner.style.color = '#fff';
+    banner.textContent = '✓ GPU MODE — Real generation active';
+    // Auto-hide GPU banner after 5s
+    setTimeout(() => { banner.style.opacity = '0'; setTimeout(() => banner.remove(), 300); }, 5000);
+  }
+
+  banner.onclick = () => { banner.style.opacity = '0'; setTimeout(() => banner.remove(), 300); };
+  document.body.appendChild(banner);
+}
+
 function ceShowQuality(score) {
   const scoreEl = document.getElementById('ce-quality-score');
   const numEl = document.getElementById('ce-score-number');
@@ -5130,6 +5162,15 @@ async function handleFileUpload(input) {
 
       const analyzeData = await analyzeResp.json();
       const dna = analyzeData.emotional_dna || {};
+
+      // Check if we're in demo mode (GPU server unreachable)
+      if (analyzeData.mode === 'demo') {
+        console.warn('[LoopCanvas] GPU server unreachable, using demo mode. Error:', analyzeData.gpu_error);
+        ceShowModeBanner('demo', analyzeData.gpu_error);
+      } else if (analyzeData.mode === 'gpu') {
+        console.log('[LoopCanvas] GPU mode active — real analysis');
+        ceShowModeBanner('gpu');
+      }
 
       // Feel complete — show emotional data
       ceSetStage('feel', 'done');
@@ -5429,6 +5470,11 @@ function pollJobStatus(jobId) {
       }
       const job = await resp.json();
       const progress = job.progress || 0;
+
+      // Check mode on status response
+      if (job.mode === 'demo' && !document.getElementById('ce-mode-banner')) {
+        ceShowModeBanner('demo', job.gpu_error);
+      }
 
       // Update Canvas Engine progress bar
       document.getElementById('ce-generate-fill').style.width = `${progress}%`;
@@ -7530,6 +7576,369 @@ initFluidSliders();
     <p class="footer-copy">Built for artists, by artists. LoopCanvas 2026.</p>
   </div>
 </footer>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     AUTONOMOUS AGENT INTEGRATION
+     Config reader, template injection, funnel tracking, gallery, share
+     Managed by: retention_engineer, onboarding_optimizer, growth_engineer
+     ═══════════════════════════════════════════════════════════════════ -->
+
+<!-- Template injection containers -->
+<div id="lc-template-gallery"></div>
+<div id="lc-template-return-banner"></div>
+<div id="lc-template-share-modal"></div>
+<div id="lc-template-onboarding-tips"></div>
+<div id="lc-template-hero-variant"></div>
+<div id="lc-template-growth-share"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+//  LoopCanvas Autonomous Agent Frontend Integration
+//  Reads configs written by autonomous agents, injects templates,
+//  tracks funnel events, manages gallery + share mechanics.
+//  All changes are config-driven: agents write JSON → frontend reads.
+// ═══════════════════════════════════════════════════════════════════
+
+(function() {
+  'use strict';
+
+  // ─── Global Config Store ──────────────────────────────────────
+  window.lcConfigs = {
+    retention: null,
+    onboarding: null,
+    landing: null,
+    growth: null,
+    loaded: false
+  };
+
+  // ─── 1. Config Reader ────────────────────────────────────────
+  async function loadConfigs() {
+    try {
+      const resp = await fetch('/api/configs');
+      if (resp.ok) {
+        const configs = await resp.json();
+        window.lcConfigs.retention = configs.retention || {};
+        window.lcConfigs.onboarding = configs.onboarding || {};
+        window.lcConfigs.landing = configs.landing || {};
+        window.lcConfigs.growth = configs.growth || {};
+        window.lcConfigs.loaded = true;
+        console.log('[LC Agents] Configs loaded:', Object.keys(configs));
+        applyConfigs();
+      }
+    } catch (e) {
+      // Configs not available yet — agents haven't run. Use defaults.
+      console.log('[LC Agents] No configs yet, using defaults');
+      window.lcConfigs.loaded = true;
+      applyDefaults();
+    }
+  }
+
+  function applyDefaults() {
+    // Enable gallery and return banner by default (Phase 1)
+    window.lcConfigs.retention = {
+      features: {
+        gallery: { enabled: true, max_items: 50 },
+        return_banner: { enabled: true },
+        share_modal: { enabled: false }
+      }
+    };
+    window.lcConfigs.onboarding = { tips_enabled: true };
+    window.lcConfigs.growth = {
+      features: { copy_link: { enabled: true } },
+      share_copy: { share_button_text: 'Share Canvas' }
+    };
+    applyConfigs();
+  }
+
+  function applyConfigs() {
+    loadTemplates();
+    initGallery();
+    initReturnBanner();
+    initFunnelTracking();
+
+    // Apply landing page variant if configured
+    if (window.lcConfigs.landing && window.lcConfigs.landing.hero_variant) {
+      if (typeof window.lcApplyHeroVariant === 'function') {
+        window.lcApplyHeroVariant(window.lcConfigs.landing);
+      }
+    }
+  }
+
+  // ─── 2. Template Injection ───────────────────────────────────
+  async function loadTemplates() {
+    const templates = [
+      { name: 'gallery_component.html', target: 'lc-template-gallery' },
+      { name: 'return_banner.html', target: 'lc-template-return-banner' },
+      { name: 'share_modal.html', target: 'lc-template-share-modal' },
+      { name: 'onboarding_tips.html', target: 'lc-template-onboarding-tips' },
+      { name: 'landing_hero_variant.html', target: 'lc-template-hero-variant' },
+      { name: 'growth_share.html', target: 'lc-template-growth-share' },
+    ];
+
+    for (const tpl of templates) {
+      try {
+        const resp = await fetch('/templates/' + tpl.name);
+        if (resp.ok) {
+          const html = await resp.text();
+          const container = document.getElementById(tpl.target);
+          if (container) {
+            container.innerHTML = html;
+            // Execute any scripts in the injected HTML
+            container.querySelectorAll('script').forEach(oldScript => {
+              const newScript = document.createElement('script');
+              newScript.textContent = oldScript.textContent;
+              oldScript.parentNode.replaceChild(newScript, oldScript);
+            });
+          }
+          console.log('[LC Agents] Template loaded:', tpl.name);
+        }
+      } catch (e) {
+        // Template not available yet — agent hasn't written it
+      }
+    }
+  }
+
+  // ─── 3. Funnel Tracking ──────────────────────────────────────
+  function initFunnelTracking() {
+    // Track page load
+    lcTrackEvent('page_load', {
+      source: document.referrer ? 'referral' : 'direct',
+      is_return: localStorage.getItem('lc_visited') === 'true',
+      hero_variant: (window.lcConfigs.landing || {}).hero_variant || 'default'
+    });
+
+    // Monkey-patch key functions to track funnel stages
+    patchFunnelEvents();
+  }
+
+  function patchFunnelEvents() {
+    // Patch handleFileUpload to track upload_start
+    const origUpload = window.handleFileUpload;
+    if (origUpload) {
+      window.handleFileUpload = async function(input) {
+        lcTrackEvent('upload_start', { fileName: input.files?.[0]?.name || '' });
+        return origUpload.apply(this, arguments);
+      };
+    }
+
+    // Patch showDirectionPicker to track analyze completion + director selection available
+    const origDirectionPicker = window.showDirectionPicker;
+    if (origDirectionPicker) {
+      window.showDirectionPicker = function(directions, emotionalDna) {
+        lcTrackEvent('analyze_start', { directionsCount: directions?.length || 0 });
+        // Show onboarding tip
+        if (typeof window.lcShowTip === 'function') window.lcShowTip('directors');
+        return origDirectionPicker.apply(this, arguments);
+      };
+    }
+
+    // Patch selectDirection to track director_select
+    const origSelect = window.selectDirection;
+    if (origSelect) {
+      window.selectDirection = async function(directionId) {
+        lcTrackEvent('director_select', { directionId });
+        lcTrackEvent('generate_start', { directionId });
+        // Show onboarding tip
+        if (typeof window.lcShowTip === 'function') window.lcShowTip('generating');
+        return origSelect.apply(this, arguments);
+      };
+    }
+
+    // Patch exportFree to track export
+    const origExport = window.exportFree;
+    if (origExport) {
+      window.exportFree = function() {
+        lcTrackEvent('export', {
+          jobId: window.currentJobId || '',
+          director: window.currentDirectorStyle || ''
+        });
+
+        // Save to gallery on export
+        saveToGallery();
+
+        // Show share prompt after export if configured
+        const retention = window.lcConfigs.retention || {};
+        if (retention.features && retention.features.share_modal &&
+            retention.features.share_modal.enabled) {
+          setTimeout(() => {
+            if (typeof window.lcShowShareModal === 'function') {
+              window.lcShowShareModal({
+                jobId: window.currentJobId || '',
+                director: window.currentDirectorStyle || '',
+                thumbnail: (window.currentOutputDir && window.currentOutputDir.canvas) || '',
+                shareUrl: window.location.origin + '/c/' + (window.currentJobId || '')
+              });
+            }
+          }, 1500);
+        }
+
+        return origExport.apply(this, arguments);
+      };
+    }
+  }
+
+  // ─── 4. Event Tracking API ──────────────────────────────────
+  window.lcTrackEvent = function(event, data) {
+    const isMobile = /iPhone|iPad|iPod|Android|webOS|BlackBerry/i.test(navigator.userAgent) ||
+                     window.innerWidth < 768;
+    const payload = {
+      event: event,
+      data: {
+        ...(data || {}),
+        sessionId: getSessionId(),
+        url: window.location.pathname,
+        is_mobile: isMobile,
+        viewport: window.innerWidth + 'x' + window.innerHeight,
+        ua_platform: navigator.userAgentData ? navigator.userAgentData.platform : navigator.platform
+      },
+      ts: Date.now()
+    };
+
+    // Fire and forget — don't block UI
+    fetch('/api/track', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    }).catch(() => {});
+
+    console.log('[LC Track]', event, data);
+  };
+
+  function getSessionId() {
+    let sid = sessionStorage.getItem('lc_session_id');
+    if (!sid) {
+      sid = 'sess_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 6);
+      sessionStorage.setItem('lc_session_id', sid);
+    }
+    return sid;
+  }
+
+  // ─── 5. Project Gallery (localStorage) ──────────────────────
+  function initGallery() {
+    const retention = window.lcConfigs.retention || {};
+    if (!retention.features || !retention.features.gallery || !retention.features.gallery.enabled) return;
+
+    // Gallery is rendered by the injected template (gallery_component.html)
+    // This function just ensures the data layer is ready
+    const gallery = getGallery();
+    console.log('[LC Gallery]', gallery.length, 'canvases saved');
+  }
+
+  function getGallery() {
+    try {
+      return JSON.parse(localStorage.getItem('lc_gallery') || '[]');
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function saveToGallery() {
+    const gallery = getGallery();
+    const maxItems = (window.lcConfigs.retention?.features?.gallery?.max_items) || 50;
+
+    const entry = {
+      jobId: window.currentJobId || 'job_' + Date.now(),
+      director: window.currentDirectorStyle || 'Unknown',
+      thumbnail: (window.currentOutputDir && window.currentOutputDir.canvas) || '',
+      outputUrl: (window.currentOutputDir && window.currentOutputDir.canvas) || '',
+      createdAt: new Date().toISOString(),
+      quality: window.currentQualityScore || 0
+    };
+
+    gallery.unshift(entry);
+
+    // Trim to max
+    while (gallery.length > maxItems) gallery.pop();
+
+    localStorage.setItem('lc_gallery', JSON.stringify(gallery));
+    console.log('[LC Gallery] Saved canvas:', entry.jobId);
+
+    // Trigger gallery re-render if template is loaded
+    const galleryGrid = document.getElementById('lc-gallery-grid');
+    if (galleryGrid) {
+      // Re-dispatch the gallery render
+      const section = document.getElementById('lc-gallery-section');
+      if (section) section.style.display = 'block';
+      const empty = document.getElementById('lc-gallery-empty');
+      if (empty) empty.style.display = 'none';
+      const count = document.getElementById('lc-gallery-count');
+      if (count) count.textContent = gallery.length + ' canvas' + (gallery.length !== 1 ? 'es' : '');
+
+      // Add the new card at the top
+      const card = document.createElement('div');
+      card.className = 'gallery-card';
+      card.innerHTML =
+        '<img class="gallery-card-thumb" src="' + (entry.thumbnail || '/mood_demos/default.jpg') + '" alt="' + entry.director + '" loading="lazy">' +
+        '<div class="gallery-card-info">' +
+        '<div class="gallery-card-title">' + entry.director + '</div>' +
+        '<div class="gallery-card-date">' + new Date(entry.createdAt).toLocaleDateString() + '</div>' +
+        '</div>';
+      card.onclick = function() { if (entry.outputUrl) window.open(entry.outputUrl, '_blank'); };
+      galleryGrid.insertBefore(card, galleryGrid.firstChild);
+    }
+  }
+
+  // ─── 6. Return Visit Banner ────────────────────────────────
+  function initReturnBanner() {
+    const retention = window.lcConfigs.retention || {};
+    if (!retention.features || !retention.features.return_banner ||
+        !retention.features.return_banner.enabled) return;
+
+    const isReturn = localStorage.getItem('lc_visited') === 'true';
+    const gallery = getGallery();
+
+    if (isReturn && gallery.length > 0) {
+      lcTrackEvent('return_visit', { canvasCount: gallery.length });
+    }
+
+    // Mark as visited
+    localStorage.setItem('lc_visited', 'true');
+  }
+
+  // ─── 7. Share Button Injection ─────────────────────────────
+  window.lcInjectShareButton = function(containerSelector) {
+    const growth = window.lcConfigs.growth || {};
+    if (!growth.features) return;
+
+    const container = document.querySelector(containerSelector);
+    if (!container) return;
+
+    const btnText = (growth.share_copy && growth.share_copy.share_button_text) || 'Share Canvas';
+    const btn = document.createElement('button');
+    btn.className = 'lc-share-trigger';
+    btn.innerHTML = '<span style="font-size:16px;">↗</span> ' + btnText;
+    btn.onclick = function() {
+      if (typeof window.lcShowShareModal === 'function') {
+        window.lcShowShareModal({
+          jobId: window.currentJobId || '',
+          director: window.currentDirectorStyle || '',
+          thumbnail: (window.currentOutputDir && window.currentOutputDir.canvas) || '',
+          shareUrl: window.location.origin + '/c/' + (window.currentJobId || '')
+        });
+      } else if (typeof window.lcShare === 'function') {
+        window.lcShare('copy', {
+          jobId: window.currentJobId || '',
+          shareUrl: window.location.origin
+        });
+      } else {
+        navigator.clipboard.writeText(window.location.href);
+        btn.innerHTML = '<span style="font-size:16px;">✓</span> Copied!';
+        setTimeout(() => { btn.innerHTML = '<span style="font-size:16px;">↗</span> ' + btnText; }, 2000);
+      }
+    };
+    container.appendChild(btn);
+  };
+
+  // ─── Boot ──────────────────────────────────────────────────
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadConfigs);
+  } else {
+    loadConfigs();
+  }
+
+  console.log('[LC Agents] Autonomous integration initialized');
+})();
+</script>
 
 </body>
 </html>

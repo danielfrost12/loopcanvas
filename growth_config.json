@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "phase": 1,
+  "features": {
+    "copy_link": {"enabled": true},
+    "platform_sharing": {
+      "enabled": false,
+      "platforms": ["twitter", "reddit", "discord", "copy"]
+    },
+    "referral_bonus": {
+      "enabled": false,
+      "shares_required": 3,
+      "bonus_exports": 3
+    },
+    "real_social_proof": {
+      "enabled": false,
+      "stats": {
+        "canvases_generated": 0,
+        "artists_served": 0,
+        "exports_total": 0
+      }
+    },
+    "watermark": {
+      "enabled": false,
+      "text": "Made with LoopCanvas",
+      "opacity": 0.15,
+      "position": "bottom-right"
+    },
+    "public_gallery": {
+      "enabled": false,
+      "max_items": 50,
+      "sort": "recent"
+    }
+  },
+  "share_copy": {
+    "default": "I just turned my music into living art with LoopCanvas!",
+    "twitter": "Check out my AI canvas — made with @LoopCanvas",
+    "referral_prompt": "Share to unlock 3 more free exports",
+    "share_button_text": "Share Canvas"
+  },
+  "og_tags": {
+    "title": "My LoopCanvas — AI Music Video",
+    "description": "I turned my music into a living canvas with AI",
+    "image_pattern": "/outputs/{job_id}/thumb.jpg"
+  },
+  "last_updated": "",
+  "last_decision": ""
+}

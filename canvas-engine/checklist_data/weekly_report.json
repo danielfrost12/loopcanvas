@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-02-06T17:44:39.706433",
+  "timestamp": "2026-02-06T11:16:23.723614",
   "total_checks": 10,
   "passed_checks": 5,
   "failed_checks": 5,
@@ -17,27 +17,27 @@
       "severity": "info",
       "remediation": "Immediately halt all paid API calls, switch to free alternatives",
       "details": {},
-      "timestamp": "2026-02-06T17:44:39.705369"
+      "timestamp": "2026-02-06T11:16:23.716266"
     },
     {
       "check_id": "quality_gate",
       "check_name": "Does output feel like AI?",
       "metric_name": "Quality gate rejection rate",
-      "metric_value": 0.0,
+      "metric_value": 100.0,
       "threshold": ">40% rejected and regenerated",
       "threshold_value": 40.0,
-      "passed": true,
-      "severity": "info",
+      "passed": false,
+      "severity": "critical",
       "remediation": "Retrain quality discriminator, tighten generation parameters",
       "details": {
-        "total": 0,
+        "total": 4,
         "passed": 0,
-        "rejected": 0,
-        "avg_score": 0.0,
-        "best_score": 0.0,
-        "worst_score": 0.0
+        "rejected": 4,
+        "avg_score": 8.63,
+        "best_score": 8.63,
+        "worst_score": 8.63
       },
-      "timestamp": "2026-02-06T17:44:39.705486"
+      "timestamp": "2026-02-06T11:16:23.718700"
     },
     {
       "check_id": "retention",
@@ -50,7 +50,7 @@
       "severity": "warning",
       "remediation": "Analyze drop-off points, improve onboarding and first-run experience",
       "details": {},
-      "timestamp": "2026-02-06T17:44:39.705518"
+      "timestamp": "2026-02-06T11:16:23.721174"
     },
     {
       "check_id": "latency",
@@ -66,7 +66,7 @@
         "new_p95": 0.0,
         "iteration_p95": 0.0
       },
-      "timestamp": "2026-02-06T17:44:39.705714"
+      "timestamp": "2026-02-06T11:16:23.721728"
     },
     {
       "check_id": "viral",
@@ -79,20 +79,20 @@
       "severity": "warning",
       "remediation": "Improve watermark branding, add share incentives, improve output quality",
       "details": {},
-      "timestamp": "2026-02-06T17:44:39.705740"
+      "timestamp": "2026-02-06T11:16:23.721766"
     },
     {
       "check_id": "loop_seamless",
       "check_name": "Do loops work?",
       "metric_name": "Loop seamlessness score",
-      "metric_value": 0.0,
+      "metric_value": 100.0,
       "threshold": ">95% pass automated loop test",
       "threshold_value": 95.0,
-      "passed": false,
-      "severity": "critical",
+      "passed": true,
+      "severity": "info",
       "remediation": "Retrain loop engine, add more temporal smoothing",
       "details": {},
-      "timestamp": "2026-02-06T17:44:39.705922"
+      "timestamp": "2026-02-06T11:16:23.722349"
     },
     {
       "check_id": "av_match",
@@ -105,7 +105,7 @@
       "severity": "warning",
       "remediation": "Improve emotion mapping, add more genre-specific training data",
       "details": {},
-      "timestamp": "2026-02-06T17:44:39.706062"
+      "timestamp": "2026-02-06T11:16:23.722388"
     },
     {
       "check_id": "patent_docs",
@@ -122,7 +122,7 @@
         "total": 7,
         "days_remaining": 90
       },
-      "timestamp": "2026-02-06T17:44:39.706212"
+      "timestamp": "2026-02-06T11:16:23.722887"
     },
     {
       "check_id": "mrr_growth",
@@ -135,7 +135,7 @@
       "severity": "warning",
       "remediation": "Optimize conversion, add premium features, improve free-to-paid funnel",
       "details": {},
-      "timestamp": "2026-02-06T17:44:39.706237"
+      "timestamp": "2026-02-06T11:16:23.722921"
     },
     {
       "check_id": "agent_health",
@@ -148,15 +148,15 @@
       "severity": "info",
       "remediation": "Auto-restart failed agents, investigate root cause, add redundancy",
       "details": {},
-      "timestamp": "2026-02-06T17:44:39.706421"
+      "timestamp": "2026-02-06T11:16:23.723590"
     }
   ],
   "remediation_actions_taken": [
+    "Tightened quality params: raised minimum to 9.5, added negative prompts",
     "Retention alert saved to retention_alert.json",
     "Viral coefficient alert saved",
-    "Increased loop crossfade frames to 15, enabled temporal smoothing",
     "AV match alert saved, flagged for emotion mapping review",
     "Revenue growth alert saved"
   ],
-  "next_evaluation": "2026-02-13T17:44:39.706606"
+  "next_evaluation": "2026-02-13T11:16:23.723674"
 }

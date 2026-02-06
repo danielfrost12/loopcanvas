@@ -390,6 +390,78 @@ loopcanvas_app/
 
 ---
 
+## Autonomous Engineering Agents
+
+Three autonomous agents run daily via GitHub Actions, analyze real user metrics, and ship product improvements **without human intervention**. All changes auto-deploy via Vercel.
+
+### Architecture
+
+```
+GitHub Actions (3am UTC daily)
+  ├── optimize (existing quality loop)
+  ├── retention_engineer → retention_config.json + templates/
+  ├── onboarding_optimizer → onboarding_config.json + landing_config.json + templates/
+  ├── growth_engineer → growth_config.json + templates/
+  ├── master-checklist (weekly eval)
+  └── quality-report
+```
+
+**Pipeline:** Read JSONL metrics → Analyze → Write config JSON + HTML templates → Git commit → Vercel auto-deploys → Frontend reads configs on page load → Features go live
+
+### Agents
+
+| Agent | Target | Metric | Method |
+|-------|--------|--------|--------|
+| **RetentionEngineer** | 0% → 30% retention | `return_rate` | Gallery, return banners, share modal, batch teasers |
+| **OnboardingOptimizer** | Reduce funnel drop-off | `bounce_rate`, `conversion` | Smart tooltips, landing A/B tests, demo-first flow, mobile optimization |
+| **GrowthEngineer** | K-factor 0.0 → 0.5 | `k_factor` | Share buttons, referral bonuses, social proof, public gallery |
+
+### Phase-Based Progressive Rollout
+
+Each agent has 4 phases that auto-enable based on real metrics:
+- **Phase 1 (Foundation):** Gallery + return banner + copy link (always on)
+- **Phase 2 (Engagement):** Share modal + referral bonus + platform sharing
+- **Phase 3 (Growth):** A/B testing + social proof + watermark branding
+- **Phase 4 (Optimization):** Public gallery + smart prompts + fine-tuning
+
+### Frontend Integration
+
+- `/api/configs` — Serves merged config JSON to frontend
+- `/api/track` — Receives funnel events (page_load, upload, generate, export, share)
+- `templates/` — HTML components injected into DOM at runtime
+- All persistence via `localStorage` — no backend database needed
+
+### Files
+
+```
+canvas-engine/agents/
+├── retention_engineer.py     # Retention 0%→30%
+├── onboarding_optimizer.py   # Funnel optimization + mobile
+├── growth_engineer.py        # Viral K-factor 0→0.5
+├── optimization_loop.py      # Quality self-optimization (existing)
+└── weekly_checklist.py       # Part VII master checklist (existing)
+
+api/
+├── configs.py                # Config serving endpoint
+└── track.py                  # Event tracking endpoint
+
+templates/
+├── gallery_component.html    # Project gallery
+├── return_banner.html        # Welcome back banner
+├── share_modal.html          # Share/export modal
+├── onboarding_tips.html      # Smart tooltips
+├── landing_hero_variant.html # A/B test hero variants
+└── growth_share.html         # Viral share mechanics
+
+*_config.json                 # Agent-written configs (auto-updated daily)
+```
+
+### Cost
+
+$0. GitHub Actions free tier (2,000 min/month, uses ~10 min/day). Vercel free tier. JSONL files. localStorage.
+
+---
+
 ## License
 
 Proprietary. All rights reserved.
