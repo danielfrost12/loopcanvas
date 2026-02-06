@@ -34,6 +34,9 @@ sys.path.insert(0, str(ENGINE_DIR))
 
 # Canvas engine imports
 from agents.cost_enforcer import get_enforcer, CostBlockedError
+from agents.weekly_checklist import (
+    get_checklist, log_generation_latency, log_direction_selection, log_agent_heartbeat
+)
 from audio.audio_analyzer import CanvasAudioAnalyzer, EmotionalDNA, AudioAnalysisResult
 from director.philosophy_engine import DirectorPhilosophyEngine
 from quality_gate_wrapper import QualityGateWrapper
@@ -122,6 +125,62 @@ class CanvasOrchestrator:
         # Config
         self.max_regeneration_attempts = 3
         self.quality_minimum = 9.3
+
+        # Weekly checklist — 24/7 autonomous monitoring
+        self.checklist = get_checklist()
+        self._checklist_thread = None
+
+    # ──────────────────────────────────────────────────────────────
+    # Master Checklist — Part VII (24/7 Autonomous Mode)
+    # ──────────────────────────────────────────────────────────────
+
+    def start_checklist_autonomous(self, interval_seconds: int = 604800,
+                                    auto_remediate: bool = True):
+        """
+        Start the weekly master checklist in 24/7 autonomous mode.
+
+        Every `interval_seconds`, the system evaluates all 10 checks:
+        1. Are we spending $0?
+        2. Does output feel like AI?
+        3. Are artists coming back?
+        4. Is generation fast enough?
+        5. Are artists sharing?
+        6. Do loops work?
+        7. Is the music matched?
+        8. Are patent docs ready?
+        9. Is revenue growing?
+        10. Are agents healthy?
+
+        Failing checks trigger automatic remediation.
+        """
+        if self._checklist_thread and self._checklist_thread.is_alive():
+            print("[Orchestrator] Checklist already running in autonomous mode")
+            return
+
+        self._checklist_thread = self.checklist.run_autonomous_threaded(
+            interval_seconds=interval_seconds,
+            auto_remediate=auto_remediate,
+        )
+        log_agent_heartbeat("weekly_checklist", alive=True)
+        print(f"[Orchestrator] Master Checklist started (interval: {interval_seconds}s)")
+
+    def stop_checklist_autonomous(self):
+        """Stop the autonomous checklist"""
+        self.checklist.stop_autonomous()
+        log_agent_heartbeat("weekly_checklist", alive=False)
+        print("[Orchestrator] Master Checklist stopped")
+
+    def run_checklist_now(self, auto_remediate: bool = True):
+        """Run the master checklist immediately (one-shot)"""
+        return self.checklist.evaluate(auto_remediate=auto_remediate)
+
+    def get_checklist_report(self) -> dict:
+        """Get the latest checklist report"""
+        return self.checklist.get_latest_report() or {}
+
+    def get_checklist_history(self, count: int = 10) -> list:
+        """Get recent checklist evaluation history"""
+        return self.checklist.get_history(count)
 
     # ──────────────────────────────────────────────────────────────
     # Step 1: Audio Analysis
@@ -265,6 +324,9 @@ class CanvasOrchestrator:
         job.status = "directions_ready"
         job.progress = 30
         job.message = f"Generated {len(directions)} visual directions. Awaiting artist selection."
+
+        # Log for AV match tracking (selection logged when artist picks one)
+        log_agent_heartbeat("director_engine", alive=True)
 
         return directions
 
@@ -412,6 +474,7 @@ class CanvasOrchestrator:
         job.status = "generating"
         job.progress = 40
         job.message = f"Generating canvas in {selected['director_name']} style..."
+        generation_start_time = time.time()
 
         # Set up output directory
         if not output_dir:
@@ -512,6 +575,10 @@ class CanvasOrchestrator:
             process.wait()
 
             if process.returncode == 0:
+                # Log generation latency
+                gen_elapsed = time.time() - generation_start_time
+                log_generation_latency(gen_elapsed, gen_type="new")
+
                 # Run quality gate
                 job.progress = 88
                 job.message = "Running quality gate..."
@@ -812,6 +879,9 @@ class CanvasOrchestrator:
         elapsed = time.time() - start
 
         if result.returncode == 0 and adjusted_path.exists():
+            # Log iteration latency
+            log_generation_latency(elapsed, gen_type="iteration")
+
             # Update outputs
             ts = int(time.time())
             job.outputs["canvas"] = f"/outputs/{job.job_id}/spotify_canvas_web_adjusted.mp4?t={ts}"

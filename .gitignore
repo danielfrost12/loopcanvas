@@ -38,5 +38,6 @@ Thumbs.db
 # Temp
 tmp/
 temp/
-.github/
+# .github/ — removed to enable GitHub Actions workflows
 .vercel
+.env*.local
