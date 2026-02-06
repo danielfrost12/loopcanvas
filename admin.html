@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LoopCanvas CMS — Visual Mood Library Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #141414;
+  --bg-tertiary: #1a1a1a;
+  --border: #2a2a2a;
+  --text-primary: #ffffff;
+  --text-secondary: #888888;
+  --accent: #1ed760;
+  --accent-hover: #1fdf64;
+  --danger: #ff4444;
+}
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+}
+
+/* Header */
+.admin-header {
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  padding: 20px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.admin-header h1 {
+  font-size: 20px;
+  font-weight: 600;
+}
+.admin-header h1 span { color: var(--accent); }
+.admin-nav {
+  display: flex;
+  gap: 20px;
+}
+.admin-nav a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 14px;
+  padding: 8px 16px;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+.admin-nav a:hover, .admin-nav a.active {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+/* Layout */
+.admin-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  min-height: calc(100vh - 80px);
+}
+
+/* Sidebar */
+.sidebar {
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  padding: 20px;
+}
+.sidebar-section {
+  margin-bottom: 32px;
+}
+.sidebar-section h3 {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+.mood-list {
+  list-style: none;
+}
+.mood-list-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-bottom: 4px;
+}
+.mood-list-item:hover {
+  background: var(--bg-tertiary);
+}
+.mood-list-item.active {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+}
+.mood-swatch {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+.mood-list-item span {
+  font-size: 14px;
+  font-weight: 500;
+}
+.add-mood-btn {
+  width: 100%;
+  padding: 12px;
+  background: transparent;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 12px;
+}
+.add-mood-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Main content */
+.main-content {
+  padding: 40px;
+  overflow-y: auto;
+}
+.editor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+}
+.editor-header h2 {
+  font-size: 24px;
+  font-weight: 600;
+}
+.editor-actions {
+  display: flex;
+  gap: 12px;
+}
+.btn {
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+.btn-primary {
+  background: var(--accent);
+  color: #000;
+}
+.btn-primary:hover {
+  background: var(--accent-hover);
+}
+.btn-secondary {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+}
+.btn-secondary:hover {
+  border-color: var(--text-secondary);
+}
+.btn-danger {
+  background: transparent;
+  color: var(--danger);
+  border: 1px solid var(--danger);
+}
+.btn-danger:hover {
+  background: var(--danger);
+  color: white;
+}
+
+/* Form */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+.form-group {
+  margin-bottom: 20px;
+}
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+.form-group label {
+  display: block;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-family: inherit;
+}
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.form-group textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+/* Gradient picker */
+.gradient-picker {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.color-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+.color-input-wrapper input[type="color"] {
+  width: 48px;
+  height: 48px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  padding: 0;
+}
+.color-input-wrapper input[type="text"] {
+  flex: 1;
+}
+.gradient-preview {
+  width: 100%;
+  height: 80px;
+  border-radius: 12px;
+  margin-top: 12px;
+}
+
+/* Tags input */
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  min-height: 52px;
+}
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--bg-secondary);
+  border-radius: 4px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.tag-remove {
+  cursor: pointer;
+  opacity: 0.6;
+}
+.tag-remove:hover {
+  opacity: 1;
+}
+.tag-input {
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 14px;
+  outline: none;
+  flex: 1;
+  min-width: 100px;
+}
+
+/* Visual treatment sliders */
+.slider-group {
+  margin-bottom: 16px;
+}
+.slider-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.slider-header label {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+.slider-header span {
+  font-size: 13px;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+input[type="range"] {
+  width: 100%;
+  height: 6px;
+  -webkit-appearance: none;
+  background: var(--bg-tertiary);
+  border-radius: 3px;
+  cursor: pointer;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  background: var(--accent);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+/* Prompt modifiers */
+.modifiers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.modifier-item {
+  display: flex;
+  gap: 8px;
+}
+.modifier-item input {
+  flex: 1;
+}
+.modifier-remove {
+  width: 40px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+.modifier-remove:hover {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+.add-modifier {
+  padding: 10px;
+  background: transparent;
+  border: 1px dashed var(--border);
+  border-radius: 6px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  margin-top: 8px;
+}
+.add-modifier:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Preview card */
+.preview-section {
+  margin-top: 40px;
+  padding-top: 40px;
+  border-top: 1px solid var(--border);
+}
+.preview-section h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+.preview-card {
+  width: 320px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--bg-secondary);
+}
+.preview-card-visual {
+  height: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.preview-card-visual video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.preview-play-btn {
+  width: 56px;
+  height: 56px;
+  background: rgba(255,255,255,0.9);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+}
+.preview-card-info {
+  padding: 20px;
+}
+.preview-card-info h4 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.preview-card-info .artist {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+.preview-card-info .desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+.preview-tags {
+  display: flex;
+  gap: 8px;
+}
+.preview-tag {
+  padding: 4px 10px;
+  background: var(--bg-tertiary);
+  border-radius: 4px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Toast notifications */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  padding: 16px 24px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transform: translateY(100px);
+  opacity: 0;
+  transition: all 0.3s;
+}
+.toast.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+.toast.success { border-color: var(--accent); }
+.toast.error { border-color: var(--danger); }
+</style>
+</head>
+<body>
+
+<header class="admin-header">
+  <h1>Loop<span>Canvas</span> CMS</h1>
+  <nav class="admin-nav">
+    <a href="#moods" class="active">Mood Library</a>
+    <a href="#cinematographers">Cinematographers</a>
+    <a href="#settings">Settings</a>
+    <a href="index.html">← Back to App</a>
+  </nav>
+</header>
+
+<div class="admin-layout">
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <h3>Mood Presets</h3>
+      <ul class="mood-list" id="mood-list">
+        <!-- Populated by JS -->
+      </ul>
+      <button class="add-mood-btn" onclick="createNewMood()">+ Add New Mood</button>
+    </div>
+  </aside>
+
+  <main class="main-content" id="editor">
+    <div class="editor-header">
+      <h2 id="editor-title">Select a mood to edit</h2>
+      <div class="editor-actions" id="editor-actions" style="display:none;">
+        <button class="btn btn-secondary" onclick="duplicateMood()">Duplicate</button>
+        <button class="btn btn-danger" onclick="deleteMood()">Delete</button>
+        <button class="btn btn-primary" onclick="saveMood()">Save Changes</button>
+      </div>
+    </div>
+
+    <div id="editor-form" style="display:none;">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Title</label>
+          <input type="text" id="mood-title" placeholder="e.g., Dark Late-Night">
+        </div>
+        <div class="form-group">
+          <label>Artist</label>
+          <input type="text" id="mood-artist" placeholder="e.g., Various Artists">
+        </div>
+        <div class="form-group full-width">
+          <label>Description</label>
+          <textarea id="mood-description" placeholder="Describe the mood and visual treatment..."></textarea>
+        </div>
+        <div class="form-group full-width">
+          <label>Tags</label>
+          <div class="tags-container" id="tags-container">
+            <input type="text" class="tag-input" id="tag-input" placeholder="Type and press Enter...">
+          </div>
+        </div>
+        <div class="form-group full-width">
+          <label>Gradient Colors</label>
+          <div class="gradient-picker">
+            <div class="color-input-wrapper">
+              <input type="color" id="gradient-start" value="#6B8DD6">
+              <input type="text" id="gradient-start-hex" placeholder="#6B8DD6">
+            </div>
+            <span style="color:var(--text-secondary)">→</span>
+            <div class="color-input-wrapper">
+              <input type="color" id="gradient-end" value="#8E37D7">
+              <input type="text" id="gradient-end-hex" placeholder="#8E37D7">
+            </div>
+          </div>
+          <div class="gradient-preview" id="gradient-preview"></div>
+        </div>
+        <div class="form-group">
+          <label>Cinematographer Reference</label>
+          <select id="mood-cinematographer">
+            <option value="lubezki">Emmanuel Lubezki — Natural light</option>
+            <option value="wong_kar_wai">Wong Kar-wai — Neon romance</option>
+            <option value="tarkovsky">Andrei Tarkovsky — Dream poetry</option>
+            <option value="malick">Terrence Malick — Golden hour</option>
+            <option value="doyle">Christopher Doyle — 90s film soul</option>
+            <option value="lynch">David Lynch — Velvet dread</option>
+            <option value="willis">Gordon Willis — Dark warmth</option>
+            <option value="storaro">Vittorio Storaro — Color theory</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Video URL (optional)</label>
+          <input type="text" id="mood-video" placeholder="out_grammy/video.mp4">
+        </div>
+        <div class="form-group">
+          <label>Featured</label>
+          <select id="mood-featured">
+            <option value="true">Yes — Show on homepage</option>
+            <option value="false">No — Library only</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Display Order</label>
+          <input type="number" id="mood-order" min="1" value="1">
+        </div>
+      </div>
+
+      <div style="margin-top: 32px;">
+        <h3 style="font-size: 16px; margin-bottom: 20px;">Visual Treatment</h3>
+        <div class="slider-group">
+          <div class="slider-header">
+            <label>Grain Intensity</label>
+            <span id="grain-value">0.4</span>
+          </div>
+          <input type="range" id="treatment-grain" min="0" max="1" step="0.05" value="0.4">
+        </div>
+        <div class="slider-group">
+          <div class="slider-header">
+            <label>Contrast</label>
+            <span id="contrast-value">1.15</span>
+          </div>
+          <input type="range" id="treatment-contrast" min="0.8" max="1.5" step="0.05" value="1.15">
+        </div>
+        <div class="slider-group">
+          <div class="slider-header">
+            <label>Saturation</label>
+            <span id="saturation-value">1.1</span>
+          </div>
+          <input type="range" id="treatment-saturation" min="0.5" max="1.5" step="0.05" value="1.1">
+        </div>
+        <div class="slider-group">
+          <div class="slider-header">
+            <label>Color Temperature</label>
+            <span id="temp-value">Neutral</span>
+          </div>
+          <select id="treatment-temp" style="width:100%; padding: 10px; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 6px; color: var(--text-primary);">
+            <option value="warm">Warm (Golden/Orange)</option>
+            <option value="neutral">Neutral</option>
+            <option value="cool">Cool (Blue)</option>
+            <option value="cold">Cold (Deep Blue)</option>
+            <option value="golden">Golden Hour</option>
+          </select>
+        </div>
+        <div class="slider-group">
+          <div class="slider-header">
+            <label>Vignette</label>
+          </div>
+          <select id="treatment-vignette" style="width:100%; padding: 10px; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 6px; color: var(--text-primary);">
+            <option value="true">Enabled</option>
+            <option value="false">Disabled</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="margin-top: 32px;">
+        <h3 style="font-size: 16px; margin-bottom: 20px;">Prompt Modifiers</h3>
+        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">
+          These keywords are added to AI generation prompts to achieve this mood's visual style.
+        </p>
+        <div class="modifiers-list" id="modifiers-list">
+          <!-- Populated by JS -->
+        </div>
+        <button class="add-modifier" onclick="addModifier()">+ Add Modifier</button>
+      </div>
+
+      <div class="preview-section">
+        <h3>Preview</h3>
+        <div class="preview-card" id="preview-card">
+          <div class="preview-card-visual" id="preview-visual">
+            <div class="preview-play-btn">▶</div>
+          </div>
+          <div class="preview-card-info">
+            <h4 id="preview-title">Mood Title</h4>
+            <div class="artist" id="preview-artist">Artist Name</div>
+            <div class="desc" id="preview-desc">Description text...</div>
+            <div class="preview-tags" id="preview-tags"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast">
+  <span id="toast-message">Changes saved!</span>
+</div>
+
+<script>
+let cmsData = null;
+let currentMoodId = null;
+let currentTags = [];
+let currentModifiers = [];
+
+// Load CMS data
+async function loadCMS() {
+  try {
+    const resp = await fetch('/cms/moods.json');
+    cmsData = await resp.json();
+    renderMoodList();
+  } catch (e) {
+    console.error('Failed to load CMS:', e);
+    showToast('Failed to load CMS data', 'error');
+  }
+}
+
+function renderMoodList() {
+  const list = document.getElementById('mood-list');
+  list.innerHTML = '';
+
+  const sorted = [...cmsData.moods].sort((a, b) => a.order - b.order);
+
+  sorted.forEach(mood => {
+    const li = document.createElement('li');
+    li.className = 'mood-list-item' + (mood.id === currentMoodId ? ' active' : '');
+    li.onclick = () => selectMood(mood.id);
+    li.innerHTML = `
+      <div class="mood-swatch" style="background: linear-gradient(135deg, ${mood.gradient.start}, ${mood.gradient.end})"></div>
+      <span>${mood.title}</span>
+    `;
+    list.appendChild(li);
+  });
+}
+
+function selectMood(id) {
+  currentMoodId = id;
+  const mood = cmsData.moods.find(m => m.id === id);
+  if (!mood) return;
+
+  document.getElementById('editor-title').textContent = mood.title;
+  document.getElementById('editor-actions').style.display = 'flex';
+  document.getElementById('editor-form').style.display = 'block';
+
+  // Populate form
+  document.getElementById('mood-title').value = mood.title;
+  document.getElementById('mood-artist').value = mood.artist;
+  document.getElementById('mood-description').value = mood.description;
+  document.getElementById('mood-cinematographer').value = mood.cinematographer_ref;
+  document.getElementById('mood-video').value = mood.video_url || '';
+  document.getElementById('mood-featured').value = mood.featured ? 'true' : 'false';
+  document.getElementById('mood-order').value = mood.order;
+
+  // Gradient
+  document.getElementById('gradient-start').value = mood.gradient.start;
+  document.getElementById('gradient-start-hex').value = mood.gradient.start;
+  document.getElementById('gradient-end').value = mood.gradient.end;
+  document.getElementById('gradient-end-hex').value = mood.gradient.end;
+  updateGradientPreview();
+
+  // Tags
+  currentTags = [...mood.tags];
+  renderTags();
+
+  // Visual treatment
+  const vt = mood.visual_treatment;
+  document.getElementById('treatment-grain').value = vt.grain_intensity;
+  document.getElementById('grain-value').textContent = vt.grain_intensity;
+  document.getElementById('treatment-contrast').value = vt.contrast;
+  document.getElementById('contrast-value').textContent = vt.contrast;
+  document.getElementById('treatment-saturation').value = vt.saturation;
+  document.getElementById('saturation-value').textContent = vt.saturation;
+  document.getElementById('treatment-temp').value = vt.color_temp;
+  document.getElementById('treatment-vignette').value = vt.vignette ? 'true' : 'false';
+
+  // Modifiers
+  currentModifiers = [...mood.prompt_modifiers];
+  renderModifiers();
+
+  // Update preview
+  updatePreview();
+  renderMoodList();
+}
+
+function renderTags() {
+  const container = document.getElementById('tags-container');
+  const input = document.getElementById('tag-input');
+
+  // Clear existing tags
+  container.querySelectorAll('.tag').forEach(t => t.remove());
+
+  currentTags.forEach((tag, i) => {
+    const el = document.createElement('span');
+    el.className = 'tag';
+    el.innerHTML = `${tag} <span class="tag-remove" onclick="removeTag(${i})">×</span>`;
+    container.insertBefore(el, input);
+  });
+}
+
+function removeTag(index) {
+  currentTags.splice(index, 1);
+  renderTags();
+  updatePreview();
+}
+
+function renderModifiers() {
+  const container = document.getElementById('modifiers-list');
+  container.innerHTML = '';
+
+  currentModifiers.forEach((mod, i) => {
+    const div = document.createElement('div');
+    div.className = 'modifier-item';
+    div.innerHTML = `
+      <input type="text" value="${mod}" onchange="updateModifier(${i}, this.value)">
+      <button class="modifier-remove" onclick="removeModifier(${i})">×</button>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function updateModifier(index, value) {
+  currentModifiers[index] = value;
+}
+
+function removeModifier(index) {
+  currentModifiers.splice(index, 1);
+  renderModifiers();
+}
+
+function addModifier() {
+  currentModifiers.push('new modifier');
+  renderModifiers();
+}
+
+function updateGradientPreview() {
+  const start = document.getElementById('gradient-start').value;
+  const end = document.getElementById('gradient-end').value;
+  document.getElementById('gradient-preview').style.background = `linear-gradient(135deg, ${start}, ${end})`;
+}
+
+function updatePreview() {
+  const title = document.getElementById('mood-title').value;
+  const artist = document.getElementById('mood-artist').value;
+  const desc = document.getElementById('mood-description').value;
+  const start = document.getElementById('gradient-start').value;
+  const end = document.getElementById('gradient-end').value;
+  const video = document.getElementById('mood-video').value;
+
+  document.getElementById('preview-title').textContent = title;
+  document.getElementById('preview-artist').textContent = artist;
+  document.getElementById('preview-desc').textContent = desc;
+
+  const visual = document.getElementById('preview-visual');
+  if (video) {
+    visual.innerHTML = `<video src="${video}" loop muted autoplay style="width:100%;height:100%;object-fit:cover;"></video>`;
+  } else {
+    visual.style.background = `linear-gradient(135deg, ${start}, ${end})`;
+    visual.innerHTML = '<div class="preview-play-btn">▶</div>';
+  }
+
+  const tagsContainer = document.getElementById('preview-tags');
+  tagsContainer.innerHTML = currentTags.map(t => `<span class="preview-tag">${t}</span>`).join('');
+}
+
+function saveMood() {
+  if (!currentMoodId) return;
+
+  const mood = cmsData.moods.find(m => m.id === currentMoodId);
+  if (!mood) return;
+
+  // Update mood object
+  mood.title = document.getElementById('mood-title').value;
+  mood.artist = document.getElementById('mood-artist').value;
+  mood.description = document.getElementById('mood-description').value;
+  mood.cinematographer_ref = document.getElementById('mood-cinematographer').value;
+  mood.video_url = document.getElementById('mood-video').value || null;
+  mood.featured = document.getElementById('mood-featured').value === 'true';
+  mood.order = parseInt(document.getElementById('mood-order').value);
+  mood.gradient.start = document.getElementById('gradient-start').value;
+  mood.gradient.end = document.getElementById('gradient-end').value;
+  mood.tags = [...currentTags];
+  mood.visual_treatment = {
+    color_temp: document.getElementById('treatment-temp').value,
+    grain_intensity: parseFloat(document.getElementById('treatment-grain').value),
+    contrast: parseFloat(document.getElementById('treatment-contrast').value),
+    saturation: parseFloat(document.getElementById('treatment-saturation').value),
+    vignette: document.getElementById('treatment-vignette').value === 'true'
+  };
+  mood.prompt_modifiers = [...currentModifiers];
+
+  // Save to server
+  saveCMS();
+}
+
+async function saveCMS() {
+  cmsData.last_updated = new Date().toISOString();
+
+  try {
+    const resp = await fetch('/api/cms/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(cmsData)
+    });
+
+    if (resp.ok) {
+      showToast('Changes saved!', 'success');
+      renderMoodList();
+    } else {
+      showToast('Failed to save', 'error');
+    }
+  } catch (e) {
+    console.error('Save failed:', e);
+    showToast('Failed to save changes', 'error');
+  }
+}
+
+function createNewMood() {
+  const id = 'mood-' + Date.now();
+  const newMood = {
+    id,
+    title: 'New Mood',
+    artist: 'Various Artists',
+    description: 'Describe the mood...',
+    tags: ['TAG'],
+    gradient: { start: '#667eea', end: '#764ba2' },
+    video_url: null,
+    cinematographer_ref: 'lubezki',
+    visual_treatment: {
+      color_temp: 'neutral',
+      grain_intensity: 0.4,
+      contrast: 1.1,
+      saturation: 1.0,
+      vignette: true
+    },
+    prompt_modifiers: ['atmospheric', 'cinematic'],
+    featured: false,
+    order: cmsData.moods.length + 1
+  };
+
+  cmsData.moods.push(newMood);
+  selectMood(id);
+}
+
+function duplicateMood() {
+  if (!currentMoodId) return;
+
+  const original = cmsData.moods.find(m => m.id === currentMoodId);
+  if (!original) return;
+
+  const id = 'mood-' + Date.now();
+  const copy = JSON.parse(JSON.stringify(original));
+  copy.id = id;
+  copy.title = original.title + ' (Copy)';
+  copy.order = cmsData.moods.length + 1;
+
+  cmsData.moods.push(copy);
+  selectMood(id);
+}
+
+function deleteMood() {
+  if (!currentMoodId) return;
+  if (!confirm('Delete this mood preset?')) return;
+
+  cmsData.moods = cmsData.moods.filter(m => m.id !== currentMoodId);
+  currentMoodId = null;
+
+  document.getElementById('editor-title').textContent = 'Select a mood to edit';
+  document.getElementById('editor-actions').style.display = 'none';
+  document.getElementById('editor-form').style.display = 'none';
+
+  saveCMS();
+}
+
+function showToast(message, type = 'success') {
+  const toast = document.getElementById('toast');
+  document.getElementById('toast-message').textContent = message;
+  toast.className = 'toast show ' + type;
+  setTimeout(() => toast.className = 'toast', 3000);
+}
+
+// Event listeners
+document.getElementById('tag-input').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && e.target.value.trim()) {
+    currentTags.push(e.target.value.trim().toUpperCase());
+    e.target.value = '';
+    renderTags();
+    updatePreview();
+  }
+});
+
+document.getElementById('gradient-start').addEventListener('input', (e) => {
+  document.getElementById('gradient-start-hex').value = e.target.value;
+  updateGradientPreview();
+  updatePreview();
+});
+
+document.getElementById('gradient-end').addEventListener('input', (e) => {
+  document.getElementById('gradient-end-hex').value = e.target.value;
+  updateGradientPreview();
+  updatePreview();
+});
+
+document.getElementById('gradient-start-hex').addEventListener('input', (e) => {
+  if (/^#[0-9A-Fa-f]{6}$/.test(e.target.value)) {
+    document.getElementById('gradient-start').value = e.target.value;
+    updateGradientPreview();
+    updatePreview();
+  }
+});
+
+document.getElementById('gradient-end-hex').addEventListener('input', (e) => {
+  if (/^#[0-9A-Fa-f]{6}$/.test(e.target.value)) {
+    document.getElementById('gradient-end').value = e.target.value;
+    updateGradientPreview();
+    updatePreview();
+  }
+});
+
+// Slider updates
+['treatment-grain', 'treatment-contrast', 'treatment-saturation'].forEach(id => {
+  document.getElementById(id).addEventListener('input', (e) => {
+    const valueId = id.replace('treatment-', '') + '-value';
+    document.getElementById(valueId).textContent = e.target.value;
+  });
+});
+
+// Form input updates preview
+['mood-title', 'mood-artist', 'mood-description', 'mood-video'].forEach(id => {
+  document.getElementById(id).addEventListener('input', updatePreview);
+});
+
+// Initialize
+loadCMS();
+</script>
+
+</body>
+</html>

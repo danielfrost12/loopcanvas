@@ -1,0 +1,13 @@
+gradio>=4.0.0
+torch
+torchvision
+diffusers
+transformers
+accelerate
+pillow
+librosa
+numpy
+scipy
+soundfile
+tqdm
+opencv-python-headless

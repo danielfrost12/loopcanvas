@@ -1,0 +1,56 @@
+{
+  "timestamp": "2026-02-05 09:51:32",
+  "success": 0,
+  "failed": 12,
+  "provider_stats": {},
+  "results": {
+    "memory_in_motion": {
+      "status": "failed",
+      "error": "All providers failed:\nModal (H100): Function call failed: workspace billing cycle spend limit reached\nReplicate (A40): unable to infer type for attribute \"previous\""
+    },
+    "afterglow_ritual": {
+      "status": "failed",
+      "error": "All providers failed:\nReplicate (A40): unable to infer type for attribute \"previous\""
+    },
+    "midnight_city": {
+      "status": "failed",
+      "error": "All providers failed:\nReplicate (A40): unable to infer type for attribute \"previous\""
+    },
+    "analog_memory": {
+      "status": "failed",
+      "error": "All providers failed:\nReplicate (A40): unable to infer type for attribute \"previous\""
+    },
+    "sunrise_departure": {
+      "status": "failed",
+      "error": "All providers failed:\nReplicate (A40): unable to infer type for attribute \"previous\""
+    },
+    "desert_drive": {
+      "status": "failed",
+      "error": "All providers failed:\nReplicate (A40): unable to infer type for attribute \"previous\""
+    },
+    "velvet_dark": {
+      "status": "failed",
+      "error": "All providers failed:\nReplicate (A40): unable to infer type for attribute \"previous\""
+    },
+    "ghost_room": {
+      "status": "failed",
+      "error": "All providers failed:\nReplicate (A40): unable to infer type for attribute \"previous\""
+    },
+    "euphoric_drift": {
+      "status": "failed",
+      "error": "All providers failed:\nReplicate (A40): unable to infer type for attribute \"previous\""
+    },
+    "concrete_heat": {
+      "status": "failed",
+      "error": "All providers failed:\nReplicate (A40): unable to infer type for attribute \"previous\""
+    },
+    "neon_calm": {
+      "status": "failed",
+      "error": "All providers failed:\nReplicate (A40): unable to infer type for attribute \"previous\""
+    },
+    "peak_transmission": {
+      "status": "failed",
+      "error": "All providers failed:\nReplicate (A40): unable to infer type for attribute \"previous\""
+    }
+  }
+}

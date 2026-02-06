@@ -1,0 +1,179 @@
+# Canvas Agent Army Configuration v2.0
+# Always-On Loop with $0 Cost Ceiling
+
+orchestrator:
+  name: canvas-master
+  cost_ceiling: $0  # HARD LIMIT until revenue > $0
+  revenue_check_interval: 1h
+  escalation_channel: discord-webhook
+  always_on: true
+
+departments:
+  audio_intelligence:
+    lead: "Audio Intelligence Lead"
+    supervisor_count: 50
+    worker_per_supervisor: 200
+    model: llama-3.1-8b  # Self-hosted, $0
+    fallback_model: claude-haiku  # Only when self-hosted is overloaded
+    max_daily_api_spend: $0
+    tasks:
+      - audio_decomposition
+      - emotion_mapping
+      - lyric_analysis
+      - genre_classification
+      - beat_sync
+      - bpm_detection
+      - key_detection
+      - mood_extraction
+
+  visual_generation:
+    lead: "Visual Generation Lead"
+    expert_count: 2
+    supervisor_count: 50
+    worker_per_supervisor: 200
+    model: stable-video-diffusion  # Self-hosted, $0
+    quality_gate: canvas-quality-discriminator-v1
+    max_generation_time: 30s
+    max_iteration_time: 3s
+    loop_validator: opencv-loop-checker
+    tasks:
+      - image_generation
+      - video_generation
+      - style_transfer
+      - director_lora_application
+      - color_grading
+      - motion_synthesis
+
+  director_engine:
+    lead: "Director Style Lead"
+    supervisor_count: 25
+    worker_per_supervisor: 100
+    initial_directors:
+      - hype_williams
+      - spike_jonze
+      - dave_meyers
+      - the_daniels
+      - khalil_joseph
+    lora_training: google_colab  # $0
+    style_parameters:
+      - color_palette
+      - camera_movement
+      - lighting_philosophy
+      - editing_rhythm
+      - visual_metaphor
+
+  product_platform:
+    lead: "Product & Platform Lead"
+    expert_count: 2
+    supervisor_count: 50
+    worker_per_supervisor: 200
+    model: llama-3.1-8b
+    deploy_target: vercel
+    ci_cd: github-actions
+    performance_budget:
+      lcp: 1.2s
+      fid: 100ms
+      cls: 0.1
+    tasks:
+      - ui_development
+      - api_development
+      - performance_optimization
+      - accessibility
+      - mobile_responsive
+
+  growth:
+    lead: "Growth & Community Lead"
+    supervisor_count: 50
+    worker_per_supervisor: 200
+    model: llama-3.1-8b
+    content_targets:
+      daily_posts: 10
+      seo_articles_weekly: 5
+    cost_ceiling: $0
+    tasks:
+      - community_building
+      - content_creation
+      - artist_outreach
+      - viral_loop_optimization
+      - referral_system
+
+  ip_legal:
+    lead: "IP & Legal Intelligence Lead"
+    supervisor_count: 25
+    worker_per_supervisor: 100
+    model: llama-3.1-8b
+    patent_status: DOCUMENTATION_ONLY  # NO FILING until founder authorizes
+    tasks:
+      - patent_documentation
+      - rights_verification
+      - licensing_compliance
+      - training_data_audit
+
+  revenue:
+    lead: "Revenue & Monetization Lead"
+    supervisor_count: 25
+    worker_per_supervisor: 100
+    model: llama-3.1-8b
+    pricing_models:
+      - freemium
+      - usage_based
+      - enterprise
+    tasks:
+      - pricing_optimization
+      - conversion_analysis
+      - churn_prevention
+      - upsell_identification
+
+# Patentable Innovations - DOCUMENTATION ONLY
+patent_portfolio:
+  status: "READY_TO_FILE_ON_FOUNDER_APPROVAL"
+  filing_cost_per_provisional: $320  # micro entity rate
+  total_innovations: 7
+  innovations:
+    - id: emotional_audio_decomposition
+      title: "Emotional Audio Decomposition System"
+      description: "Multi-layer audio analysis extracting emotional DNA"
+
+    - id: director_dna_synthesis
+      title: "Director DNA Visual Synthesis"
+      description: "LoRA-based directorial style transfer with philosophy engine"
+
+    - id: seamless_loop_generation
+      title: "Seamless Loop Generation"
+      description: "Mathematical loop point detection and visual continuity"
+
+    - id: realtime_iteration
+      title: "Real-time Iteration Protocol"
+      description: "Sub-3-second visual regeneration on natural language input"
+
+    - id: adaptive_export
+      title: "Multi-Platform Adaptive Export"
+      description: "Single-source to all platform formats with optimization"
+
+    - id: intent_editing
+      title: "Intent-Based Video Editing"
+      description: "Natural language video editing without timeline"
+
+    - id: quality_authentication
+      title: "Quality Authentication System"
+      description: "AI-generated vs human-directed authenticity scoring"
+
+cost_enforcement:
+  hard_block: true
+  allowed_paid_apis: []  # Nothing until revenue
+  startup_credits:
+    aws_activate: pending
+    gcp_startups: pending
+    azure_startups: pending
+  alert_threshold: $0.01  # Alert on ANY spend
+
+quality_standards:
+  minimum_score: 9.3  # Out of 10
+  tests:
+    - no_ai_artifacts
+    - no_morphing_faces
+    - no_uncanny_valley
+    - cinematic_color_grading
+    - beat_sync_accuracy
+    - seamless_looping
+    - director_style_match

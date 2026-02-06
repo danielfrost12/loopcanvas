@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Outputs & uploads (large files)
+uploads/
+outputs/
+out_grammy/
+seed_outputs/
+queue_data/
+audio_demos/
+
+# Environment
+.env
+.env.local
+.env.production
+
+# Logs
+*.log
+server.log
+
+# Vercel
+.vercel/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Model files
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+
+# Temp
+tmp/
+temp/

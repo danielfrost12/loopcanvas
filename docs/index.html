@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LoopCanvas API Documentation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #0a0a0a;
+  --bg-secondary: #111;
+  --bg-card: #161616;
+  --border: rgba(255,255,255,0.08);
+  --text: #fff;
+  --text-secondary: rgba(255,255,255,0.6);
+  --text-muted: rgba(255,255,255,0.4);
+  --accent: #30d158;
+  --code-bg: #1a1a1a;
+}
+
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Layout */
+.docs-container {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+  background: var(--bg);
+  border-right: 1px solid var(--border);
+  padding: 32px 24px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.sidebar-logo {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.sidebar-logo span { color: var(--accent); }
+
+.sidebar-tagline {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 40px;
+}
+
+.nav-section {
+  margin-bottom: 32px;
+}
+
+.nav-section-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.nav-link {
+  display: block;
+  padding: 8px 0;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 14px;
+  transition: color 0.2s;
+}
+
+.nav-link:hover { color: var(--text); }
+.nav-link.active { color: var(--accent); }
+
+/* Main content */
+.main-content {
+  padding: 48px 64px;
+  max-width: 900px;
+}
+
+.main-content h1 {
+  font-size: 36px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  margin-bottom: 16px;
+}
+
+.main-content h2 {
+  font-size: 24px;
+  font-weight: 600;
+  margin-top: 48px;
+  margin-bottom: 16px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+}
+
+.main-content h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-top: 32px;
+  margin-bottom: 12px;
+}
+
+.main-content p {
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+  font-size: 15px;
+}
+
+.main-content ul {
+  margin-bottom: 16px;
+  padding-left: 24px;
+}
+
+.main-content li {
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  font-size: 15px;
+}
+
+/* Code blocks */
+.code-block {
+  background: var(--code-bg);
+  border-radius: 8px;
+  padding: 20px 24px;
+  margin: 24px 0;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+}
+
+.code-block code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.code-block .comment { color: var(--text-muted); }
+.code-block .string { color: #a5d6ff; }
+.code-block .keyword { color: #ff7b72; }
+.code-block .property { color: #d2a8ff; }
+
+/* Inline code */
+code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  background: var(--code-bg);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* Cards */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin: 24px 0;
+}
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.card:hover {
+  border-color: rgba(255,255,255,0.15);
+  transform: translateY(-2px);
+}
+
+.card-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.card-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* Badge */
+.badge {
+  display: inline-block;
+  background: var(--accent);
+  color: #000;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Endpoint */
+.endpoint {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin: 16px 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+}
+
+.endpoint .method {
+  color: var(--accent);
+  font-weight: 600;
+  margin-right: 12px;
+}
+
+.endpoint .path { color: var(--text-secondary); }
+
+/* Back link */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+
+.back-link:hover { color: var(--text); }
+
+/* Mobile */
+@media (max-width: 900px) {
+  .docs-container {
+    grid-template-columns: 1fr;
+  }
+  .sidebar {
+    position: relative;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+  .main-content {
+    padding: 32px 24px;
+  }
+  .card-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+</head>
+<body>
+<div class="docs-container">
+  <aside class="sidebar">
+<a href="../" class="sidebar-logo" style="text-decoration: none; display: block;">Loop<span>Canvas</span></a>
+    <div class="sidebar-tagline">API Documentation</div>
+    <a href="../" class="nav-link" style="margin-bottom: 24px; display: inline-flex; align-items: center; gap: 6px;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Back to App
+    </a>
+
+    <nav class="nav-section">
+      <div class="nav-section-title">Get Started</div>
+      <a href="#overview" class="nav-link active">Overview</a>
+      <a href="#quickstart" class="nav-link">Quickstart</a>
+      <a href="#authentication" class="nav-link">Authentication</a>
+      <a href="#errors" class="nav-link">Errors</a>
+      <a href="#webhooks" class="nav-link">Webhooks</a>
+    </nav>
+
+    <nav class="nav-section">
+      <div class="nav-section-title">Core Concepts</div>
+      <a href="#tracks" class="nav-link">Tracks</a>
+      <a href="#canvases" class="nav-link">Canvases</a>
+      <a href="#videos" class="nav-link">Videos</a>
+      <a href="#templates" class="nav-link">Templates</a>
+    </nav>
+
+    <nav class="nav-section">
+      <div class="nav-section-title">API Reference</div>
+      <a href="#api-tracks" class="nav-link">POST /tracks</a>
+      <a href="#api-canvases" class="nav-link">POST /canvases</a>
+      <a href="#api-videos" class="nav-link">POST /videos</a>
+      <a href="#api-renders" class="nav-link">GET /renders/:id</a>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    <a href="../" class="back-link">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Back to LoopCanvas
+    </a>
+
+    <h1 id="overview">Music Visuals API</h1>
+    <p>Generate Spotify-style 7-second Canvases and full-length music videos from audio.</p>
+
+    <div class="card-grid">
+      <a href="#quickstart" class="card">
+        <div class="card-title">Quickstart</div>
+        <div class="card-desc">Get your first canvas in 5 minutes</div>
+      </a>
+      <a href="#api-canvases" class="card">
+        <div class="card-title">API Reference</div>
+        <div class="card-desc">Full endpoint documentation</div>
+      </a>
+    </div>
+
+    <h2 id="quickstart">Quickstart</h2>
+    <p>Generate your first canvas with a single API call.</p>
+
+    <h3>1. Get your API key</h3>
+    <p>Create an account and get your API key from the dashboard.</p>
+
+    <h3>2. Upload a track</h3>
+    <div class="code-block"><code><span class="keyword">curl</span> https://api.loopcanvas.com/v1/tracks \
+  -H <span class="string">"Authorization: Bearer sk_live_..."</span> \
+  -F <span class="string">"file=@track.mp3"</span></code></div>
+
+    <h3>3. Generate a canvas</h3>
+    <div class="code-block"><code><span class="keyword">curl</span> https://api.loopcanvas.com/v1/canvases \
+  -H <span class="string">"Authorization: Bearer sk_live_..."</span> \
+  -d <span class="string">'{"track_id": "track_abc123", "style": "memory_in_motion"}'</span></code></div>
+
+    <h3>4. Get your video</h3>
+    <p>Poll the render status or use webhooks to get notified when your canvas is ready.</p>
+
+    <h2 id="authentication">Authentication</h2>
+    <p>Authenticate using Bearer tokens in the Authorization header.</p>
+
+    <div class="code-block"><code><span class="keyword">Authorization:</span> Bearer sk_live_your_api_key</code></div>
+
+    <p>API keys come in two flavors:</p>
+    <ul>
+      <li><code>sk_test_</code> — Test mode, no charges</li>
+      <li><code>sk_live_</code> — Live mode, real charges apply</li>
+    </ul>
+
+    <h2 id="errors">Errors</h2>
+    <p>The API uses standard HTTP status codes.</p>
+
+    <div class="code-block"><code>{
+  <span class="property">"error"</span>: {
+    <span class="property">"type"</span>: <span class="string">"invalid_request"</span>,
+    <span class="property">"message"</span>: <span class="string">"Track not found"</span>,
+    <span class="property">"code"</span>: <span class="string">"track_not_found"</span>
+  }
+}</code></div>
+
+    <h2 id="webhooks">Webhooks</h2>
+    <p>Receive real-time notifications when renders complete.</p>
+
+    <div class="code-block"><code>{
+  <span class="property">"type"</span>: <span class="string">"canvas.completed"</span>,
+  <span class="property">"data"</span>: {
+    <span class="property">"id"</span>: <span class="string">"canvas_xyz789"</span>,
+    <span class="property">"status"</span>: <span class="string">"completed"</span>,
+    <span class="property">"exports"</span>: {
+      <span class="property">"mp4_720x1280"</span>: <span class="string">"https://cdn.loopcanvas.com/..."</span>
+    }
+  }
+}</code></div>
+
+    <h2 id="tracks">Tracks</h2>
+    <p>A Track represents an uploaded audio file. When you upload audio, we analyze it for tempo, energy, key, and structure to inform visual generation.</p>
+
+    <h3>Track lifecycle</h3>
+    <ul>
+      <li><code>uploading</code> — File is being received</li>
+      <li><code>analyzing</code> — Audio analysis in progress</li>
+      <li><code>ready</code> — Track is ready for visual generation</li>
+      <li><code>failed</code> — Analysis failed (check error field)</li>
+    </ul>
+
+    <h3>Analysis data</h3>
+    <p>Once analyzed, tracks include tempo (BPM), energy curve, beat positions, key detection, and section boundaries. This data drives visual sync.</p>
+
+    <h2 id="canvases">Canvases</h2>
+    <p>A Canvas is a 7-second looping video designed for Spotify Canvas. It's extracted from the most energetic moment of your track and loops seamlessly.</p>
+
+    <h3>Specifications</h3>
+    <ul>
+      <li><strong>Duration:</strong> 7 seconds, seamless loop</li>
+      <li><strong>Resolution:</strong> 720×1280 (9:16 portrait)</li>
+      <li><strong>Format:</strong> H.264 MP4, web-optimized</li>
+    </ul>
+
+    <h2 id="videos">Videos</h2>
+    <p>A Video is a full-length music video matching your track duration. It uses the same visual world as your Canvas but expands across the entire song with scene transitions synced to musical structure.</p>
+
+    <h3>Specifications</h3>
+    <ul>
+      <li><strong>Duration:</strong> Full track length</li>
+      <li><strong>Resolution:</strong> Up to 4K (3840×2160)</li>
+      <li><strong>Aspect ratios:</strong> 9:16, 16:9, 1:1</li>
+    </ul>
+
+    <h2 id="templates">Templates</h2>
+    <p>Templates define the visual style of your output. Each template is inspired by a legendary cinematographer and tuned for specific moods.</p>
+
+    <h3>Available templates</h3>
+    <ul>
+      <li><code>memory_in_motion</code> — Lubezki golden hour warmth</li>
+      <li><code>midnight_city</code> — Wong Kar-wai neon noir</li>
+      <li><code>analog_memory</code> — Super 8 film nostalgia</li>
+      <li><code>velvet_dark</code> — Lynch dreamscape shadows</li>
+      <li><code>ghost_room</code> — Tarkovsky atmospheric interiors</li>
+      <li><code>euphoric_drift</code> — Warm bloom festival energy</li>
+    </ul>
+
+    <h2 id="api-tracks">POST /tracks</h2>
+    <div class="endpoint">
+      <span class="method">POST</span>
+      <span class="path">/v1/tracks</span>
+    </div>
+    <p>Upload an audio file for analysis.</p>
+
+    <h3>Request</h3>
+    <div class="code-block"><code><span class="keyword">curl</span> https://api.loopcanvas.com/v1/tracks \
+  -H <span class="string">"Authorization: Bearer sk_live_..."</span> \
+  -F <span class="string">"file=@track.mp3"</span> \
+  -F <span class="string">"title=My Track"</span> \
+  -F <span class="string">"artist=Artist Name"</span></code></div>
+
+    <h3>Response</h3>
+    <div class="code-block"><code>{
+  <span class="property">"id"</span>: <span class="string">"track_abc123"</span>,
+  <span class="property">"status"</span>: <span class="string">"analyzing"</span>,
+  <span class="property">"title"</span>: <span class="string">"My Track"</span>,
+  <span class="property">"artist"</span>: <span class="string">"Artist Name"</span>,
+  <span class="property">"duration"</span>: 180.5,
+  <span class="property">"analysis"</span>: null
+}</code></div>
+
+    <h2 id="api-canvases">POST /canvases</h2>
+    <div class="endpoint">
+      <span class="method">POST</span>
+      <span class="path">/v1/canvases</span>
+    </div>
+    <p>Generate a 7-second Spotify Canvas from an analyzed track.</p>
+
+    <h3>Request</h3>
+    <div class="code-block"><code>{
+  <span class="property">"track_id"</span>: <span class="string">"track_abc123"</span>,
+  <span class="property">"style"</span>: <span class="string">"memory_in_motion"</span>,
+  <span class="property">"start_time"</span>: 30.0
+}</code></div>
+
+    <h3>Available Styles</h3>
+    <ul>
+      <li><code>memory_in_motion</code> — Lubezki golden hour</li>
+      <li><code>midnight_city</code> — Wong Kar-wai neon</li>
+      <li><code>analog_memory</code> — Super 8 nostalgia</li>
+      <li><code>velvet_dark</code> — Lynch dreamscape</li>
+      <li><code>ghost_room</code> — Tarkovsky interiors</li>
+      <li><code>euphoric_drift</code> — Warm bloom</li>
+    </ul>
+
+    <h2 id="api-videos">POST /videos</h2>
+    <div class="endpoint">
+      <span class="method">POST</span>
+      <span class="path">/v1/videos</span>
+    </div>
+    <p>Generate a full-length music video.</p>
+
+    <h3>Request</h3>
+    <div class="code-block"><code>{
+  <span class="property">"track_id"</span>: <span class="string">"track_abc123"</span>,
+  <span class="property">"style"</span>: <span class="string">"memory_in_motion"</span>,
+  <span class="property">"resolution"</span>: <span class="string">"4k"</span>
+}</code></div>
+
+    <h2 id="api-renders">GET /renders/:id</h2>
+    <div class="endpoint">
+      <span class="method">GET</span>
+      <span class="path">/v1/renders/:id</span>
+    </div>
+    <p>Check the status of a render job.</p>
+
+    <h3>Response</h3>
+    <div class="code-block"><code>{
+  <span class="property">"id"</span>: <span class="string">"render_def456"</span>,
+  <span class="property">"status"</span>: <span class="string">"completed"</span>,
+  <span class="property">"progress"</span>: 100,
+  <span class="property">"output_url"</span>: <span class="string">"https://cdn.loopcanvas.com/..."</span>
+}</code></div>
+
+  </main>
+</div>
+</body>
+</html>

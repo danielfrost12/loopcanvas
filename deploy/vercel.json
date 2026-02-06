@@ -1,0 +1,37 @@
+{
+  "version": 2,
+  "name": "loopcanvas",
+  "builds": [
+    {
+      "src": "api/**/*.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "index.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "admin.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "cms/**",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "mood_demos/**",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/$1" },
+    { "src": "/cms/(.*)", "dest": "/cms/$1" },
+    { "src": "/mood_demos/(.*)", "dest": "/mood_demos/$1" },
+    { "src": "/admin", "dest": "/admin.html" },
+    { "src": "/(.*)", "dest": "/index.html" }
+  ],
+  "env": {
+    "LOOPCANVAS_MODE": "fast",
+    "GENERATION_SERVER": "@generation_server_url"
+  }
+}

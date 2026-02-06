@@ -1,0 +1,71 @@
+name: Canvas Self-Optimization Loop
+
+# Runs daily at 3am UTC — analyzes quality, evolves params, tunes prompts
+# GitHub Actions: 2,000 free minutes/month on free tier
+# This workflow uses ~5 minutes per run = ~150 min/month = well within free tier
+
+on:
+  schedule:
+    - cron: '0 3 * * *'  # Daily at 3am UTC
+  workflow_dispatch:  # Manual trigger
+
+jobs:
+  optimize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install numpy
+
+      - name: Run optimization loop
+        working-directory: loopcanvas_app
+        run: |
+          cd canvas-engine
+          python -m agents.optimization_loop
+
+      - name: Commit evolved config
+        run: |
+          git config user.name "Canvas Optimization Bot"
+          git config user.email "canvas-bot@loopcanvas.ai"
+          git add -A loopcanvas_app/canvas-engine/optimization_data/
+          git diff --staged --quiet || git commit -m "chore: canvas optimization gen $(date +%Y%m%d)
+
+          Auto-evolved parameters from quality feedback loop.
+
+          Co-Authored-By: Canvas Optimization Bot <canvas-bot@loopcanvas.ai>"
+          git push || echo "Nothing to push"
+
+  quality-report:
+    runs-on: ubuntu-latest
+    needs: optimize
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Generate quality report
+        working-directory: loopcanvas_app/canvas-engine
+        run: |
+          python -m agents.optimization_loop report
+
+      - name: Upload report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: quality-report-${{ github.run_number }}
+          path: loopcanvas_app/canvas-engine/optimization_data/
+          retention-days: 90

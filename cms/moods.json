@@ -1,0 +1,421 @@
+{
+  "demo": {
+    "video_url": "mood_demos/memory_in_motion_demo.mp4?v=3",
+    "track_name": "Food for the Soul",
+    "title": "Memory in Motion",
+    "artist": "It's Murph",
+    "description": "The signature canvas — warm dusk light, emotional but restrained, timeless atmosphere",
+    "duration": "7s loop",
+    "audio_url": "audio_demos/artists/its_murph_food_for_soul.mp3"
+  },
+  "moods": [
+    {
+      "id": "memory-in-motion",
+      "title": "Memory in Motion",
+      "artist": "It's Murph",
+      "description": "Warm dusk light drifting across abstract space. Emotional but restrained. The signature.",
+      "tags": ["SIGNATURE", "WARM"],
+      "gradient": {"start": "#D2A05A", "end": "#B4828C"},
+      "video_url": "mood_demos/memory_in_motion_demo.mp4?v=3",
+      "audio_url": "audio_demos/artists/its_murph_food_for_soul.mp3",
+      "youtube_ref": null,
+      "song_match": "It's Murph - Food for the Soul",
+      "song_url": "https://open.spotify.com/track/7u0fz3V6cYeYTX91DMmIvQ",
+      "cinematographer_ref": "lubezki",
+      "visual_treatment": {
+        "color_temp": "golden",
+        "grain_intensity": 0.4,
+        "contrast": 1.1,
+        "saturation": 1.15,
+        "vignette": true
+      },
+      "prompt_modifiers": [
+        "burnt gold and muted rose",
+        "upward drift very slow",
+        "dust motes in sunset",
+        "no neon or cold colors",
+        "seamless forward loop"
+      ],
+      "featured": true,
+      "order": 1
+    },
+    {
+      "id": "afterglow-ritual",
+      "title": "Afterglow Ritual",
+      "artist": "Black Coffee",
+      "description": "Sacred embers, soft halos, smoke drifting upward. Grounding and intimate.",
+      "tags": ["GROUNDING", "WARM", "RITUAL"],
+      "gradient": {"start": "#C8783C", "end": "#B46450"},
+      "video_url": "mood_demos/afterglow_ritual_demo.mp4?v=3",
+      "audio_url": "audio_demos/artists/black_coffee_you_need_me.mp3",
+      "youtube_ref": null,
+      "song_match": "Black Coffee ft. Maxine Ashley - You Need Me",
+      "song_url": "https://open.spotify.com/track/0xgYgTCK7vYqUMPr9YqZGH",
+      "cinematographer_ref": "malick",
+      "visual_treatment": {
+        "color_temp": "warm",
+        "grain_intensity": 0.5,
+        "contrast": 1.2,
+        "saturation": 1.1,
+        "vignette": true
+      },
+      "prompt_modifiers": [
+        "ember orange and rust",
+        "slow rising embers",
+        "sacred atmosphere",
+        "analog warmth"
+      ],
+      "featured": true,
+      "order": 2
+    },
+    {
+      "id": "midnight-city",
+      "title": "Midnight City Pulse",
+      "artist": "Fred again..",
+      "description": "Urban movement, blurred lights, passing silhouettes. Confident late-night energy.",
+      "tags": ["NIGHT", "URBAN", "CONFIDENT"],
+      "gradient": {"start": "#6482B4", "end": "#C8B464"},
+      "video_url": "mood_demos/midnight_city_demo.mp4?v=3",
+      "audio_url": "audio_demos/artists/fred_again_delilah.mp3",
+      "youtube_ref": null,
+      "song_match": "Fred again.. - Delilah (Pull Me Out of This)",
+      "song_url": "https://open.spotify.com/track/3R7Wp5q4SHgNxbB2K7nPqM",
+      "cinematographer_ref": "wong_kar_wai",
+      "visual_treatment": {
+        "color_temp": "cool",
+        "grain_intensity": 0.3,
+        "contrast": 1.25,
+        "saturation": 0.95,
+        "vignette": true
+      },
+      "prompt_modifiers": [
+        "night sky blue",
+        "streetlight amber",
+        "bokeh lights",
+        "horizontal drift"
+      ],
+      "featured": true,
+      "order": 3
+    },
+    {
+      "id": "analog-memory",
+      "title": "Analog Memory",
+      "artist": "Lane 8",
+      "description": "Film grain, light leaks, faded color drift. Emotional recall, cinematic nostalgia.",
+      "tags": ["MEMORY", "ANALOG", "SOULFUL"],
+      "gradient": {"start": "#DCB496", "end": "#FF7850"},
+      "video_url": "mood_demos/analog_memory_demo.mp4?v=3",
+      "audio_url": "audio_demos/artists/lane8_reviver.mp3",
+      "youtube_ref": null,
+      "song_match": "Lane 8 - Reviver",
+      "song_url": "https://open.spotify.com/track/2NSKR9YS3vCxbxAqB1ZBXJ",
+      "cinematographer_ref": "malick",
+      "visual_treatment": {
+        "color_temp": "golden",
+        "grain_intensity": 0.7,
+        "contrast": 1.05,
+        "saturation": 0.85,
+        "vignette": true
+      },
+      "prompt_modifiers": [
+        "heavy film grain",
+        "light leak orange",
+        "faded cream tones",
+        "gentle sway motion"
+      ],
+      "featured": true,
+      "order": 4
+    },
+    {
+      "id": "sunrise-departure",
+      "title": "Sunrise Departure",
+      "artist": "RÜFÜS DU SOL",
+      "description": "Pale gradients, horizon glow, minimal motion. Hopeful and forward-moving.",
+      "tags": ["HOPEFUL", "OPEN", "AIRY"],
+      "gradient": {"start": "#FFDCC8", "end": "#B4C8FF"},
+      "video_url": "mood_demos/sunrise_departure_demo.mp4?v=3",
+      "audio_url": "audio_demos/artists/rufus_du_sol_on_my_knees.mp3",
+      "youtube_ref": null,
+      "song_match": "RÜFÜS DU SOL - On My Knees",
+      "song_url": "https://open.spotify.com/track/3wWdLTyLPVMVQ2PzN7H2Jt",
+      "cinematographer_ref": "lubezki",
+      "visual_treatment": {
+        "color_temp": "dawn",
+        "grain_intensity": 0.2,
+        "contrast": 1.05,
+        "saturation": 1.1,
+        "vignette": false
+      },
+      "prompt_modifiers": [
+        "dawn pink and sky blue",
+        "soft orbs",
+        "horizon glow",
+        "minimal motion"
+      ],
+      "featured": true,
+      "order": 5
+    },
+    {
+      "id": "desert-drive",
+      "title": "Desert Drive",
+      "artist": "ARTBAT",
+      "description": "Heat haze, wide negative space, slow parallax. Expansive and hypnotic.",
+      "tags": ["WIDE", "HYPNOTIC", "EARTH"],
+      "gradient": {"start": "#DCB48C", "end": "#B48C64"},
+      "video_url": "mood_demos/desert_drive_demo.mp4?v=3",
+      "audio_url": "audio_demos/artists/artbat_tabu.mp3",
+      "youtube_ref": null,
+      "song_match": "ARTBAT - Tabu",
+      "song_url": "https://open.spotify.com/track/0M2vGBNJMJxLh1PcGZrHfZ",
+      "cinematographer_ref": "tarkovsky",
+      "visual_treatment": {
+        "color_temp": "warm",
+        "grain_intensity": 0.35,
+        "contrast": 1.15,
+        "saturation": 0.9,
+        "vignette": true
+      },
+      "prompt_modifiers": [
+        "sand and dust colors",
+        "heat shimmer",
+        "slow parallax",
+        "wide negative space"
+      ],
+      "featured": true,
+      "order": 6
+    },
+    {
+      "id": "velvet-dark",
+      "title": "Velvet Dark",
+      "artist": "Monolink",
+      "description": "Deep blacks, soft light edges, slow reveal. Seductive and luxurious.",
+      "tags": ["DARK", "SENSUAL", "CONTROLLED"],
+      "gradient": {"start": "#503C5A", "end": "#967864"},
+      "video_url": "mood_demos/velvet_dark_demo.mp4?v=3",
+      "audio_url": "audio_demos/artists/monolink_the_prey.mp3",
+      "youtube_ref": null,
+      "song_match": "Monolink - The Prey",
+      "song_url": "https://open.spotify.com/track/1kTUuDlvZVrVjQJJYKE2Ve",
+      "cinematographer_ref": "lynch",
+      "visual_treatment": {
+        "color_temp": "cool",
+        "grain_intensity": 0.4,
+        "contrast": 1.3,
+        "saturation": 0.85,
+        "vignette": true
+      },
+      "prompt_modifiers": [
+        "deep purple and black",
+        "soft highlight edges",
+        "heavy vignette",
+        "slow reveal"
+      ],
+      "featured": true,
+      "order": 7
+    },
+    {
+      "id": "ghost-room",
+      "title": "Ghost Room",
+      "artist": "Anyma",
+      "description": "Empty rooms, drifting dust, cold light. Haunting emotional tension.",
+      "tags": ["HAUNTING", "ISOLATED", "ATMOSPHERIC"],
+      "gradient": {"start": "#96A0B4", "end": "#B4B4AA"},
+      "video_url": "mood_demos/ghost_room_demo.mp4?v=3",
+      "audio_url": "audio_demos/artists/anyma_eternity.mp3",
+      "youtube_ref": null,
+      "song_match": "Anyma - Eternity",
+      "song_url": "https://open.spotify.com/track/6hUqEi9OPMfkEGzZ0XXJVV",
+      "cinematographer_ref": "tarkovsky",
+      "visual_treatment": {
+        "color_temp": "cold",
+        "grain_intensity": 0.5,
+        "contrast": 1.1,
+        "saturation": 0.7,
+        "vignette": true
+      },
+      "prompt_modifiers": [
+        "cold grey-blue",
+        "window light",
+        "floating dust",
+        "isolated atmosphere"
+      ],
+      "featured": true,
+      "order": 8
+    },
+    {
+      "id": "euphoric-drift",
+      "title": "Euphoric Drift",
+      "artist": "CamelPhat",
+      "description": "Upward movement, soft bloom, color swell. Emotional lift without cheesiness.",
+      "tags": ["EUPHORIC", "FLOATING", "OPEN"],
+      "gradient": {"start": "#FFC8B4", "end": "#B4DCFF"},
+      "video_url": "mood_demos/euphoric_drift_demo.mp4?v=3",
+      "audio_url": "audio_demos/artists/camelphat_rabbit_hole.mp3",
+      "youtube_ref": null,
+      "song_match": "CamelPhat ft. Jem Cooke - Rabbit Hole",
+      "song_url": "https://open.spotify.com/track/6w2X6NQGPJxKvlXJQnMJZj",
+      "cinematographer_ref": "lubezki",
+      "visual_treatment": {
+        "color_temp": "warm",
+        "grain_intensity": 0.25,
+        "contrast": 1.1,
+        "saturation": 1.25,
+        "vignette": false
+      },
+      "prompt_modifiers": [
+        "warm bloom colors",
+        "upward float motion",
+        "soft glow",
+        "rising bloom particles"
+      ],
+      "featured": true,
+      "order": 9
+    },
+    {
+      "id": "concrete-heat",
+      "title": "Concrete Heat",
+      "artist": "Disclosure",
+      "description": "Texture, shadows, subtle camera shake. Raw physicality and groove.",
+      "tags": ["RAW", "PHYSICAL", "GROOVE"],
+      "gradient": {"start": "#B4AAA0", "end": "#C88C64"},
+      "video_url": "mood_demos/concrete_heat_demo.mp4?v=3",
+      "audio_url": "audio_demos/artists/disclosure_fire.mp3",
+      "youtube_ref": null,
+      "song_match": "Disclosure - When A Fire Starts To Burn",
+      "song_url": "https://open.spotify.com/track/5DT1Bg1i9LGVJ0M0k8qB8K",
+      "cinematographer_ref": "doyle",
+      "visual_treatment": {
+        "color_temp": "neutral",
+        "grain_intensity": 0.6,
+        "contrast": 1.3,
+        "saturation": 0.9,
+        "vignette": true
+      },
+      "prompt_modifiers": [
+        "concrete grey",
+        "warm accent",
+        "subtle shake",
+        "urban texture"
+      ],
+      "featured": true,
+      "order": 10
+    },
+    {
+      "id": "neon-calm",
+      "title": "Neon Calm",
+      "artist": "Bicep",
+      "description": "Soft neon gradients, smooth loops. Modern, clean, and focused.",
+      "tags": ["MODERN", "COOL", "FOCUSED"],
+      "gradient": {"start": "#64B4FF", "end": "#FF78C8"},
+      "video_url": "mood_demos/neon_calm_demo.mp4?v=3",
+      "audio_url": "audio_demos/artists/bicep_glue.mp3",
+      "youtube_ref": null,
+      "song_match": "Bicep - Glue",
+      "song_url": "https://open.spotify.com/track/2aJDlirz6v2a4HREki98cP",
+      "cinematographer_ref": "wong_kar_wai",
+      "visual_treatment": {
+        "color_temp": "cool",
+        "grain_intensity": 0.15,
+        "contrast": 1.15,
+        "saturation": 1.2,
+        "vignette": false
+      },
+      "prompt_modifiers": [
+        "soft blue neon",
+        "soft pink neon",
+        "smooth cycle motion",
+        "digital clean"
+      ],
+      "featured": true,
+      "order": 11
+    },
+    {
+      "id": "peak-transmission",
+      "title": "Peak Transmission",
+      "artist": "Peggy Gou",
+      "description": "Rhythmic pulses synced to kick, controlled energy. Driving, not chaotic.",
+      "tags": ["DRIVING", "ENERGETIC", "CLEAN"],
+      "gradient": {"start": "#FF6450", "end": "#FFC864"},
+      "video_url": "mood_demos/peak_transmission_demo.mp4?v=3",
+      "audio_url": "audio_demos/artists/peggy_gou_nanana.mp3",
+      "youtube_ref": null,
+      "song_match": "Peggy Gou - (It Goes Like) Nanana",
+      "song_url": "https://open.spotify.com/track/23RoR84KodL5HWvUTneQ1w",
+      "cinematographer_ref": "doyle",
+      "visual_treatment": {
+        "color_temp": "warm",
+        "grain_intensity": 0.2,
+        "contrast": 1.35,
+        "saturation": 1.3,
+        "vignette": false
+      },
+      "prompt_modifiers": [
+        "energy red",
+        "fire gold",
+        "rhythmic pulse",
+        "controlled intensity"
+      ],
+      "featured": true,
+      "order": 12
+    }
+  ],
+  "cinematographers": {
+    "doyle": {
+      "name": "Christopher Doyle",
+      "style": "grainy neon, handheld intimacy, 90s film soul",
+      "color_palette": ["#FF6B4A", "#FFD700", "#00CED1"],
+      "signature": "Hong Kong cinema neon romance"
+    },
+    "lubezki": {
+      "name": "Emmanuel Lubezki",
+      "style": "natural light as religion, drifting memory camera",
+      "color_palette": ["#FFD700", "#FFA500", "#87CEEB"],
+      "signature": "Golden hour naturalism"
+    },
+    "wong_kar_wai": {
+      "name": "Wong Kar-wai",
+      "style": "neon ache, slow romance, melancholic beauty",
+      "color_palette": ["#FF1493", "#00BFFF", "#FF6347"],
+      "signature": "Urban neon melancholy"
+    },
+    "tarkovsky": {
+      "name": "Andrei Tarkovsky",
+      "style": "slow cinema, found footage from a dream",
+      "color_palette": ["#708090", "#556B2F", "#8B7355"],
+      "signature": "Poetic realism"
+    },
+    "malick": {
+      "name": "Terrence Malick",
+      "style": "golden-hour nostalgia, whispered history",
+      "color_palette": ["#FFD700", "#DAA520", "#F4A460"],
+      "signature": "Lyrical golden hour"
+    },
+    "lynch": {
+      "name": "David Lynch",
+      "style": "uncanny calm, velvet dread",
+      "color_palette": ["#8B0000", "#191970", "#2F4F4F"],
+      "signature": "Surreal darkness"
+    },
+    "willis": {
+      "name": "Gordon Willis",
+      "style": "dark, warm, understated film contrast",
+      "color_palette": ["#8B4513", "#2F2F2F", "#DAA520"],
+      "signature": "The Prince of Darkness"
+    },
+    "storaro": {
+      "name": "Vittorio Storaro",
+      "style": "classical color theory, painterly shadows",
+      "color_palette": ["#FF4500", "#4169E1", "#FFD700"],
+      "signature": "Color as emotion"
+    }
+  },
+  "style_rules": {
+    "memory_in_motion": {
+      "is_signature": true,
+      "never_modify": true,
+      "description": "The Alexander Signature Canvas - this one never changes"
+    }
+  },
+  "version": "3.0.0",
+  "last_updated": "2026-02-05T07:00:00.000Z"
+}
