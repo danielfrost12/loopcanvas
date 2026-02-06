@@ -5,7 +5,8 @@
     { "src": "index.html", "use": "@vercel/static" },
     { "src": "admin.html", "use": "@vercel/static" },
     { "src": "cms/**", "use": "@vercel/static" },
-    { "src": "mood_demos/**", "use": "@vercel/static" }
+    { "src": "mood_demos/**", "use": "@vercel/static" },
+    { "src": "audio_previews/**", "use": "@vercel/static" }
   ],
   "routes": [
     { "src": "/api/v2/status/(.*)", "dest": "/api/v2/status/[job_id].py" },
@@ -16,6 +17,7 @@
     { "src": "/api/generate", "dest": "/api/generate.py" },
     { "src": "/cms/(.*)", "dest": "/cms/$1" },
     { "src": "/mood_demos/(.*)", "dest": "/mood_demos/$1" },
+    { "src": "/audio_previews/(.*)", "dest": "/audio_previews/$1" },
     { "src": "/admin", "dest": "/admin.html" },
     {
       "src": "/api/(.*)",
