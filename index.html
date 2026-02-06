@@ -2216,6 +2216,9 @@ body {
   flex-direction: column;
   position: relative;
   background: linear-gradient(180deg, rgba(10,10,10,1) 0%, rgba(5,5,5,1) 100%);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.1) transparent;
 }
 
 .ce-tech-pills {
@@ -2471,6 +2474,315 @@ body {
 .ce-action-export:hover {
   border-color: rgba(99,102,241,0.4);
   color: #818cf8;
+}
+
+/* ═══ CREATIVE DIRECTOR WORKSPACE ═══ */
+.ce-workspace {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  animation: ceFadeUp 0.6s ease-out;
+}
+
+/* Intent Input */
+.ce-intent {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px 18px;
+}
+.ce-intent-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+.ce-intent-input-wrap {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.ce-intent-input {
+  flex: 1;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  padding: 10px 14px;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-family: var(--font-body);
+  outline: none;
+  transition: border-color 0.2s;
+}
+.ce-intent-input:focus {
+  border-color: var(--accent);
+}
+.ce-intent-input::placeholder {
+  color: var(--text-muted);
+  font-style: italic;
+}
+.ce-intent-send {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid var(--accent);
+  background: rgba(29,185,84,0.1);
+  color: var(--accent);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.ce-intent-send:hover {
+  background: rgba(29,185,84,0.25);
+  transform: scale(1.05);
+}
+.ce-intent-suggestions {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+.ce-suggestion {
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.03);
+  color: var(--text-muted);
+  font-size: 12px;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.ce-suggestion:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(29,185,84,0.08);
+}
+
+/* Iteration Sliders */
+.ce-iterate {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px 18px;
+}
+.ce-iterate-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+.ce-sliders {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.ce-slider-row {
+  display: grid;
+  grid-template-columns: 70px 1fr 30px;
+  align-items: center;
+  gap: 10px;
+}
+.ce-slider-name {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+.ce-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255,255,255,0.1);
+  outline: none;
+  cursor: pointer;
+}
+.ce-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--bg-void);
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.ce-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.3);
+}
+.ce-slider-val {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.ce-regenerate-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px;
+  margin-top: 14px;
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  background: rgba(29,185,84,0.08);
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.ce-regenerate-btn:hover {
+  background: rgba(29,185,84,0.2);
+  transform: translateY(-1px);
+}
+.ce-regenerate-btn.loading {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Spotify Preview Player */
+.ce-spotify-preview {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px 18px;
+}
+.ce-spotify-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #1DB954;
+  margin-bottom: 12px;
+}
+.ce-spotify-player {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+.ce-spotify-art {
+  width: 56px;
+  height: 56px;
+  border-radius: 6px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: rgba(255,255,255,0.05);
+}
+.ce-spotify-art video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.ce-spotify-info {
+  flex: 1;
+  min-width: 0;
+}
+.ce-spotify-track {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ce-spotify-artist {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+.ce-spotify-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+.ce-sp-btn {
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+.ce-sp-progress {
+  flex: 1;
+  height: 3px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.ce-sp-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: #1DB954;
+  border-radius: 2px;
+  transition: width 0.3s linear;
+}
+.ce-sp-time {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Export Panel */
+.ce-export {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px 18px;
+}
+.ce-export-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+.ce-export-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.ce-export-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 8px;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  background: rgba(255,255,255,0.02);
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.ce-export-btn span:first-of-type {
+  font-size: 12px;
+  font-weight: 600;
+}
+.ce-export-format {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+.ce-export-btn:hover {
+  border-color: rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.05);
+  transform: translateY(-2px);
 }
 
 /* Responsive */
@@ -4552,6 +4864,123 @@ select {
         <span class="ce-expand-hint">7s canvas becomes a complete visual album</span>
       </div>
 
+      <!-- ═══ CREATIVE DIRECTOR WORKSPACE ═══ -->
+      <div class="ce-workspace" id="ce-workspace" style="display:none;">
+
+        <!-- Intent Input — "make it feel like 3am in Tokyo" -->
+        <div class="ce-intent">
+          <div class="ce-intent-label">Direct your canvas</div>
+          <div class="ce-intent-input-wrap">
+            <input type="text" class="ce-intent-input" id="ce-intent-input"
+              placeholder="&quot;make it feel more like a memory&quot; or &quot;3am in Tokyo&quot;"
+              onkeydown="if(event.key==='Enter')ceSubmitIntent()">
+            <button class="ce-intent-send" onclick="ceSubmitIntent()" aria-label="Send direction">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M5 10h10M11 6l4 4-4 4"/></svg>
+            </button>
+          </div>
+          <div class="ce-intent-suggestions" id="ce-intent-suggestions">
+            <button class="ce-suggestion" onclick="ceUseSuggestion(this)">warmer tones</button>
+            <button class="ce-suggestion" onclick="ceUseSuggestion(this)">more movement</button>
+            <button class="ce-suggestion" onclick="ceUseSuggestion(this)">darker mood</button>
+            <button class="ce-suggestion" onclick="ceUseSuggestion(this)">film grain</button>
+            <button class="ce-suggestion" onclick="ceUseSuggestion(this)">slow motion</button>
+          </div>
+        </div>
+
+        <!-- Iteration Controls — real-time sliders -->
+        <div class="ce-iterate">
+          <div class="ce-iterate-label">Refine</div>
+          <div class="ce-sliders">
+            <div class="ce-slider-row">
+              <span class="ce-slider-name">Warmth</span>
+              <input type="range" class="ce-slider" id="ce-slider-warmth" min="0" max="100" value="50" oninput="ceSliderChange('warmth', this.value)">
+              <span class="ce-slider-val" id="ce-slider-warmth-val">50</span>
+            </div>
+            <div class="ce-slider-row">
+              <span class="ce-slider-name">Motion</span>
+              <input type="range" class="ce-slider" id="ce-slider-motion" min="0" max="100" value="40" oninput="ceSliderChange('motion', this.value)">
+              <span class="ce-slider-val" id="ce-slider-motion-val">40</span>
+            </div>
+            <div class="ce-slider-row">
+              <span class="ce-slider-name">Energy</span>
+              <input type="range" class="ce-slider" id="ce-slider-energy" min="0" max="100" value="60" oninput="ceSliderChange('energy', this.value)">
+              <span class="ce-slider-val" id="ce-slider-energy-val">60</span>
+            </div>
+            <div class="ce-slider-row">
+              <span class="ce-slider-name">Texture</span>
+              <input type="range" class="ce-slider" id="ce-slider-texture" min="0" max="100" value="70" oninput="ceSliderChange('texture', this.value)">
+              <span class="ce-slider-val" id="ce-slider-texture-val">70</span>
+            </div>
+          </div>
+          <button class="ce-regenerate-btn" id="ce-regenerate-btn" onclick="ceRegenerate()">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" style="width:15px;height:15px;"><path d="M4 10a6 6 0 0111.2-3M16 10a6 6 0 01-11.2 3"/><path d="M16 4v3h-3M4 16v-3h3"/></svg>
+            Regenerate with changes
+          </button>
+        </div>
+
+        <!-- Spotify Preview Player -->
+        <div class="ce-spotify-preview" id="ce-spotify-preview">
+          <div class="ce-spotify-label">Preview on Spotify</div>
+          <div class="ce-spotify-player">
+            <div class="ce-spotify-art">
+              <video id="ce-spotify-video" autoplay loop muted playsinline></video>
+            </div>
+            <div class="ce-spotify-info">
+              <div class="ce-spotify-track" id="ce-spotify-track">Your Track</div>
+              <div class="ce-spotify-artist" id="ce-spotify-artist">Artist Name</div>
+              <div class="ce-spotify-controls">
+                <button class="ce-sp-btn" onclick="ceSpotifyPlayPause()" aria-label="Play">
+                  <svg viewBox="0 0 20 20" fill="currentColor" style="width:20px;height:20px;"><polygon points="6,4 16,10 6,16"/></svg>
+                </button>
+                <div class="ce-sp-progress">
+                  <div class="ce-sp-progress-fill" id="ce-sp-progress-fill"></div>
+                </div>
+                <span class="ce-sp-time" id="ce-sp-time">0:07</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Export Panel -->
+        <div class="ce-export">
+          <div class="ce-export-label">Export everywhere</div>
+          <div class="ce-export-grid">
+            <button class="ce-export-btn" onclick="ceExport('spotify')">
+              <svg viewBox="0 0 24 24" fill="#1DB954" style="width:20px;height:20px;"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+              <span>Spotify Canvas</span>
+              <span class="ce-export-format">9:16 · 7s</span>
+            </button>
+            <button class="ce-export-btn" onclick="ceExport('reels')">
+              <svg viewBox="0 0 24 24" fill="#E1306C" style="width:20px;height:20px;"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0z"/><path d="M12 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8z"/></svg>
+              <span>Instagram Reels</span>
+              <span class="ce-export-format">9:16 · 15-30s</span>
+            </button>
+            <button class="ce-export-btn" onclick="ceExport('tiktok')">
+              <svg viewBox="0 0 24 24" fill="#fff" style="width:20px;height:20px;"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-.88-5.64v-3.5a6.37 6.37 0 005.76 9.52 6.37 6.37 0 004.45-10.88V8.19a8.26 8.26 0 004.77 1.52v-3.4a4.85 4.85 0 01-4-.62z"/></svg>
+              <span>TikTok</span>
+              <span class="ce-export-format">9:16 · 15-60s</span>
+            </button>
+            <button class="ce-export-btn" onclick="ceExport('youtube')">
+              <svg viewBox="0 0 24 24" fill="#FF0000" style="width:20px;height:20px;"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+              <span>YouTube</span>
+              <span class="ce-export-format">16:9 · Full</span>
+            </button>
+            <button class="ce-export-btn" onclick="ceExport('apple')">
+              <svg viewBox="0 0 24 24" fill="#FA243C" style="width:20px;height:20px;"><path d="M23.994 6.124a3.003 3.003 0 00-.064-.926A2.961 2.961 0 0022.5 3.38a3.033 3.033 0 00-.71-.31c-.375-.106-.765-.155-1.155-.14H3.335a4.048 4.048 0 00-1.252.17A2.734 2.734 0 00.493 5.19a5.007 5.007 0 00-.143 1.2v11.26a4.708 4.708 0 00.19 1.305 2.645 2.645 0 001.626 1.682 3.807 3.807 0 001.12.17h17.332a3.8 3.8 0 001.12-.17 2.647 2.647 0 001.626-1.682 4.706 4.706 0 00.19-1.305V6.124zM7.994 14.49a4.175 4.175 0 01-.127 1.037 1.447 1.447 0 01-1.1 1.07 2.652 2.652 0 01-.397.045c-.507.005-.9-.271-1.2-.698a3.276 3.276 0 01-.463-1.42 7.094 7.094 0 01.103-2.016c.15-.606.41-1.14.896-1.528a1.562 1.562 0 011.09-.352c.322.017.6.14.84.365.378.355.56.814.612 1.328a9.93 9.93 0 01-.254 2.17zM15.5 13.27a7.538 7.538 0 01-.376 2.252 2.41 2.41 0 01-.932 1.208 1.553 1.553 0 01-1.74-.073 2.543 2.543 0 01-.705-.9 1.447 1.447 0 01-1.192 1.048 1.58 1.58 0 01-1.461-.508 3.285 3.285 0 01-.667-1.356 9.39 9.39 0 01-.18-3.09c.08-.585.282-1.115.65-1.57a1.596 1.596 0 011.64-.53 1.3 1.3 0 01.673.488v-.404h1.716v5.032a1.94 1.94 0 00.086.594c.108.29.347.43.6.276a1.27 1.27 0 00.449-.613 5.688 5.688 0 00.377-1.767c.07-.837.027-1.673-.176-2.488a3.72 3.72 0 00-1.09-1.88 3.744 3.744 0 00-2.158-.982 4.935 4.935 0 00-3.23.653 4.325 4.325 0 00-1.86 2.767 6.865 6.865 0 00.155 3.93 3.948 3.948 0 002.282 2.563 5.09 5.09 0 003.09.327 5.33 5.33 0 001.1-.343c.085-.04.176-.07.27-.082a.426.426 0 01.448.264.656.656 0 01-.015.585 1.72 1.72 0 01-.817.675 6.385 6.385 0 01-2.278.61 6.703 6.703 0 01-3.527-.488 5.56 5.56 0 01-2.9-3.063 8.068 8.068 0 01-.445-3.725 6.313 6.313 0 011.414-3.51 5.793 5.793 0 013.476-1.932 6.685 6.685 0 013.327.088 5.158 5.158 0 013.048 2.168 5.91 5.91 0 01.895 2.57c.08.475.115.956.106 1.437z"/></svg>
+              <span>Apple Music</span>
+              <span class="ce-export-format">9:16 · 7s</span>
+            </button>
+            <button class="ce-export-btn" onclick="ceExport('raw')">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" style="width:20px;height:20px;"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+              <span>Raw Files</span>
+              <span class="ce-export-format">MP4 · MOV · PNG</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+      <!-- ═══ END CREATIVE DIRECTOR WORKSPACE ═══ -->
+
     </div>
   </div>
 </div>
@@ -5098,7 +5527,7 @@ function ceShowDirectorCard(name, match, tags) {
 function ceShowDirections(directions) {
   const list = document.getElementById('ce-directions-list');
   list.innerHTML = directions.map((d, i) => `
-    <div class="ce-dir-option${i === 0 ? ' selected' : ''}" onclick="ceSelectDirection('${d.id}', this)" data-id="${d.id}">
+    <div class="ce-dir-option${i === 0 ? ' selected' : ''}" onclick="ceSelectDirection('${d.id}', this)" data-id="${d.id}" data-style="${d.director_style || d.id}">
       <div class="ce-dir-circle" style="background:linear-gradient(135deg,${d.color_palette?.[0]||'#1a1a2e'},${d.color_palette?.[1]||'#16213e'})"></div>
       <div class="ce-dir-info">
         <div class="ce-dir-name">${d.director_name}</div>
@@ -5621,21 +6050,247 @@ function showResult(filename, jobData) {
 
     // Show action buttons (Edit, Export, Expand)
     document.getElementById('ce-expand-mv').style.display = 'flex';
-    ceShowActionBar(displayName);
+    ceShowWorkspace(displayName);
 
   } else if (currentJobId) {
     // No output yet — keep polling from Canvas Engine view
     pollJobStatus(currentJobId);
   } else {
-    // Demo mode — show a demo video
-    const demoVideos = ['memory_in_motion_demo.mp4', 'analog_memory_demo.mp4', 'midnight_city_demo.mp4'];
-    const pick = demoVideos[Math.floor(Math.random() * demoVideos.length)];
+    // Demo mode — show a demo video matched to director style
+    const directorVideos = {
+      'lubezki': ['memory_in_motion_demo.mp4','analog_memory_demo.mp4','desert_drive_demo.mp4'],
+      'hype_williams': ['peak_transmission_demo.mp4','neon_calm_demo.mp4','concrete_heat_demo.mp4'],
+      'spike_jonze': ['euphoric_drift_demo.mp4','sunrise_departure_demo.mp4','afterglow_ritual_demo.mp4'],
+      'dave_meyers': ['concrete_heat_demo.mp4','peak_transmission_demo.mp4','euphoric_drift_demo.mp4'],
+      'khalil_joseph': ['velvet_dark_demo.mp4','ghost_room_demo.mp4','midnight_city_demo.mp4'],
+    };
+    // Pick based on selected director if available
+    const selectedDir = document.querySelector('.ce-dir-option.selected');
+    const dirStyle = selectedDir?.dataset?.style || '';
+    const pool = directorVideos[dirStyle] || ['midnight_city_demo.mp4','velvet_dark_demo.mp4','ghost_room_demo.mp4'];
+    const pick = pool[Math.floor(Math.random() * pool.length)];
     ceShowVideo(`/mood_demos/${pick}?v=demo`);
     ceShowQuality(9.4);
     document.getElementById('ce-status-text').textContent = 'COMPLETE';
     document.getElementById('ce-expand-mv').style.display = 'flex';
-    ceShowActionBar(displayName);
+    ceShowWorkspace(displayName);
   }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// CREATIVE DIRECTOR WORKSPACE
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function ceShowWorkspace(trackName) {
+  const ws = document.getElementById('ce-workspace');
+  if (ws) {
+    ws.style.display = 'flex';
+    // Set track name in Spotify preview
+    document.getElementById('ce-spotify-track').textContent = trackName || 'Your Track';
+    // Sync video to Spotify art
+    const mainVideo = document.getElementById('ce-preview-video');
+    const spotifyVideo = document.getElementById('ce-spotify-video');
+    if (mainVideo && mainVideo.src && spotifyVideo) {
+      spotifyVideo.src = mainVideo.src;
+      spotifyVideo.load();
+      spotifyVideo.play().catch(() => {});
+    }
+    // Start Spotify progress animation
+    ceStartSpotifyProgress();
+    // Update suggestions based on emotional DNA
+    ceUpdateSuggestions();
+  }
+}
+
+function ceSubmitIntent() {
+  const input = document.getElementById('ce-intent-input');
+  const intent = input.value.trim();
+  if (!intent) return;
+
+  // Show regenerating state
+  const btn = document.getElementById('ce-regenerate-btn');
+  btn.classList.add('loading');
+  btn.innerHTML = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" style="width:15px;height:15px;animation:spin 1s linear infinite;"><path d="M4 10a6 6 0 0111.2-3M16 10a6 6 0 01-11.2 3"/><path d="M16 4v3h-3M4 16v-3h3"/></svg> Regenerating...';
+
+  // Update status
+  document.getElementById('ce-status-text').textContent = 'ITERATING';
+  ceSetStage('generate', 'active');
+  ceSetDetail('generate', `Applying: "${intent}"...`);
+
+  // If connected to GPU server, send the intent
+  if (currentJobId) {
+    fetch('/api/v2/iterate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ job_id: currentJobId, intent: intent })
+    }).then(r => r.json()).then(data => {
+      if (data.outputs && data.outputs.canvas) {
+        ceShowVideo(data.outputs.canvas);
+      }
+      ceSetStage('generate', 'done');
+      ceSetDetail('generate', 'Canvas regenerated');
+      document.getElementById('ce-status-text').textContent = 'COMPLETE';
+      btn.classList.remove('loading');
+      btn.innerHTML = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" style="width:15px;height:15px;"><path d="M4 10a6 6 0 0111.2-3M16 10a6 6 0 01-11.2 3"/><path d="M16 4v3h-3M4 16v-3h3"/></svg> Regenerate with changes';
+    }).catch(() => {
+      // Demo: just swap to a different demo video
+      ceDemoIterate(intent);
+    });
+  } else {
+    // Demo mode iteration
+    setTimeout(() => ceDemoIterate(intent), 2000);
+  }
+
+  input.value = '';
+}
+
+function ceDemoIterate(intent) {
+  const allDemos = ['memory_in_motion_demo.mp4','analog_memory_demo.mp4','midnight_city_demo.mp4',
+    'concrete_heat_demo.mp4','desert_drive_demo.mp4','euphoric_drift_demo.mp4',
+    'ghost_room_demo.mp4','velvet_dark_demo.mp4','sunrise_departure_demo.mp4',
+    'afterglow_ritual_demo.mp4','neon_calm_demo.mp4','peak_transmission_demo.mp4'];
+
+  // Try to match intent to a video style
+  const warm = ['afterglow_ritual_demo.mp4','sunrise_departure_demo.mp4','analog_memory_demo.mp4'];
+  const dark = ['midnight_city_demo.mp4','velvet_dark_demo.mp4','ghost_room_demo.mp4'];
+  const energy = ['peak_transmission_demo.mp4','euphoric_drift_demo.mp4','concrete_heat_demo.mp4'];
+  const calm = ['memory_in_motion_demo.mp4','neon_calm_demo.mp4','desert_drive_demo.mp4'];
+
+  let pool = allDemos;
+  const lowerIntent = intent.toLowerCase();
+  if (lowerIntent.includes('warm') || lowerIntent.includes('golden') || lowerIntent.includes('sunrise')) pool = warm;
+  else if (lowerIntent.includes('dark') || lowerIntent.includes('night') || lowerIntent.includes('tokyo') || lowerIntent.includes('3am')) pool = dark;
+  else if (lowerIntent.includes('energy') || lowerIntent.includes('fast') || lowerIntent.includes('intense') || lowerIntent.includes('hype')) pool = energy;
+  else if (lowerIntent.includes('calm') || lowerIntent.includes('memory') || lowerIntent.includes('slow') || lowerIntent.includes('dream')) pool = calm;
+  else if (lowerIntent.includes('grain') || lowerIntent.includes('film') || lowerIntent.includes('analog')) pool = ['analog_memory_demo.mp4','memory_in_motion_demo.mp4'];
+  else if (lowerIntent.includes('movement') || lowerIntent.includes('motion')) pool = ['euphoric_drift_demo.mp4','peak_transmission_demo.mp4'];
+
+  // Pick one that's different from current
+  const current = document.getElementById('ce-preview-video')?.src || '';
+  let pick = pool[Math.floor(Math.random() * pool.length)];
+  if (current.includes(pick) && pool.length > 1) {
+    pick = pool[(pool.indexOf(pick) + 1) % pool.length];
+  }
+
+  ceShowVideo(`/mood_demos/${pick}?v=${Date.now()}`);
+
+  // Sync Spotify art
+  const spotifyVideo = document.getElementById('ce-spotify-video');
+  if (spotifyVideo) {
+    spotifyVideo.src = `/mood_demos/${pick}?v=${Date.now()}`;
+    spotifyVideo.load();
+    spotifyVideo.play().catch(() => {});
+  }
+
+  ceSetStage('generate', 'done');
+  ceSetDetail('generate', `Applied: "${intent}"`);
+  document.getElementById('ce-status-text').textContent = 'COMPLETE';
+  const btn = document.getElementById('ce-regenerate-btn');
+  btn.classList.remove('loading');
+  btn.innerHTML = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" style="width:15px;height:15px;"><path d="M4 10a6 6 0 0111.2-3M16 10a6 6 0 01-11.2 3"/><path d="M16 4v3h-3M4 16v-3h3"/></svg> Regenerate with changes';
+}
+
+function ceUseSuggestion(el) {
+  document.getElementById('ce-intent-input').value = el.textContent;
+  ceSubmitIntent();
+}
+
+function ceSliderChange(param, value) {
+  document.getElementById(`ce-slider-${param}-val`).textContent = value;
+}
+
+function ceRegenerate() {
+  const params = {
+    warmth: document.getElementById('ce-slider-warmth').value,
+    motion: document.getElementById('ce-slider-motion').value,
+    energy: document.getElementById('ce-slider-energy').value,
+    texture: document.getElementById('ce-slider-texture').value,
+  };
+  // Build a natural language intent from slider values
+  const parts = [];
+  if (params.warmth > 70) parts.push('warmer tones');
+  else if (params.warmth < 30) parts.push('cooler, blue tones');
+  if (params.motion > 70) parts.push('more movement');
+  else if (params.motion < 30) parts.push('more stillness');
+  if (params.energy > 70) parts.push('higher energy');
+  else if (params.energy < 30) parts.push('calm and subdued');
+  if (params.texture > 70) parts.push('heavy film grain');
+  else if (params.texture < 30) parts.push('clean and digital');
+
+  const intent = parts.length > 0 ? parts.join(', ') : 'subtle refinement';
+  document.getElementById('ce-intent-input').value = intent;
+  ceSubmitIntent();
+}
+
+function ceStartSpotifyProgress() {
+  const fill = document.getElementById('ce-sp-progress-fill');
+  const timeEl = document.getElementById('ce-sp-time');
+  if (!fill) return;
+
+  let progress = 0;
+  const duration = 7; // 7 second canvas
+  const interval = setInterval(() => {
+    progress += 0.1;
+    if (progress >= duration) progress = 0;
+    fill.style.width = `${(progress / duration) * 100}%`;
+    const secs = Math.floor(progress);
+    const ms = Math.floor((progress - secs) * 10);
+    timeEl.textContent = `0:0${secs}.${ms}`;
+  }, 100);
+
+  // Store interval so we can clear it
+  window._ceSpotifyInterval = interval;
+}
+
+function ceSpotifyPlayPause() {
+  const video = document.getElementById('ce-spotify-video');
+  if (!video) return;
+  if (video.paused) { video.play(); } else { video.pause(); }
+}
+
+function ceUpdateSuggestions() {
+  const dna = currentEmotionalDna || {};
+  const suggestions = document.getElementById('ce-intent-suggestions');
+  if (!suggestions) return;
+
+  // Generate context-aware suggestions
+  const contextSuggestions = [];
+  if (dna.valence < 0.4) {
+    contextSuggestions.push('more melancholy', 'rain-soaked', 'late night vibes');
+  } else if (dna.valence > 0.7) {
+    contextSuggestions.push('euphoric', 'golden light', 'festival energy');
+  }
+  if (dna.bpm && dna.bpm > 120) {
+    contextSuggestions.push('faster cuts', 'strobe flashes', 'raw energy');
+  } else if (dna.bpm && dna.bpm < 90) {
+    contextSuggestions.push('slow drift', 'breathing room', 'meditative');
+  }
+  // Add genre-specific
+  const genres = dna.genre_predictions || {};
+  if (genres.hip_hop > 0.5) contextSuggestions.push('concrete jungle', 'neon streets');
+  if (genres.electronic > 0.5) contextSuggestions.push('liquid metal', 'circuit boards');
+
+  // Default fallbacks
+  const defaults = ['warmer tones', 'more movement', 'darker mood', 'film grain', 'slow motion'];
+  const finalSuggestions = contextSuggestions.length > 3 ? contextSuggestions.slice(0, 5) : defaults;
+
+  suggestions.innerHTML = finalSuggestions
+    .map(s => `<button class="ce-suggestion" onclick="ceUseSuggestion(this)">${s}</button>`)
+    .join('');
+}
+
+function ceExport(platform) {
+  const formats = {
+    spotify: { name: 'Spotify Canvas', ratio: '9:16', duration: '7s' },
+    reels: { name: 'Instagram Reels', ratio: '9:16', duration: '15-30s' },
+    tiktok: { name: 'TikTok', ratio: '9:16', duration: '15-60s' },
+    youtube: { name: 'YouTube', ratio: '16:9', duration: 'Full' },
+    apple: { name: 'Apple Music', ratio: '9:16', duration: '7s' },
+    raw: { name: 'Raw Files', ratio: 'Original', duration: 'All' },
+  };
+  const fmt = formats[platform] || formats.spotify;
+  // TODO: Real export when GPU server connected
+  alert(`Exporting for ${fmt.name} (${fmt.ratio}, ${fmt.duration})\n\nThis will be available when connected to the generation server.`);
 }
 
 function ceShowActionBar(trackName) {
