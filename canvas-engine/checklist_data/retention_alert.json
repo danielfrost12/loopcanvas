@@ -1,0 +1,12 @@
+{
+  "timestamp": "2026-02-06T17:44:39.705528",
+  "metric_value": 0.0,
+  "threshold": 30.0,
+  "message": "Week 1 retention below 30%. Review onboarding flow and first-run experience.",
+  "suggested_actions": [
+    "Analyze user drop-off points in session logs",
+    "Review first-generation quality for new users",
+    "Check if demo tracks produce good results",
+    "Consider adding guided first-run tutorial"
+  ]
+}
