@@ -1006,10 +1006,9 @@ class LoopCanvasHandler(SimpleHTTPRequestHandler):
                 "--out", str(output_dir / "regen"),
             ]
 
-            if params.get('style'):
-                cmd.extend(["--style", params['style']])
-
             env = os.environ.copy()
+            if params.get('style'):
+                env["LOOPCANVAS_STYLE"] = params['style']
             env["LOOPCANVAS_GRAIN"] = str(params.get('grain', 0.4))
             env["LOOPCANVAS_VIGNETTE"] = str(params.get('vignette', 0.5))
             env["LOOPCANVAS_GLOW"] = str(params.get('glow', 0.6))

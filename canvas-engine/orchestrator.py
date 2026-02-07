@@ -521,13 +521,13 @@ class CanvasOrchestrator:
             'midnight_drift': 'neon_calm',
         }
         style_name = style_map.get(selected['director_style'], 'memory_in_motion')
-        cmd.extend(["--style", style_name])
 
         if mode == "fast":
             cmd.append("--fast")
 
         # Pass director params as environment variables
         env = os.environ.copy()
+        env["LOOPCANVAS_STYLE"] = style_name
         params = selected.get('params', {})
         env["LOOPCANVAS_GRAIN"] = str(params.get('grain', 0.18))
         env["LOOPCANVAS_SATURATION"] = str(params.get('saturation', 0.75))
