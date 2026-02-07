@@ -11,6 +11,7 @@
     { "src": "*_config.json", "use": "@vercel/static" }
   ],
   "routes": [
+    { "src": "/api/health", "dest": "/api/health.py" },
     { "src": "/api/configs", "dest": "/api/configs.py" },
     { "src": "/api/track", "dest": "/api/track.py" },
     { "src": "/api/v2/status/(.*)", "dest": "/api/v2/status/[job_id].py" },

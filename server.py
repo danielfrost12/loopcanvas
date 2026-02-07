@@ -170,6 +170,16 @@ class LoopCanvasHandler(SimpleHTTPRequestHandler):
         """Route GET requests."""
         parsed = urlparse(self.path)
 
+        # === Health check (GPU liveness) ===
+        if parsed.path == "/api/health":
+            self.send_json_response({
+                "gpu": "live",
+                "server": "loopcanvas-gpu",
+                "port": PORT,
+                "timestamp": datetime.now().isoformat(),
+            })
+            return
+
         # === v2.0 endpoints ===
         if parsed.path.startswith("/api/v2/directions/"):
             job_id = parsed.path.split("/")[-1]
