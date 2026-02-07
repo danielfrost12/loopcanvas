@@ -2218,33 +2218,113 @@ body {
 .ce-gen-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,0.7);
-  backdrop-filter: blur(10px);
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(20px);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 20px;
+  gap: 12px;
   z-index: 4;
+  padding: 40px 32px;
+  text-align: center;
+}
+.ce-gen-headline {
+  font-size: 28px;
+  font-weight: 600;
+  color: #fff;
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+.ce-gen-headline span {
+  background: linear-gradient(135deg, var(--accent), #a855f7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 .ce-gen-label {
-  font-size: 16px;
-  color: rgba(255,255,255,0.7);
+  font-size: 15px;
+  color: rgba(255,255,255,0.5);
   font-family: var(--font-body);
+  max-width: 280px;
+  line-height: 1.5;
+}
+.ce-gen-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 16px 0 8px;
+  width: 100%;
+  max-width: 260px;
+}
+.ce-gen-step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.3);
+  font-family: var(--font-body);
+  transition: color 0.4s ease, opacity 0.4s ease;
+}
+.ce-gen-step.active {
+  color: rgba(255,255,255,0.9);
+}
+.ce-gen-step.done {
+  color: rgba(255,255,255,0.4);
+}
+.ce-gen-step-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  flex-shrink: 0;
+  transition: all 0.4s ease;
+}
+.ce-gen-step.active .ce-gen-step-icon {
+  border-color: var(--accent);
+  box-shadow: 0 0 12px rgba(168,85,247,0.3);
+}
+.ce-gen-step.done .ce-gen-step-icon {
+  border-color: rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.08);
+}
+@keyframes genPulse { 0%,100%{opacity:0.4} 50%{opacity:1} }
+.ce-gen-step.active .ce-gen-step-icon::after {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: genPulse 1.5s ease infinite;
 }
 .ce-progress-bar {
   width: 200px;
   height: 3px;
-  background: rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.08);
   border-radius: 2px;
   overflow: hidden;
+  margin-top: 4px;
 }
 .ce-progress-fill {
   height: 100%;
-  background: var(--accent);
+  background: linear-gradient(90deg, var(--accent), #a855f7);
   border-radius: 2px;
   width: 0%;
-  transition: width 0.5s ease;
+  transition: width 0.8s ease;
+}
+.ce-gen-eta {
+  font-size: 14px;
+  color: rgba(255,255,255,0.35);
+  font-family: var(--font-body);
+  margin-top: 4px;
+}
+.ce-gen-eta strong {
+  color: rgba(255,255,255,0.7);
+  font-weight: 500;
 }
 
 /* Bottom drawer — creative tools */
@@ -4492,8 +4572,17 @@ select {
 
       <!-- Progress overlay during generation -->
       <div class="ce-gen-overlay" id="ce-gen-overlay" style="display:none;">
-        <div class="ce-gen-label" id="ce-gen-label">Generating your canvas...</div>
+        <div class="ce-gen-headline"><span>Your Canvas</span><br>is being created...</div>
+        <div class="ce-gen-label" id="ce-gen-label">Our AI director is crafting a visual world unique to your track's emotional DNA.</div>
+        <div class="ce-gen-steps" id="ce-gen-steps">
+          <div class="ce-gen-step" id="ce-gstep-analyze"><div class="ce-gen-step-icon"></div>Analyzing audio structure</div>
+          <div class="ce-gen-step" id="ce-gstep-concept"><div class="ce-gen-step-icon"></div>Building visual concept</div>
+          <div class="ce-gen-step" id="ce-gstep-scenes"><div class="ce-gen-step-icon"></div>Generating scenes on H100 GPU</div>
+          <div class="ce-gen-step" id="ce-gstep-render"><div class="ce-gen-step-icon"></div>Rendering seamless loop</div>
+          <div class="ce-gen-step" id="ce-gstep-quality"><div class="ce-gen-step-icon"></div>Quality validation</div>
+        </div>
         <div class="ce-progress-bar"><div class="ce-progress-fill" id="ce-generate-fill"></div></div>
+        <div class="ce-gen-eta" id="ce-gen-eta">It will be ready in: <strong>~3 minutes</strong></div>
       </div>
     </div>
 
@@ -5128,10 +5217,14 @@ function ceSetStage(stageName, state) {
     if (statusText) statusText.textContent = 'GENERATING';
     // Show generation overlay
     genOverlay.style.display = 'flex';
-    if (genLabel) genLabel.textContent = 'Generating your canvas...';
+    // Start ETA countdown
+    window._genStartTime = Date.now();
+    window._genEtaInterval = setInterval(updateGenEta, 1000);
+    updateGenSteps(0);
   }
   if (stageName === 'generate' && state === 'done') {
     if (genOverlay) genOverlay.style.display = 'none';
+    if (window._genEtaInterval) { clearInterval(window._genEtaInterval); window._genEtaInterval = null; }
   }
   if (stageName === 'validate' && state === 'done') {
     if (statusText) statusText.textContent = 'COMPLETE';
@@ -5607,6 +5700,47 @@ function stopFunMessages() {
   }
 }
 
+function updateGenSteps(progress) {
+  // Map progress % to generation steps
+  const steps = [
+    { id: 'ce-gstep-analyze',  min: 0,  max: 50 },
+    { id: 'ce-gstep-concept',  min: 50, max: 60 },
+    { id: 'ce-gstep-scenes',   min: 60, max: 80 },
+    { id: 'ce-gstep-render',   min: 80, max: 92 },
+    { id: 'ce-gstep-quality',  min: 92, max: 100 },
+  ];
+  steps.forEach(s => {
+    const el = document.getElementById(s.id);
+    if (!el) return;
+    if (progress >= s.max) {
+      el.className = 'ce-gen-step done';
+      el.querySelector('.ce-gen-step-icon').innerHTML = '<svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 5l2.5 2.5L8 3" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" fill="none"/></svg>';
+    } else if (progress >= s.min) {
+      el.className = 'ce-gen-step active';
+      el.querySelector('.ce-gen-step-icon').innerHTML = '';
+    } else {
+      el.className = 'ce-gen-step';
+      el.querySelector('.ce-gen-step-icon').innerHTML = '';
+    }
+  });
+}
+
+function updateGenEta() {
+  const eta = document.getElementById('ce-gen-eta');
+  if (!eta || !window._genStartTime) return;
+  const elapsed = Math.floor((Date.now() - window._genStartTime) / 1000);
+  const totalEstimate = 180; // ~3 minutes for cloud mode
+  const remaining = Math.max(0, totalEstimate - elapsed);
+  if (remaining > 60) {
+    const mins = Math.ceil(remaining / 60);
+    eta.innerHTML = `It will be ready in: <strong>~${mins} minute${mins > 1 ? 's' : ''}</strong>`;
+  } else if (remaining > 0) {
+    eta.innerHTML = `It will be ready in: <strong>~${remaining} seconds</strong>`;
+  } else {
+    eta.innerHTML = `<strong>Finishing up...</strong>`;
+  }
+}
+
 function pollJobStatus(jobId) {
   let errorCount = 0;
   const startedAt = Date.now();
@@ -5637,6 +5771,7 @@ function pollJobStatus(jobId) {
 
       // Update Canvas Engine progress bar
       document.getElementById('ce-generate-fill').style.width = `${progress}%`;
+      updateGenSteps(progress);
 
       // Stall detection: if progress unchanged for 120s while generating
       if (progress !== lastProgress) {
@@ -5648,6 +5783,11 @@ function pollJobStatus(jobId) {
         detailMsg += ' (stalled — GPU may need restart)';
       }
       ceSetDetail('generate', detailMsg);
+      // Update sub-label with current step description
+      const genLabel = document.getElementById('ce-gen-label');
+      if (genLabel && job.message && job.message !== detailMsg) {
+        genLabel.textContent = job.message;
+      }
 
       if (job.status === 'complete') {
         stopFunMessages();

@@ -39,6 +39,6 @@
     { "src": "/(.*)", "dest": "/index.html" }
   ],
   "env": {
-    "LOOPCANVAS_MODE": "fast"
+    "LOOPCANVAS_MODE": "cloud"
   }
 }

@@ -492,13 +492,12 @@ class CanvasOrchestrator:
         with open(concept_path, 'w') as f:
             json.dump(concept, f, indent=2)
 
-        # Cost check before generation
-        mode = os.environ.get("LOOPCANVAS_MODE", "fast")
+        # Mode selection: cloud for user jobs (fast SLA), fast as fallback
+        mode = os.environ.get("LOOPCANVAS_MODE", "cloud")
         if mode == "cloud":
-            if not self.enforcer.can_spend("modal", 0.12, "canvas_generation"):
-                alt = self.enforcer.get_free_alternative("modal")
-                job.message = f"Cloud generation blocked by $0 rule. Using: {alt}"
-                mode = "fast"  # Fallback to free tier
+            print(f"[Orchestrator] Using cloud mode (Modal H100) for job {job_id}")
+        else:
+            print(f"[Orchestrator] Using local mode ({mode}) for job {job_id}")
 
         # Build pipeline command with director params
         pipeline_script = str(ROOT_DIR / "loopcanvas_grammy.py")
@@ -527,6 +526,7 @@ class CanvasOrchestrator:
 
         # Pass director params as environment variables
         env = os.environ.copy()
+        env["LOOPCANVAS_MODE"] = mode  # Ensure subprocess inherits the correct mode
         env["LOOPCANVAS_STYLE"] = style_name
         params = selected.get('params', {})
         env["LOOPCANVAS_GRAIN"] = str(params.get('grain', 0.18))

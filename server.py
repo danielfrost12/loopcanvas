@@ -455,6 +455,8 @@ class LoopCanvasHandler(SimpleHTTPRequestHandler):
             def run():
                 try:
                     acquire_gpu("user", job_id)
+                    # Force cloud mode for user-facing jobs (H100 GPU, ~30s per clip)
+                    os.environ["LOOPCANVAS_MODE"] = "cloud"
                     result = orch.select_direction_and_generate(
                         job_id, direction_id, output_dir
                     )
@@ -1520,8 +1522,8 @@ def run_server():
 ║           LoopCanvas v2.0 — Canvas Agent Army            ║
 ╠══════════════════════════════════════════════════════════╣
 ║  Server:    http://localhost:{PORT}                        ║
-║  Mode:      {os.environ.get('LOOPCANVAS_MODE', 'fast'):12s}                         ║
-║  Cost:      $0 ceiling enforced                          ║
+║  Mode:      {os.environ.get('LOOPCANVAS_MODE', 'cloud'):12s}                         ║
+║  Cost:      Modal H100 ~$0.15/generation                 ║
 ║  Seed:      {seed_status:42s} ║
 ║                                                          ║
 ║  v1 API:    /api/upload, /api/generate, /api/status      ║
