@@ -1,22 +1,10 @@
 """
 GET /api/status/:job_id — Check generation status
-In serverless mode: proxies to GPU server or returns demo status
+Proxies to GPU server. No demo fallback.
 """
 import json
 import os
-import random
 from http.server import BaseHTTPRequestHandler
-
-
-# Demo video pool
-DEMO_VIDEOS = [
-    "memory_in_motion_demo.mp4",
-    "analog_memory_demo.mp4",
-    "midnight_city_demo.mp4",
-    "concrete_heat_demo.mp4",
-    "desert_drive_demo.mp4",
-    "euphoric_drift_demo.mp4",
-]
 
 
 class handler(BaseHTTPRequestHandler):
@@ -31,40 +19,39 @@ class handler(BaseHTTPRequestHandler):
 
         # Check GPU generation server
         gen_server = os.environ.get('GENERATION_SERVER', '')
+        gpu_error = None
 
         if gen_server:
             import urllib.request
+            import urllib.error
             try:
                 req = urllib.request.Request(
                     f"{gen_server}/api/status/{job_id}",
-                    method="GET"
+                    method="GET",
+                    headers={"Bypass-Tunnel-Reminder": "true"},
                 )
-                with urllib.request.urlopen(req, timeout=10) as resp:
+                with urllib.request.urlopen(req, timeout=30) as resp:
                     result = json.loads(resp.read())
+                    result["mode"] = "gpu"
                     self._json(200, result)
                     return
+            except urllib.error.HTTPError as e:
+                try:
+                    error_body = json.loads(e.read())
+                    error_body["mode"] = "gpu"
+                    self._json(e.code, error_body)
+                except Exception:
+                    self._json(e.code, {"error": str(e), "mode": "gpu"})
+                return
             except Exception as e:
+                gpu_error = str(e)
                 print(f"[Status] GPU server error: {e}")
 
-        # Demo mode: return a completed status with a random demo video
-        demo_video = random.choice(DEMO_VIDEOS)
-        self._json(200, {
-            "job_id": job_id,
-            "status": "complete",
-            "progress": 100,
-            "message": "Canvas generated",
-            "quality_score": round(random.uniform(8.8, 9.6), 1),
-            "outputs": {
-                "canvas": f"/mood_demos/{demo_video}",
-            },
-            "emotional_dna": {
-                "bpm": random.choice([85, 92, 110, 126, 140]),
-                "key": random.choice(["C minor", "D major", "A minor", "F# minor", "Bb major"]),
-                "valence": round(random.uniform(0.1, 0.9), 2),
-                "arousal": round(random.uniform(0.3, 0.9), 2),
-                "genre_predictions": {"electronic": 0.6, "hip_hop": 0.3},
-            },
-            "filename": "track.mp3",
+        # GPU server unreachable — return error, never fall back to demo
+        self._json(503, {
+            "error": "GPU server unreachable",
+            "gpu_error": gpu_error,
+            "mode": "error",
         })
 
     def _json(self, code, data):

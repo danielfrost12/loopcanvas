@@ -75,56 +75,43 @@ class handler(BaseHTTPRequestHandler):
 
         # Check GPU server
         gen_server = os.environ.get('GENERATION_SERVER', '')
+        gpu_error = None
         if gen_server:
             import urllib.request
+            import urllib.error
             try:
                 req = urllib.request.Request(
                     f"{gen_server}/api/v2/analyze",
                     data=json.dumps(data).encode(),
-                    headers={"Content-Type": "application/json"},
+                    headers={
+                        "Content-Type": "application/json",
+                        "Bypass-Tunnel-Reminder": "true",
+                    },
                     method="POST"
                 )
-                with urllib.request.urlopen(req, timeout=30) as resp:
+                with urllib.request.urlopen(req, timeout=60) as resp:
                     result = json.loads(resp.read())
+                    result["mode"] = "gpu"
                     self._json(200, result)
                     return
+            except urllib.error.HTTPError as e:
+                # GPU server responded with an error — forward it, don't fall back
+                try:
+                    error_body = json.loads(e.read())
+                    error_body["mode"] = "gpu"
+                    self._json(e.code, error_body)
+                except Exception:
+                    self._json(e.code, {"error": str(e), "mode": "gpu"})
+                return
             except Exception as e:
+                gpu_error = str(e)
                 print(f"[Analyze] GPU server error: {e}")
 
-        # Demo mode: return synthetic emotional DNA + directions
-        bpm = random.choice([85, 92, 105, 110, 126, 140])
-        key = random.choice(["C minor", "D major", "A minor", "F# minor", "Bb major", "E minor"])
-        valence = round(random.uniform(0.1, 0.9), 2)
-
-        # Pick 3-5 directors based on "mood"
-        shuffled = list(DIRECTORS)
-        random.shuffle(shuffled)
-        directions = shuffled[:random.randint(3, 5)]
-
-        self._json(200, {
-            "success": True,
-            "job_id": job_id,
-            "emotional_dna": {
-                "bpm": bpm,
-                "key": key,
-                "mode": "minor" if "minor" in key else "major",
-                "valence": valence,
-                "arousal": round(random.uniform(0.3, 0.9), 2),
-                "dominance": round(random.uniform(0.3, 0.8), 2),
-                "brightness": round(random.uniform(0.1, 0.8), 2),
-                "warmth": round(random.uniform(0.3, 0.9), 2),
-                "texture": random.choice(["sparse", "dense", "layered", "atmospheric"]),
-                "genre_predictions": {
-                    "hip_hop": round(random.uniform(0, 1), 2),
-                    "electronic": round(random.uniform(0, 1), 2),
-                    "r_and_b": round(random.uniform(0, 0.5), 2),
-                },
-                "cinematographer_match": directions[0]["director_style"],
-                "suggested_colors": directions[0]["color_palette"][:3],
-                "suggested_motion": directions[0]["motion_style"].split(",")[0].strip().lower(),
-            },
-            "directions": directions,
-            "duration_seconds": round(random.uniform(120, 300), 1),
+        # GPU server unreachable — return error, never fall back to demo
+        self._json(503, {
+            "error": "GPU server unreachable",
+            "gpu_error": gpu_error,
+            "mode": "error",
         })
 
     def _json(self, code, data):

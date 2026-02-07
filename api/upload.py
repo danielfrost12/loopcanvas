@@ -22,8 +22,10 @@ class handler(BaseHTTPRequestHandler):
 
         # If GPU server is available, proxy the entire upload
         gen_server = os.environ.get('GENERATION_SERVER', '')
+        gpu_error = None
         if gen_server:
             import urllib.request
+            import urllib.error
             try:
                 req = urllib.request.Request(
                     f"{gen_server}/api/upload",
@@ -31,67 +33,40 @@ class handler(BaseHTTPRequestHandler):
                     headers={
                         "Content-Type": content_type,
                         "Content-Length": str(len(body)),
+                        "Bypass-Tunnel-Reminder": "true",
                     },
                     method="POST"
                 )
-                with urllib.request.urlopen(req, timeout=60) as resp:
+                with urllib.request.urlopen(req, timeout=120) as resp:
                     result = json.loads(resp.read())
+                    result["mode"] = "gpu"
                     self._json(200, result)
                     return
+            except urllib.error.HTTPError as e:
+                try:
+                    error_body = json.loads(e.read())
+                    error_body["mode"] = "gpu"
+                    self._json(e.code, error_body)
+                except Exception:
+                    self._json(e.code, {"error": str(e), "mode": "gpu"})
+                return
             except Exception as e:
+                gpu_error = str(e)
                 print(f"[Upload] GPU proxy error: {e}")
-                # Fall through to local handling
 
-        # Local/demo mode: parse multipart and save to /tmp
-        boundary = None
-        for part in content_type.split(';'):
-            part = part.strip()
-            if part.startswith('boundary='):
-                boundary = part[9:].strip('"')
-                break
-
-        if not boundary:
-            self._json(400, {"error": "No boundary found"})
+        # GPU server unreachable — return error, never fall back to demo
+        if gen_server:
+            self._json(503, {
+                "error": "GPU server unreachable",
+                "gpu_error": gpu_error,
+                "mode": "error",
+            })
             return
 
-        boundary_bytes = boundary.encode()
-        parts = body.split(b'--' + boundary_bytes)
-        filename = "track.mp3"
-        file_data = None
-
-        for part in parts:
-            if b'Content-Disposition' in part:
-                header_end = part.find(b'\r\n\r\n')
-                if header_end == -1:
-                    continue
-                headers = part[:header_end].decode('utf-8', errors='replace')
-                data = part[header_end + 4:]
-                if data.endswith(b'\r\n'):
-                    data = data[:-2]
-
-                if 'filename=' in headers:
-                    fn_start = headers.find('filename="')
-                    if fn_start != -1:
-                        fn_start += 10
-                        fn_end = headers.find('"', fn_start)
-                        filename = headers[fn_start:fn_end]
-                    file_data = data
-
-        if file_data is None:
-            self._json(400, {"error": "No file found in upload"})
-            return
-
-        job_id = uuid.uuid4().hex[:8]
-
-        # Save to /tmp
-        tmp_path = os.path.join(tempfile.gettempdir(), f"{job_id}_{filename}")
-        with open(tmp_path, 'wb') as f:
-            f.write(file_data)
-
-        self._json(200, {
-            "success": True,
-            "job_id": job_id,
-            "filename": filename,
+        # No GPU server configured at all — return error
+        self._json(503, {
+            "error": "No generation server configured",
+            "mode": "error",
         })
 
     def _json(self, code, data):
