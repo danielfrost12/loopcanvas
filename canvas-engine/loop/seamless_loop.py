@@ -157,8 +157,8 @@ class CanvasLoopEngine:
                 crossfade_frames = max(3, int(fps * 0.2))  # 0.2 second crossfade
 
         return LoopAnalysis(
-            is_seamless=seamlessness >= self.MINIMUM_SEAMLESSNESS,
-            seamlessness_score=round(seamlessness, 2),
+            is_seamless=bool(seamlessness >= self.MINIMUM_SEAMLESSNESS),
+            seamlessness_score=round(float(seamlessness), 2),
             optimal_loop_start=optimal_start,
             optimal_loop_end=optimal_end,
             recommended_crossfade_frames=crossfade_frames,

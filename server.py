@@ -46,6 +46,8 @@ from urllib.parse import parse_qs, urlparse
 import threading
 import time
 
+from gpu_lock import acquire_gpu, release_gpu, is_gpu_busy, get_gpu_status
+
 # Add parent dir and canvas-engine to path
 APP_DIR = Path(__file__).parent
 ENGINE_DIR = APP_DIR / "canvas-engine"
@@ -61,6 +63,36 @@ PORT = 8888
 
 UPLOAD_DIR.mkdir(exist_ok=True)
 OUTPUT_DIR.mkdir(exist_ok=True)
+
+# Custom JSON encoder for numpy types
+class NumpyEncoder(json.JSONEncoder):
+    """Handle numpy types that json.dumps can't serialize natively."""
+    def default(self, obj):
+        try:
+            import numpy as np
+            if isinstance(obj, (np.bool_,)):
+                return bool(obj)
+            if isinstance(obj, (np.integer,)):
+                return int(obj)
+            if isinstance(obj, (np.floating,)):
+                return float(obj)
+            if isinstance(obj, np.ndarray):
+                return obj.tolist()
+        except ImportError:
+            pass
+        return super().default(obj)
+
+# Server start time for uptime tracking
+SERVER_START_TIME = time.time()
+
+# Structured logging for critical paths
+import logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s] %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+logger = logging.getLogger('loopcanvas')
 
 # Track active jobs (v1 legacy)
 active_jobs = {}
@@ -128,6 +160,19 @@ class LoopCanvasHandler(SimpleHTTPRequestHandler):
 
     def do_POST(self):
         """Route POST requests."""
+        try:
+            self._route_post()
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            logger.error(f"Unhandled POST error on {self.path}: {e}")
+            try:
+                self.send_json_error(f"Internal server error", 500)
+            except Exception:
+                pass
+
+    def _route_post(self):
+        """Internal POST routing."""
         # === v2.0 endpoints ===
         if self.path == "/api/v2/analyze":
             self.handle_v2_analyze()
@@ -168,6 +213,19 @@ class LoopCanvasHandler(SimpleHTTPRequestHandler):
 
     def do_GET(self):
         """Route GET requests."""
+        try:
+            self._route_get()
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            logger.error(f"Unhandled GET error on {self.path}: {e}")
+            try:
+                self.send_json_error(f"Internal server error", 500)
+            except Exception:
+                pass
+
+    def _route_get(self):
+        """Internal GET routing."""
         parsed = urlparse(self.path)
 
         # === Health check (GPU liveness) ===
@@ -178,6 +236,14 @@ class LoopCanvasHandler(SimpleHTTPRequestHandler):
                 "port": PORT,
                 "timestamp": datetime.now().isoformat(),
             })
+            return
+
+        elif parsed.path == "/api/gpu/status":
+            self.send_json_response(get_gpu_status())
+            return
+
+        elif parsed.path == "/api/admin/health":
+            self.handle_admin_health()
             return
 
         # === v2.0 endpoints ===
@@ -204,6 +270,65 @@ class LoopCanvasHandler(SimpleHTTPRequestHandler):
             super().do_GET()
         else:
             super().do_GET()
+
+    # ══════════════════════════════════════════════════════════════
+    # ADMIN / OBSERVABILITY ENDPOINTS
+    # ══════════════════════════════════════════════════════════════
+
+    def handle_admin_health(self):
+        """GET /api/admin/health — Full system health. Replaces 'check logs'."""
+        import shutil
+
+        # Jobs by status
+        jobs_by_status = {}
+        recent_errors = []
+        for jid, job in active_jobs.items():
+            status = job.get("status", "unknown")
+            jobs_by_status[status] = jobs_by_status.get(status, 0) + 1
+            if status in ("error", "failed", "dead"):
+                recent_errors.append({
+                    "job_id": jid,
+                    "status": status,
+                    "message": job.get("message", ""),
+                    "created_at": job.get("created_at", ""),
+                })
+
+        # Disk usage
+        def dir_size_mb(path):
+            try:
+                total = sum(f.stat().st_size for f in Path(path).rglob('*') if f.is_file())
+                return round(total / (1024 * 1024), 1)
+            except Exception:
+                return 0
+
+        # Free disk space
+        try:
+            disk = shutil.disk_usage(str(APP_DIR))
+            free_gb = round(disk.free / (1024**3), 1)
+        except Exception:
+            free_gb = -1
+
+        self.send_json_response({
+            "server": {
+                "uptime_seconds": round(time.time() - SERVER_START_TIME),
+                "active_jobs": len(active_jobs),
+                "jobs_by_status": jobs_by_status,
+                "port": PORT,
+                "pid": os.getpid(),
+            },
+            "gpu": get_gpu_status(),
+            "seed_runner": {
+                "active": os.environ.get("LOOPCANVAS_SEED", "1") == "1",
+            },
+            "recent_errors": recent_errors[-10:],  # Last 10
+            "disk": {
+                "outputs_mb": dir_size_mb(OUTPUT_DIR),
+                "uploads_mb": dir_size_mb(UPLOAD_DIR),
+                "free_gb": free_gb,
+            },
+            "orchestrator_loaded": _orchestrator is not None,
+            "timestamp": datetime.now().isoformat(),
+        })
 
     # ══════════════════════════════════════════════════════════════
     # v2.0 API HANDLERS
@@ -326,23 +451,34 @@ class LoopCanvasHandler(SimpleHTTPRequestHandler):
 
             output_dir = str(OUTPUT_DIR / job_id)
 
-            # Run generation in background thread
+            # Run generation in background thread — crash-safe
             def run():
-                result = orch.select_direction_and_generate(
-                    job_id, direction_id, output_dir
-                )
-                # Sync back to legacy job dict
-                if job_id in active_jobs and result:
-                    active_jobs[job_id]["status"] = result.status
-                    active_jobs[job_id]["progress"] = result.progress
-                    active_jobs[job_id]["message"] = result.message
-                    active_jobs[job_id]["output_dir"] = output_dir
-                    if result.outputs:
-                        active_jobs[job_id]["outputs"] = result.outputs
-                    if result.quality_score:
-                        active_jobs[job_id]["quality_score"] = result.quality_score
-                    if result.loop_analysis:
-                        active_jobs[job_id]["loop_analysis"] = result.loop_analysis
+                try:
+                    acquire_gpu("user", job_id)
+                    result = orch.select_direction_and_generate(
+                        job_id, direction_id, output_dir
+                    )
+                    # Sync back to legacy job dict
+                    if job_id in active_jobs and result:
+                        active_jobs[job_id]["status"] = result.status
+                        active_jobs[job_id]["progress"] = result.progress
+                        active_jobs[job_id]["message"] = result.message
+                        active_jobs[job_id]["output_dir"] = output_dir
+                        if result.outputs:
+                            active_jobs[job_id]["outputs"] = result.outputs
+                        if result.quality_score:
+                            active_jobs[job_id]["quality_score"] = result.quality_score
+                        if result.loop_analysis:
+                            active_jobs[job_id]["loop_analysis"] = result.loop_analysis
+                except Exception as e:
+                    import traceback
+                    traceback.print_exc()
+                    logger.error(f"Generation thread CRASHED for job {job_id}: {e}")
+                    if job_id in active_jobs:
+                        active_jobs[job_id]["status"] = "error"
+                        active_jobs[job_id]["message"] = f"Generation crashed: {str(e)}"
+                finally:
+                    release_gpu()
 
             thread = threading.Thread(target=run, daemon=True)
             thread.start()
@@ -1314,12 +1450,20 @@ class LoopCanvasHandler(SimpleHTTPRequestHandler):
         return json.loads(body)
 
     def send_json_response(self, data, status=200):
-        """Send JSON response."""
+        """Send JSON response — self-healing, never returns 0-byte body."""
+        try:
+            body = json.dumps(data, cls=NumpyEncoder)
+        except (TypeError, ValueError) as e:
+            # Fallback: return error JSON instead of crashing with empty response
+            body = json.dumps({"error": f"Serialization failed: {str(e)}",
+                             "original_keys": list(data.keys()) if isinstance(data, dict) else str(type(data))})
+            status = 500
+            logger.error(f"JSON serialization error: {e}")
         self.send_response(status)
         self.send_header('Content-Type', 'application/json')
         self.send_header('Access-Control-Allow-Origin', '*')
         self.end_headers()
-        self.wfile.write(json.dumps(data).encode())
+        self.wfile.write(body.encode())
 
     def send_json_error(self, message, status=400):
         """Send JSON error response."""

@@ -566,6 +566,17 @@ class CanvasOrchestrator:
                 elif "[6/7]" in line:
                     job.progress = 70
                     job.message = "Generating visuals..."
+                elif "[CLIP_PROGRESS]" in line:
+                    # Parse: [CLIP_PROGRESS] 2/7 clips
+                    try:
+                        parts = line.split("[CLIP_PROGRESS]")[1].strip().split("/")
+                        done = int(parts[0])
+                        total = int(parts[1].split()[0])
+                        pct = 70 + int((done / max(total, 1)) * 10)  # 70-80%
+                        job.progress = min(pct, 80)
+                        job.message = f"Generating scene {done} of {total}..."
+                    except Exception:
+                        pass
                 elif "[7/7]" in line:
                     job.progress = 80
                     job.message = "Rendering..."
@@ -640,6 +651,7 @@ class CanvasOrchestrator:
             score = self.quality_gate.evaluate(str(canvas_path), job.emotional_dna)
             job.quality_score = score
         except Exception as e:
+            print(f"[Orchestrator] WARNING: Quality gate crashed for job: {e}")
             job.quality_score = {'overall_score': 0, 'passed': False, 'issues': [str(e)]}
 
     # ──────────────────────────────────────────────────────────────
@@ -679,6 +691,7 @@ class CanvasOrchestrator:
                     job.loop_analysis['fix_message'] = msg
 
         except Exception as e:
+            print(f"[Orchestrator] WARNING: Loop validation crashed for job: {e}")
             job.loop_analysis = {'is_seamless': False, 'score': 0, 'issues': [str(e)]}
 
     # ──────────────────────────────────────────────────────────────
@@ -695,7 +708,7 @@ class CanvasOrchestrator:
 
         if canvas_path.exists() and not web_canvas.exists():
             # Re-encode for web
-            subprocess.run([
+            ffmpeg_result = subprocess.run([
                 "ffmpeg", "-y",
                 "-i", str(canvas_path),
                 "-c:v", "libx264", "-profile:v", "baseline",
@@ -703,7 +716,16 @@ class CanvasOrchestrator:
                 "-movflags", "+faststart",
                 "-c:a", "aac", "-b:a", "128k",
                 str(web_canvas)
-            ], capture_output=True)
+            ], capture_output=True, text=True)
+            if ffmpeg_result.returncode != 0:
+                print(f"[Orchestrator] FFmpeg web re-encode failed (code {ffmpeg_result.returncode}): {ffmpeg_result.stderr[:300] if ffmpeg_result.stderr else 'no stderr'}")
+                # Fallback: copy raw canvas as web version
+                import shutil
+                try:
+                    shutil.copy2(str(canvas_path), str(web_canvas))
+                    print(f"[Orchestrator] Fell back to copying raw canvas as web version")
+                except Exception as copy_err:
+                    print(f"[Orchestrator] Fallback copy also failed: {copy_err}")
 
         # Check what outputs exist
         outputs = {}
@@ -724,6 +746,19 @@ class CanvasOrchestrator:
         job.status = "complete"
         job.progress = 100
         job.message = "Canvas complete!"
+
+        # Final output verification
+        if job.outputs:
+            canvas_url = job.outputs.get("canvas", "")
+            if canvas_url:
+                actual_path = Path(job.output_dir) / Path(canvas_url).name
+                if not actual_path.exists():
+                    # Try resolving differently
+                    actual_path = Path(job.output_dir) / canvas_url.split("/")[-1]
+                if not actual_path.exists() or actual_path.stat().st_size < 5000:
+                    job.status = "error"
+                    job.message = f"Output file missing or corrupted ({actual_path.name})"
+                    print(f"[Orchestrator] CRITICAL: Job {job.job_id} output missing: {actual_path}")
 
     # ──────────────────────────────────────────────────────────────
     # Iteration: Sub-3-second adjustments

@@ -51,6 +51,15 @@ sys.path.insert(0, str(ROOT_DIR))
 
 from agents.optimization_loop import OptimizationLoop, CanvasResult
 
+# GPU mutex — coordinate with server.py user jobs
+sys.path.insert(0, str(APP_DIR))
+try:
+    from gpu_lock import is_gpu_busy, acquire_gpu, release_gpu
+except ImportError:
+    is_gpu_busy = lambda: False
+    acquire_gpu = lambda *a: None
+    release_gpu = lambda: None
+
 
 # ══════════════════════════════════════════════════════════════
 # Configuration
@@ -274,6 +283,15 @@ class SeedRunner:
         env["LOOPCANVAS_BLUR"] = str(params.get("blur", 1.0))
         env["LOOPCANVAS_MOTION_INTENSITY"] = str(params.get("motion_intensity", 0.4))
 
+        # Wait for GPU if user job is active
+        wait_start = time.time()
+        while is_gpu_busy():
+            if time.time() - wait_start > 300:
+                print(f"    [Seed] GPU busy for 5 min, skipping this generation")
+                return False, 0.0, 0.0, str(output_dir)
+            time.sleep(5)
+
+        acquire_gpu("seed", f"seed_{style}")
         try:
             result = subprocess.run(
                 cmd,
@@ -310,6 +328,8 @@ class SeedRunner:
         except Exception as e:
             print(f"    Error: {e}")
             return False, 0.0, 0.0, str(output_dir)
+        finally:
+            release_gpu()
 
     def _score_quality(self, output_dir: Path) -> float:
         """Run quality gate on output"""
@@ -549,6 +569,18 @@ class SeedRunner:
         print(f"{'#'*60}")
 
         while True:
+            # Disk space guard — pause if < 5GB free
+            try:
+                import shutil as _shutil
+                _disk = _shutil.disk_usage(str(APP_DIR))
+                _free_gb = _disk.free / (1024**3)
+                if _free_gb < 5.0:
+                    print(f"\n[Seed Runner] PAUSED: Only {_free_gb:.1f}GB free. Need 5GB minimum.")
+                    time.sleep(300)
+                    continue
+            except Exception:
+                pass
+
             try:
                 self.run_batch(tracks, DIRECTOR_STYLES)
             except Exception as e:

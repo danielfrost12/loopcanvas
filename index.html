@@ -5608,7 +5608,21 @@ function stopFunMessages() {
 }
 
 function pollJobStatus(jobId) {
+  let errorCount = 0;
+  const startedAt = Date.now();
+  let lastProgress = -1;
+  let lastProgressTime = Date.now();
+
   const poll = async () => {
+    // 15-minute max polling duration
+    if (Date.now() - startedAt > 900000) {
+      stopFunMessages();
+      ceSetStage('generate', 'done');
+      ceSetDetail('generate', 'Generation timed out. Refresh page to check status.');
+      document.getElementById('ce-status-text').textContent = 'TIMEOUT';
+      return;
+    }
+
     try {
       // Try v2 status first, fall back to v1
       let resp = await fetch(`/api/v2/status/${jobId}`);
@@ -5618,9 +5632,22 @@ function pollJobStatus(jobId) {
       const job = await resp.json();
       const progress = job.progress || 0;
 
+      // Successful poll — reset error count
+      errorCount = 0;
+
       // Update Canvas Engine progress bar
       document.getElementById('ce-generate-fill').style.width = `${progress}%`;
-      ceSetDetail('generate', job.message || `Generating... ${progress}%`);
+
+      // Stall detection: if progress unchanged for 120s while generating
+      if (progress !== lastProgress) {
+        lastProgress = progress;
+        lastProgressTime = Date.now();
+      }
+      let detailMsg = job.message || `Generating... ${progress}%`;
+      if (job.status === 'generating' && (Date.now() - lastProgressTime > 120000)) {
+        detailMsg += ' (stalled — GPU may need restart)';
+      }
+      ceSetDetail('generate', detailMsg);
 
       if (job.status === 'complete') {
         stopFunMessages();
@@ -5675,10 +5702,11 @@ function pollJobStatus(jobId) {
       setTimeout(poll, 2000);
 
     } catch (error) {
-      console.error('Poll error:', error);
-      if (!poll.retried) {
-        poll.retried = true;
-        setTimeout(poll, 3000);
+      errorCount++;
+      console.error(`Poll error (${errorCount}/10):`, error);
+      if (errorCount < 10) {
+        const backoff = Math.min(2000 * Math.pow(1.5, errorCount), 15000);
+        setTimeout(poll, backoff);
         return;
       }
       stopFunMessages();
@@ -6852,27 +6880,47 @@ function fallbackRegenerate() {
 }
 
 function pollRegenStatus(jobId) {
-  fetch(`/api/status/${jobId}`)
-    .then(res => res.json())
-    .then(data => {
-      if (data.regen_status === 'complete') {
-        // Regeneration complete - update preview
-        document.getElementById('generating-text').textContent = 'Done! Loading new canvas...';
-        setTimeout(() => {
-          showResult(currentFile?.name || 'Track', data.outputs);
-        }, 500);
-      } else if (data.regen_status === 'error') {
-        document.getElementById('generating-text').textContent = 'Error: ' + (data.regen_message || 'Failed');
-      } else {
-        // Still processing
-        document.getElementById('generating-text').textContent = data.regen_message || 'Regenerating...';
-        setTimeout(() => pollRegenStatus(jobId), 2000);
-      }
-    })
-    .catch(err => {
-      console.error('Poll error:', err);
-      setTimeout(() => pollRegenStatus(jobId), 3000);
-    });
+  let errorCount = 0;
+  const startedAt = Date.now();
+
+  const poll = () => {
+    // 10-minute max polling duration
+    if (Date.now() - startedAt > 600000) {
+      document.getElementById('generating-text').textContent = 'Regeneration timed out. Refresh page to check status.';
+      return;
+    }
+
+    fetch(`/api/status/${jobId}`)
+      .then(res => res.json())
+      .then(data => {
+        errorCount = 0; // reset on success
+        if (data.regen_status === 'complete') {
+          // Regeneration complete - update preview
+          document.getElementById('generating-text').textContent = 'Done! Loading new canvas...';
+          setTimeout(() => {
+            showResult(currentFile?.name || 'Track', data.outputs);
+          }, 500);
+        } else if (data.regen_status === 'error') {
+          document.getElementById('generating-text').textContent = 'Error: ' + (data.regen_message || 'Failed');
+        } else {
+          // Still processing
+          document.getElementById('generating-text').textContent = data.regen_message || 'Regenerating...';
+          setTimeout(poll, 2000);
+        }
+      })
+      .catch(err => {
+        errorCount++;
+        console.error(`Regen poll error (${errorCount}/10):`, err);
+        if (errorCount < 10) {
+          const backoff = Math.min(2000 * Math.pow(1.5, errorCount), 15000);
+          setTimeout(poll, backoff);
+        } else {
+          document.getElementById('generating-text').textContent = 'Lost connection to GPU server';
+        }
+      });
+  };
+
+  poll();
 }
 
 function backToHome() {

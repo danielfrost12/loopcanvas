@@ -116,6 +116,8 @@ while true; do
     # ═══ CHECK 1: Server process alive? ═══
     if ! check_server_process; then
         log "[WATCHDOG] server.py PROCESS DEAD — immediate restart"
+        log "[WATCHDOG] Last 20 lines of server log:"
+        tail -20 "$SERVER_LOG" 2>/dev/null | while IFS= read -r line; do log "  > $line"; done
         start_server
         health_failures=0
         continue
@@ -148,13 +150,13 @@ while true; do
         continue
     fi
 
-    # ═══ CHECK 4: Tunnel actually forwarding? (every 3rd cycle) ═══
-    if [ $((cycle % 3)) -eq 0 ]; then
+    # ═══ CHECK 4: Tunnel actually forwarding? (every 2nd cycle = 30s) ═══
+    if [ $((cycle % 2)) -eq 0 ]; then
         if ! check_tunnel_health; then
             tunnel_failures=$((tunnel_failures + 1))
-            log "[WATCHDOG] Tunnel health FAILED ($tunnel_failures/$MAX_HEALTH_FAILURES)"
+            log "[WATCHDOG] Tunnel health FAILED ($tunnel_failures/2)"
 
-            if [ $tunnel_failures -ge $MAX_HEALTH_FAILURES ]; then
+            if [ $tunnel_failures -ge 2 ]; then
                 log "[WATCHDOG] *** TUNNEL HARD RESTART ***"
                 pkill -f "localtunnel.*--port $SERVER_PORT" 2>/dev/null || true
                 pkill -f "lt --port $SERVER_PORT" 2>/dev/null || true
@@ -176,6 +178,20 @@ while true; do
         tunnel_ok="NO"
         check_server_health && local_ok="YES"
         check_tunnel_health && tunnel_ok="YES"
-        log "[STATUS] cycle=$cycle local_health=$local_ok tunnel_health=$tunnel_ok health_fails=$health_failures tunnel_fails=$tunnel_failures"
+        disk_free=$(df -h "$SCRIPT_DIR" 2>/dev/null | tail -1 | awk '{print $4}')
+        log "[STATUS] cycle=$cycle local_health=$local_ok tunnel_health=$tunnel_ok health_fails=$health_failures tunnel_fails=$tunnel_failures disk_free=$disk_free"
+    fi
+
+    # ═══ LOG ROTATION: every 200 cycles (~50 min) ═══
+    if [ $((cycle % 200)) -eq 0 ]; then
+        for logfile in "$LOG" "$SERVER_LOG" "$TUNNEL_LOG"; do
+            if [ -f "$logfile" ]; then
+                logsize=$(wc -c < "$logfile" 2>/dev/null || echo 0)
+                if [ "$logsize" -gt 5242880 ]; then
+                    mv "$logfile" "${logfile}.old"
+                    log "[WATCHDOG] Rotated $logfile (exceeded 5MB)"
+                fi
+            fi
+        done
     fi
 done
