@@ -50,13 +50,28 @@ class handler(BaseHTTPRequestHandler):
                 method=method
             )
             with urllib.request.urlopen(req, timeout=300) as resp:
+                content_type = resp.headers.get('Content-Type', 'application/octet-stream')
                 result = resp.read()
+
+                # Binary content (video, images, audio) — pass through directly
+                if not content_type.startswith('application/json') and not content_type.startswith('text/'):
+                    self.send_response(resp.getcode())
+                    self.send_header('Content-Type', content_type)
+                    self.send_header('Content-Length', str(len(result)))
+                    self.send_header('Access-Control-Allow-Origin', '*')
+                    self.send_header('Cache-Control', 'public, max-age=3600')
+                    self.end_headers()
+                    self.wfile.write(result)
+                    return
+
+                # JSON response — parse and forward
                 try:
                     data = json.loads(result)
                     self._json(resp.getcode(), data)
-                except json.JSONDecodeError:
+                except (json.JSONDecodeError, UnicodeDecodeError, ValueError):
                     self.send_response(resp.getcode())
-                    self.send_header('Content-Type', resp.headers.get('Content-Type', 'application/octet-stream'))
+                    self.send_header('Content-Type', content_type)
+                    self.send_header('Content-Length', str(len(result)))
                     self.send_header('Access-Control-Allow-Origin', '*')
                     self.end_headers()
                     self.wfile.write(result)

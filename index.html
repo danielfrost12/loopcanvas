@@ -2170,160 +2170,196 @@ body {
   width: 100%;
   max-width: 500px;
 }
+/* ═══ Director Picker — Apple Card Design ═══ */
 .ce-dir-option {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 16px 20px;
-  border-radius: 14px;
-  border: 1px solid rgba(255,255,255,0.08);
-  background: rgba(255,255,255,0.04);
+  gap: 16px;
+  padding: 12px 16px;
+  border-radius: 16px;
+  border: 1.5px solid rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.03);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
 }
 .ce-dir-option:hover {
-  border-color: rgba(255,255,255,0.15);
-  background: rgba(255,255,255,0.07);
+  border-color: rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.05);
+  transform: scale(1.01);
 }
 .ce-dir-option.selected {
-  border-color: var(--accent);
-  background: rgba(29,185,84,0.08);
+  border-color: rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.06);
 }
-.ce-dir-circle {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
+.ce-dir-option.selected::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1);
+  pointer-events: none;
+}
+.ce-dir-preview {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
   flex-shrink: 0;
+  object-fit: cover;
+  opacity: 0.85;
+  transition: opacity 0.4s ease;
+}
+.ce-dir-option:hover .ce-dir-preview,
+.ce-dir-option.selected .ce-dir-preview {
+  opacity: 1;
 }
 .ce-dir-info { flex: 1; min-width: 0; }
 .ce-dir-name {
   font-size: 15px;
-  font-weight: 600;
-  color: #fff;
+  font-weight: 500;
+  color: rgba(255,255,255,0.9);
   font-family: var(--font-body);
+  letter-spacing: -0.01em;
 }
 .ce-dir-desc {
   font-size: 12px;
-  color: rgba(255,255,255,0.5);
-  margin-top: 2px;
+  color: rgba(255,255,255,0.35);
+  margin-top: 3px;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
 }
 .ce-dir-match {
   font-size: 13px;
-  font-weight: 600;
-  color: var(--accent);
+  font-weight: 500;
+  color: rgba(255,255,255,0.4);
   white-space: nowrap;
+  letter-spacing: 0.01em;
 }
 
-/* Generation progress overlay */
+/* ═══ Generation Progress Overlay — Apple Design Language ═══ */
 .ce-gen-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,0.85);
-  backdrop-filter: blur(20px);
+  background: rgba(0,0,0,0.92);
+  backdrop-filter: blur(40px) saturate(1.8);
+  -webkit-backdrop-filter: blur(40px) saturate(1.8);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 0;
   z-index: 4;
-  padding: 40px 32px;
+  padding: 60px 40px;
   text-align: center;
 }
 .ce-gen-headline {
-  font-size: 28px;
+  font-size: 32px;
   font-weight: 600;
   color: #fff;
   font-family: var(--font-display);
-  letter-spacing: -0.02em;
-  line-height: 1.2;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  margin-bottom: 12px;
 }
 .ce-gen-headline span {
-  background: linear-gradient(135deg, var(--accent), #a855f7);
+  background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.6));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 .ce-gen-label {
   font-size: 15px;
-  color: rgba(255,255,255,0.5);
+  color: rgba(255,255,255,0.4);
   font-family: var(--font-body);
-  max-width: 280px;
-  line-height: 1.5;
+  max-width: 300px;
+  line-height: 1.6;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  margin-bottom: 32px;
 }
 .ce-gen-steps {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin: 16px 0 8px;
+  gap: 0;
+  margin: 0 0 28px;
   width: 100%;
-  max-width: 260px;
+  max-width: 280px;
 }
 .ce-gen-step {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 13px;
-  color: rgba(255,255,255,0.3);
+  gap: 14px;
+  font-size: 14px;
+  color: rgba(255,255,255,0.22);
   font-family: var(--font-body);
-  transition: color 0.4s ease, opacity 0.4s ease;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  padding: 10px 0;
+  transition: color 0.6s cubic-bezier(0.4, 0, 0.2, 1), transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateX(0);
 }
 .ce-gen-step.active {
-  color: rgba(255,255,255,0.9);
+  color: rgba(255,255,255,0.95);
+  transform: translateX(2px);
 }
 .ce-gen-step.done {
-  color: rgba(255,255,255,0.4);
+  color: rgba(255,255,255,0.35);
 }
 .ce-gen-step-icon {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
-  border: 1.5px solid rgba(255,255,255,0.15);
+  border: 1.5px solid rgba(255,255,255,0.1);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 10px;
   flex-shrink: 0;
-  transition: all 0.4s ease;
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  background: transparent;
 }
 .ce-gen-step.active .ce-gen-step-icon {
-  border-color: var(--accent);
-  box-shadow: 0 0 12px rgba(168,85,247,0.3);
+  border-color: rgba(255,255,255,0.5);
+  background: rgba(255,255,255,0.08);
+  box-shadow: 0 0 20px rgba(255,255,255,0.06);
 }
 .ce-gen-step.done .ce-gen-step-icon {
-  border-color: rgba(255,255,255,0.2);
-  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.04);
 }
-@keyframes genPulse { 0%,100%{opacity:0.4} 50%{opacity:1} }
+@keyframes genPulse { 0%,100%{opacity:0.3} 50%{opacity:1} }
 .ce-gen-step.active .ce-gen-step-icon::after {
   content: '';
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--accent);
-  animation: genPulse 1.5s ease infinite;
+  background: #fff;
+  animation: genPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 .ce-progress-bar {
-  width: 200px;
-  height: 3px;
-  background: rgba(255,255,255,0.08);
-  border-radius: 2px;
+  width: 240px;
+  height: 2px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 1px;
   overflow: hidden;
-  margin-top: 4px;
+  margin-bottom: 16px;
 }
 .ce-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--accent), #a855f7);
-  border-radius: 2px;
+  background: rgba(255,255,255,0.5);
+  border-radius: 1px;
   width: 0%;
-  transition: width 0.8s ease;
+  transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .ce-gen-eta {
-  font-size: 14px;
-  color: rgba(255,255,255,0.35);
+  font-size: 13px;
+  color: rgba(255,255,255,0.25);
   font-family: var(--font-body);
-  margin-top: 4px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
 }
 .ce-gen-eta strong {
-  color: rgba(255,255,255,0.7);
+  color: rgba(255,255,255,0.5);
   font-weight: 500;
 }
 
@@ -4347,11 +4383,11 @@ select {
     <!-- Main headline -->
     <h1>Turn a 7-second canvas into a full-length, custom music video.</h1>
 
-    <!-- Phone inserted here on mobile via JS -->
-    <div class="hero-phone-slot" id="hero-phone-slot"></div>
-
     <!-- Subhead -->
     <p class="hero-tagline">Upload your track, get an AI-built Spotify-style canvas in seconds — then expand it into a full music video that matches your mood, your sound, and your world.</p>
+
+    <!-- Phone inserted here on mobile via JS — below the promise, as proof -->
+    <div class="hero-phone-slot" id="hero-phone-slot"></div>
 
     <!-- Feature bullets -->
     <ul class="hero-features">
@@ -4572,17 +4608,18 @@ select {
 
       <!-- Progress overlay during generation -->
       <div class="ce-gen-overlay" id="ce-gen-overlay" style="display:none;">
-        <div class="ce-gen-headline"><span>Your Canvas</span><br>is being created...</div>
-        <div class="ce-gen-label" id="ce-gen-label">Our AI director is crafting a visual world unique to your track's emotional DNA.</div>
+        <div class="ce-gen-headline"><span>Creating your canvas</span></div>
+        <div class="ce-gen-label" id="ce-gen-label">Crafting a visual world unique to your track.</div>
+        <div class="ce-gen-sublabel" id="ce-gen-sublabel" style="font-size:12px;color:rgba(255,255,255,0.25);margin-top:0;min-height:16px;letter-spacing:0.01em;"></div>
         <div class="ce-gen-steps" id="ce-gen-steps">
-          <div class="ce-gen-step" id="ce-gstep-analyze"><div class="ce-gen-step-icon"></div>Analyzing audio structure</div>
+          <div class="ce-gen-step" id="ce-gstep-analyze"><div class="ce-gen-step-icon"></div>Analyzing audio</div>
           <div class="ce-gen-step" id="ce-gstep-concept"><div class="ce-gen-step-icon"></div>Building visual concept</div>
-          <div class="ce-gen-step" id="ce-gstep-scenes"><div class="ce-gen-step-icon"></div>Generating scenes on H100 GPU</div>
-          <div class="ce-gen-step" id="ce-gstep-render"><div class="ce-gen-step-icon"></div>Rendering seamless loop</div>
-          <div class="ce-gen-step" id="ce-gstep-quality"><div class="ce-gen-step-icon"></div>Quality validation</div>
+          <div class="ce-gen-step" id="ce-gstep-scenes"><div class="ce-gen-step-icon"></div>Generating scenes</div>
+          <div class="ce-gen-step" id="ce-gstep-render"><div class="ce-gen-step-icon"></div>Rendering loop</div>
+          <div class="ce-gen-step" id="ce-gstep-quality"><div class="ce-gen-step-icon"></div>Validating quality</div>
         </div>
         <div class="ce-progress-bar"><div class="ce-progress-fill" id="ce-generate-fill"></div></div>
-        <div class="ce-gen-eta" id="ce-gen-eta">It will be ready in: <strong>~3 minutes</strong></div>
+        <div class="ce-gen-eta" id="ce-gen-eta">About <strong>1 minute</strong> remaining</div>
       </div>
     </div>
 
@@ -5215,8 +5252,11 @@ function ceSetStage(stageName, state) {
   }
   if (stageName === 'generate' && state === 'active') {
     if (statusText) statusText.textContent = 'GENERATING';
-    // Show generation overlay
+    // Show generation overlay with fresh explanation text
     genOverlay.style.display = 'flex';
+    if (genLabel) genLabel.textContent = 'Crafting a visual world unique to your track.';
+    const genSublabel = document.getElementById('ce-gen-sublabel');
+    if (genSublabel) genSublabel.textContent = '';
     // Start ETA countdown
     window._genStartTime = Date.now();
     window._genEtaInterval = setInterval(updateGenEta, 1000);
@@ -5241,7 +5281,11 @@ function ceSetDetail(stageName, text) {
   const loadingText = document.getElementById('ce-loading-text');
   const genLabel = document.getElementById('ce-gen-label');
   if (stageName === 'feel' && loadingText) loadingText.textContent = text;
-  if (stageName === 'generate' && genLabel) genLabel.textContent = text;
+  if (stageName === 'generate') {
+    // Write server status to sub-label, NOT the main explanation label
+    const genSublabel = document.getElementById('ce-gen-sublabel');
+    if (genSublabel) genSublabel.textContent = text;
+  }
   // Update track meta with feel info
   if (stageName === 'feel') {
     const meta = document.getElementById('ce-track-meta');
@@ -5259,16 +5303,30 @@ function ceShowDirections(directions) {
   // Hide the loading placeholder
   document.getElementById('ce-video-placeholder').style.display = 'none';
 
-  list.innerHTML = directions.map((d, i) => `
+  // Map director styles to mood demo preview images
+  const directorPreview = {
+    hype_williams: '/mood_demos/peak_transmission_demo.png',
+    observed_moment: '/mood_demos/memory_in_motion_demo.png',
+    spike_jonze: '/mood_demos/memory_in_motion_demo_REAL.png',
+    the_daniels: '/mood_demos/euphoric_drift_demo.png',
+    khalil_joseph: '/mood_demos/analog_memory_demo.png',
+    dave_meyers: '/mood_demos/concrete_heat_demo.png',
+    wong_kar_wai: '/mood_demos/midnight_city_demo.png',
+    golden_hour: '/mood_demos/sunrise_departure_demo.png',
+    midnight_drift: '/mood_demos/neon_calm_demo.png',
+  };
+  list.innerHTML = directions.map((d, i) => {
+    const preview = directorPreview[d.director_style] || '/mood_demos/memory_in_motion_demo.png';
+    return `
     <div class="ce-dir-option${i === 0 ? ' selected' : ''}" onclick="ceSelectDirection('${d.id}', this)" data-id="${d.id}" data-style="${d.director_style || d.id}">
-      <div class="ce-dir-circle" style="background:linear-gradient(135deg,${d.color_palette?.[0]||'#1a1a2e'},${d.color_palette?.[1]||'#16213e'})"></div>
+      <img class="ce-dir-preview" src="${preview}" alt="${d.director_name}" loading="lazy">
       <div class="ce-dir-info">
         <div class="ce-dir-name">${d.director_name}</div>
         <div class="ce-dir-desc">${d.philosophy || d.motion_style || ''}</div>
       </div>
-      <div class="ce-dir-match">${Math.round((d.confidence || 0) * 100)}% match</div>
+      <div class="ce-dir-match">${Math.round((d.confidence || 0) * 100)}%</div>
     </div>
-  `).join('');
+  `}).join('');
   overlay.style.display = 'flex';
 }
 
@@ -5329,13 +5387,29 @@ function ceShowVideo(videoUrl) {
 
   // Clean the URL — avoid double query params
   const cleanUrl = videoUrl.split('?')[0] + '?t=' + Date.now();
+  console.log('[ceShowVideo] Loading:', cleanUrl);
+
+  // Error handling — log video load failures
+  video.onerror = () => {
+    console.error('[ceShowVideo] Video load error:', video.error?.code, video.error?.message);
+  };
+  video.oncanplay = () => {
+    console.log('[ceShowVideo] Video can play — duration:', video.duration, 'size:', video.videoWidth, 'x', video.videoHeight);
+  };
+  video.onloadeddata = () => {
+    console.log('[ceShowVideo] Video data loaded, attempting play');
+    video.play().catch(e => console.warn('[ceShowVideo] Play failed:', e.message));
+  };
+
   video.src = cleanUrl;
   video.load();
-  video.play().catch(() => {});
 
   // Hide overlays, show video
   placeholder.style.display = 'none';
   if (genOverlay) genOverlay.style.display = 'none';
+  // Also hide directors overlay
+  const dirOverlay = document.getElementById('ce-directors-overlay');
+  if (dirOverlay) dirOverlay.style.display = 'none';
 
   // Show the creative drawer
   document.getElementById('ce-drawer').style.display = 'flex';
@@ -5729,7 +5803,7 @@ function updateGenEta() {
   const eta = document.getElementById('ce-gen-eta');
   if (!eta || !window._genStartTime) return;
   const elapsed = Math.floor((Date.now() - window._genStartTime) / 1000);
-  const totalEstimate = 180; // ~3 minutes for cloud mode
+  const totalEstimate = 60; // ~1 minute for canvas-only cloud mode (1 clip + render)
   const remaining = Math.max(0, totalEstimate - elapsed);
   if (remaining > 60) {
     const mins = Math.ceil(remaining / 60);
@@ -5748,8 +5822,8 @@ function pollJobStatus(jobId) {
   let lastProgressTime = Date.now();
 
   const poll = async () => {
-    // 15-minute max polling duration
-    if (Date.now() - startedAt > 900000) {
+    // 20-minute max polling duration (cloud generation takes ~13 min for 7 clips)
+    if (Date.now() - startedAt > 1200000) {
       stopFunMessages();
       ceSetStage('generate', 'done');
       ceSetDetail('generate', 'Generation timed out. Refresh page to check status.');
@@ -5779,15 +5853,10 @@ function pollJobStatus(jobId) {
         lastProgressTime = Date.now();
       }
       let detailMsg = job.message || `Generating... ${progress}%`;
-      if (job.status === 'generating' && (Date.now() - lastProgressTime > 120000)) {
+      if (job.status === 'generating' && (Date.now() - lastProgressTime > 600000)) {
         detailMsg += ' (stalled — GPU may need restart)';
       }
       ceSetDetail('generate', detailMsg);
-      // Update sub-label with current step description
-      const genLabel = document.getElementById('ce-gen-label');
-      if (genLabel && job.message && job.message !== detailMsg) {
-        genLabel.textContent = job.message;
-      }
 
       if (job.status === 'complete') {
         stopFunMessages();
