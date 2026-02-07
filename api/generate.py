@@ -53,15 +53,11 @@ class handler(BaseHTTPRequestHandler):
                 gpu_error = str(e)
                 print(f"[Generate] GPU server error: {e}")
 
-        # GPU server unreachable — return demo generation status
-        import random
-        self._json(200, {
-            "job_id": job_id,
-            "status": "generating",
-            "mode": "demo",
-            "progress": 0,
-            "message": "Generation queued (demo mode)",
-            "estimated_time": 45,
+        # GPU server unreachable — return error
+        self._json(503, {
+            "error": "Generation server not available",
+            "gpu_error": gpu_error,
+            "mode": "error",
         })
 
     def _json(self, code, data):

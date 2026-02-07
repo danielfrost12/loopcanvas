@@ -54,14 +54,11 @@ class handler(BaseHTTPRequestHandler):
                 gpu_error = str(e)
                 print(f"[Upload] GPU proxy error: {e}")
 
-        # GPU server unreachable or not configured — accept upload in demo mode
-        # Generate a job_id and return success so the frontend flow continues
-        job_id = str(uuid.uuid4())[:8]
-        self._json(200, {
-            "job_id": job_id,
-            "status": "uploaded",
-            "mode": "demo",
-            "message": "Track received. Analyzing emotional DNA...",
+        # GPU server unreachable or not configured — return error
+        self._json(503, {
+            "error": "Generation server not available",
+            "gpu_error": gpu_error,
+            "mode": "error",
         })
 
     def _json(self, code, data):

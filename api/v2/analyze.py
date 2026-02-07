@@ -107,27 +107,11 @@ class handler(BaseHTTPRequestHandler):
                 gpu_error = str(e)
                 print(f"[Analyze] GPU server error: {e}")
 
-        # GPU server unreachable — return demo analysis so users can experience the flow
-        # Shuffle directors and assign confidence based on pseudo-random seed from job_id
-        seed = sum(ord(c) for c in job_id) if job_id else 42
-        rng = random.Random(seed)
-        shuffled = list(DIRECTORS)
-        rng.shuffle(shuffled)
-        for i, d in enumerate(shuffled):
-            d["confidence"] = round(0.95 - i * 0.04 + rng.uniform(-0.02, 0.02), 2)
-
-        self._json(200, {
-            "job_id": job_id,
-            "status": "analyzed",
-            "mode": "demo",
-            "audio_analysis": {
-                "bpm": rng.choice([72, 85, 95, 110, 120, 128, 140]),
-                "key": rng.choice(["C minor", "A minor", "E minor", "G major", "D minor", "F major"]),
-                "energy": round(rng.uniform(0.3, 0.9), 2),
-                "valence": round(rng.uniform(0.2, 0.8), 2),
-                "genre": rng.choice(["hip-hop", "r&b", "indie", "electronic", "pop", "alternative"]),
-            },
-            "directions": shuffled,
+        # GPU server unreachable — return error
+        self._json(503, {
+            "error": "Generation server not available",
+            "gpu_error": gpu_error,
+            "mode": "error",
         })
 
     def _json(self, code, data):

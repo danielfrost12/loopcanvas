@@ -61,22 +61,11 @@ class handler(BaseHTTPRequestHandler):
                 gpu_error = str(e)
                 print(f"[V2 Status] GPU server error: {e}")
 
-        # GPU server unreachable — return demo completion with a sample video
-        demo_video = random.choice(DEMO_VIDEOS)
-        self._json(200, {
-            "job_id": job_id,
-            "status": "complete",
-            "mode": "demo",
-            "progress": 100,
-            "message": "Canvas ready",
-            "output": {
-                "video_url": f"/moods/{demo_video}",
-                "quality_score": round(random.uniform(9.3, 9.8), 1),
-                "loop_score": round(random.uniform(0.92, 0.99), 2),
-                "format": "spotify_canvas",
-                "resolution": "720x1280",
-                "duration": "7s",
-            },
+        # GPU server unreachable — return error
+        self._json(503, {
+            "error": "Generation server not available",
+            "gpu_error": gpu_error,
+            "mode": "error",
         })
 
     def _json(self, code, data):
