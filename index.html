@@ -5305,15 +5305,15 @@ function ceShowDirections(directions) {
 
   // Map director styles to mood demo preview images
   const directorPreview = {
-    hype_williams: '/mood_demos/peak_transmission_demo.png',
-    observed_moment: '/mood_demos/memory_in_motion_demo.png',
-    spike_jonze: '/mood_demos/memory_in_motion_demo_REAL.png',
-    the_daniels: '/mood_demos/euphoric_drift_demo.png',
-    khalil_joseph: '/mood_demos/analog_memory_demo.png',
-    dave_meyers: '/mood_demos/concrete_heat_demo.png',
-    wong_kar_wai: '/mood_demos/midnight_city_demo.png',
-    golden_hour: '/mood_demos/sunrise_departure_demo.png',
-    midnight_drift: '/mood_demos/neon_calm_demo.png',
+    hype_williams: '/mood_demos/peak_transmission_demo.png',       // bold, maximalist, art deco
+    observed_moment: '/mood_demos/memory_in_motion_demo_REAL.png', // silhouette in golden light beams, intimate
+    spike_jonze: '/mood_demos/euphoric_drift_demo.png',            // woman in flower field, vulnerable, human
+    the_daniels: '/mood_demos/neon_calm_demo.png',                 // surreal pink neon corridor
+    khalil_joseph: '/mood_demos/analog_memory_demo.png',           // golden film grain through trees, nostalgic
+    dave_meyers: '/mood_demos/concrete_heat_demo.png',             // raw urban texture, kinetic energy
+    wong_kar_wai: '/mood_demos/midnight_city_demo.png',            // rainy neon city, bokeh, romantic noir
+    golden_hour: '/mood_demos/sunrise_departure_demo.png',         // misty dawn, pink/lavender ethereal
+    midnight_drift: '/mood_demos/velvet_dark_demo.png',            // purple velvet, nocturnal, reflective
   };
   list.innerHTML = directions.map((d, i) => {
     const preview = directorPreview[d.director_style] || '/mood_demos/memory_in_motion_demo.png';
