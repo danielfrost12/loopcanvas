@@ -574,10 +574,20 @@ class CanvasOrchestrator:
 
             process.wait()
 
-            if process.returncode == 0:
-                # Log generation latency
-                gen_elapsed = time.time() - generation_start_time
-                log_generation_latency(gen_elapsed, gen_type="new")
+            gen_elapsed = time.time() - generation_start_time
+            log_generation_latency(gen_elapsed, gen_type="new")
+
+            # Check if output files were actually created (pipeline may exit 1
+            # due to non-fatal errors but still produce valid output)
+            output_dir_path = Path(output_dir)
+            has_canvas = (output_dir_path / "spotify_canvas_7s_9x16.mp4").exists()
+            has_video = (output_dir_path / "full_music_video_9x16.mp4").exists()
+            has_assets = any((output_dir_path / "assets").glob("*.mp4")) if (output_dir_path / "assets").exists() else False
+
+            if process.returncode == 0 or has_canvas or has_video:
+                # Pipeline produced output — finalize regardless of exit code
+                if process.returncode != 0:
+                    print(f"[Orchestrator] Pipeline exited {process.returncode} but output files exist — treating as success")
 
                 # Run quality gate
                 job.progress = 88
@@ -591,6 +601,14 @@ class CanvasOrchestrator:
 
                 # Finalize outputs
                 self._finalize_outputs(job)
+            elif has_assets:
+                # Pipeline crashed mid-generation but some clips exist
+                # Try to finalize with whatever we have
+                print(f"[Orchestrator] Pipeline failed but {len(list((output_dir_path / 'assets').glob('*.mp4')))} clips exist — attempting partial finalize")
+                self._finalize_outputs(job)
+                if not job.outputs:
+                    job.status = "failed"
+                    job.message = f"Generation partially failed (exit code {process.returncode})"
             else:
                 job.status = "failed"
                 job.message = f"Generation failed (exit code {process.returncode})"

@@ -374,7 +374,7 @@ class LoopCanvasHandler(SimpleHTTPRequestHandler):
         try:
             data = self._read_json_body()
             job_id = data.get('job_id')
-            adjustment = data.get('adjustment', '')
+            adjustment = data.get('adjustment') or data.get('intent', '')
             params = data.get('params', {})
 
             if not job_id:
