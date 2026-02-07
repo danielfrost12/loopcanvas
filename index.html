@@ -7459,8 +7459,8 @@ function renderMoodLibrary(moods) {
   container.innerHTML = sortedMoods
     .map((mood, index) => `
       <div class="mood-card${index === 0 ? ' signature' : ''}" data-mood-id="${mood.id}" data-index="${index}" data-audio-url="${mood.audio_url || ''}">
-        <div class="mood-visual" style="background: linear-gradient(135deg, ${mood.gradient.start}, ${mood.gradient.end})">
-          ${mood.video_url ? `<video src="${mood.video_url}" poster="${mood.video_url.split('?')[0].replace('.mp4', '.png')}" loop muted playsinline preload="auto"></video>` : ''}
+        <div class="mood-visual" style="background: ${mood.video_url ? `url('${mood.video_url.split('?')[0].replace('.mp4', '.png')}') center/cover no-repeat, ` : ''}linear-gradient(135deg, ${mood.gradient.start}, ${mood.gradient.end})">
+          ${mood.video_url ? `<video src="${mood.video_url}" loop muted playsinline preload="none"></video>` : ''}
           <div class="mood-play-btn">
             <svg class="play-icon" viewBox="0 0 24 24" fill="#fff"><polygon points="5,3 19,12 5,21"/></svg>
             <svg class="pause-icon" viewBox="0 0 24 24" fill="#fff" style="display:none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
