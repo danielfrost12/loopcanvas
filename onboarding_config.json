@@ -1,7 +1,11 @@
 {
   "version": 1,
   "tips_enabled": true,
-  "tip_stages": ["upload", "directors", "export"],
+  "tip_stages": [
+    "upload",
+    "directors",
+    "export"
+  ],
   "show_upload_tip": true,
   "show_analysis_tip": false,
   "show_director_tip": true,
@@ -23,10 +27,28 @@
   "generation_time_estimate": true,
   "demo_mode_enabled": true,
   "demo_canvases": [
-    {"mood": "ethereal", "director": "Kubrick", "thumb": "/mood_demos/ethereal.jpg"},
-    {"mood": "aggressive", "director": "Fincher", "thumb": "/mood_demos/aggressive.jpg"},
-    {"mood": "melancholic", "director": "Wong Kar-wai", "thumb": "/mood_demos/melancholic.jpg"}
+    {
+      "mood": "ethereal",
+      "director": "Kubrick",
+      "thumb": "/mood_demos/ethereal.jpg"
+    },
+    {
+      "mood": "aggressive",
+      "director": "Fincher",
+      "thumb": "/mood_demos/aggressive.jpg"
+    },
+    {
+      "mood": "melancholic",
+      "director": "Wong Kar-wai",
+      "thumb": "/mood_demos/melancholic.jpg"
+    }
   ],
-  "last_updated": "",
-  "last_bottleneck": ""
+  "last_updated": "2026-02-07T04:41:00.711322Z",
+  "last_bottleneck": "page_load\u2192upload_start",
+  "mobile": {
+    "enlarge_upload_button": true,
+    "simplify_hero": true,
+    "sticky_cta": true,
+    "reduce_above_fold_content": true
+  }
 }
