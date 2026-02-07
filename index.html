@@ -6038,12 +6038,16 @@ function ceSubmitIntent() {
 
 function ceUseSuggestion(el) {
   // Highlight the selected chip
-  document.querySelectorAll('.ce-chip').forEach(c => c.style.borderColor = '');
+  document.querySelectorAll('.ce-chip').forEach(c => {
+    c.style.borderColor = '';
+    c.style.color = '';
+  });
   el.style.borderColor = 'var(--accent)';
   el.style.color = 'var(--accent)';
-  // Set intent and submit
-  document.getElementById('ce-intent-input').value = el.textContent;
-  ceSubmitIntent();
+  // Populate input — let user review and press enter to confirm (no accidental fires)
+  const input = document.getElementById('ce-intent-input');
+  input.value = el.textContent;
+  input.focus();
 }
 
 function ceSliderChange(param, value) {
@@ -7456,7 +7460,7 @@ function renderMoodLibrary(moods) {
     .map((mood, index) => `
       <div class="mood-card${index === 0 ? ' signature' : ''}" data-mood-id="${mood.id}" data-index="${index}" data-audio-url="${mood.audio_url || ''}">
         <div class="mood-visual" style="background: linear-gradient(135deg, ${mood.gradient.start}, ${mood.gradient.end})">
-          ${mood.video_url ? `<video src="${mood.video_url}" loop muted playsinline preload="metadata"></video>` : ''}
+          ${mood.video_url ? `<video src="${mood.video_url}" poster="${mood.video_url.split('?')[0].replace('.mp4', '.png')}" loop muted playsinline preload="auto"></video>` : ''}
           <div class="mood-play-btn">
             <svg class="play-icon" viewBox="0 0 24 24" fill="#fff"><polygon points="5,3 19,12 5,21"/></svg>
             <svg class="pause-icon" viewBox="0 0 24 24" fill="#fff" style="display:none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
