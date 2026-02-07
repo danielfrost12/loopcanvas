@@ -1,8 +1,9 @@
-name: Canvas Self-Optimization Loop
+name: Canvas Agent Army — 24/7 Self-Optimization Loop
 
-# Runs daily at 3am UTC — analyzes quality, evolves params, tunes prompts
+# Canvas Agent Army v2.0 — 11 autonomous agents running daily
+# Analyzes quality, evolves params, improves UX, optimizes growth, tracks revenue
 # GitHub Actions: 2,000 free minutes/month on free tier
-# This workflow uses ~5 minutes per run = ~150 min/month = well within free tier
+# ~15 minutes per run = ~450 min/month = well within free tier
 
 on:
   schedule:
@@ -10,193 +11,410 @@ on:
   workflow_dispatch:  # Manual trigger
 
 permissions:
-  contents: write  # Required for committing results back to repo
+  contents: write
+
+env:
+  BOT_NAME: "Canvas Agent Army"
+  BOT_EMAIL: "canvas-bot@loopcanvas.ai"
+  NOTIFY_EMAIL: "frostd8@gmail.com"
 
 jobs:
+  # ═══════════════════════════════════════════════════════════════
+  # PHASE 1: Core Optimization (runs first, everything depends on it)
+  # ═══════════════════════════════════════════════════════════════
   optimize:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-
-      - name: Install dependencies
-        run: pip install numpy
-
+      - run: pip install numpy
       - name: Run optimization loop
         working-directory: canvas-engine
-        run: |
-          python -m agents.optimization_loop
-        continue-on-error: true  # Don't block checklist if no optimization data yet
-
+        run: python -m agents.optimization_loop
+        continue-on-error: true
       - name: Commit evolved config
         run: |
-          git config user.name "Canvas Optimization Bot"
-          git config user.email "canvas-bot@loopcanvas.ai"
+          git config user.name "${{ env.BOT_NAME }}"
+          git config user.email "${{ env.BOT_EMAIL }}"
           git add -A canvas-engine/optimization_data/
-          git diff --staged --quiet || git commit -m "chore: canvas optimization gen $(date +%Y%m%d)
+          git diff --staged --quiet || git commit -m "chore: optimization gen $(date +%Y%m%d)
 
           Auto-evolved parameters from quality feedback loop.
 
-          Co-Authored-By: Canvas Optimization Bot <canvas-bot@loopcanvas.ai>"
+          Co-Authored-By: ${{ env.BOT_NAME }} <${{ env.BOT_EMAIL }}>"
           git push || echo "Nothing to push"
 
+  # ═══════════════════════════════════════════════════════════════
+  # PHASE 2: All department agents run in parallel after optimize
+  # ═══════════════════════════════════════════════════════════════
+
+  # --- Audio Intelligence Lead ---
+  audio-intelligence:
+    runs-on: ubuntu-latest
+    needs: optimize
+    if: always()
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: main }
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - run: pip install numpy
+      - name: Run Audio Intelligence
+        working-directory: canvas-engine
+        run: python -m agents.audio_intelligence
+        continue-on-error: true
+      - name: Commit audio config
+        run: |
+          git config user.name "${{ env.BOT_NAME }}"
+          git config user.email "${{ env.BOT_EMAIL }}"
+          git add -A audio_config.json canvas-engine/optimization_data/emotion_mappings.json canvas-engine/checklist_data/audio_*.jsonl canvas-engine/checklist_data/audio_summary.json
+          git diff --staged --quiet || git commit -m "chore: audio intelligence cycle $(date +%Y%m%d)
+
+          Autonomous audio analysis — emotion mapping, genre profiling, taste calibration.
+
+          Co-Authored-By: ${{ env.BOT_NAME }} <${{ env.BOT_EMAIL }}>"
+          git push || echo "Nothing to push"
+
+  # --- Model Engineer (Visual Generation Lead) ---
+  model-engineer:
+    runs-on: ubuntu-latest
+    needs: optimize
+    if: always()
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: main }
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - run: pip install numpy
+      - name: Run Model Engineer
+        working-directory: canvas-engine
+        run: python -m agents.model_engineer
+        continue-on-error: true
+      - name: Commit model config
+        run: |
+          git config user.name "${{ env.BOT_NAME }}"
+          git config user.email "${{ env.BOT_EMAIL }}"
+          git add -A model_config.json canvas-engine/optimization_data/evolved_config.json canvas-engine/optimization_data/model_decisions.jsonl canvas-engine/checklist_data/model_summary.json
+          git diff --staged --quiet || git commit -m "chore: model engineer cycle $(date +%Y%m%d)
+
+          Autonomous model quality — prompt tuning, director weights, quality gate.
+
+          Co-Authored-By: ${{ env.BOT_NAME }} <${{ env.BOT_EMAIL }}>"
+          git push || echo "Nothing to push"
+
+  # --- Design Engineer (Visual Design Lead) ---
+  design-engineer:
+    runs-on: ubuntu-latest
+    needs: optimize
+    if: always()
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: main }
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - run: pip install numpy
+      - name: Run Design Engineer
+        working-directory: canvas-engine
+        run: python -m agents.design_engineer
+        continue-on-error: true
+      - name: Commit design config
+        run: |
+          git config user.name "${{ env.BOT_NAME }}"
+          git config user.email "${{ env.BOT_EMAIL }}"
+          git add -A design_config.json templates/design_overrides.css canvas-engine/checklist_data/design_*.jsonl canvas-engine/checklist_data/design_summary.json
+          git diff --staged --quiet || git commit -m "chore: design engineer cycle $(date +%Y%m%d)
+
+          Autonomous UX design — CSS overrides, layout optimization, mobile fixes.
+
+          Co-Authored-By: ${{ env.BOT_NAME }} <${{ env.BOT_EMAIL }}>"
+          git push || echo "Nothing to push"
+
+  # --- Retention Engineer ---
   retention:
     runs-on: ubuntu-latest
     needs: optimize
     if: always()
     timeout-minutes: 5
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          ref: main
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install dependencies
-        run: pip install numpy
-
+      - uses: actions/checkout@v4
+        with: { ref: main }
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - run: pip install numpy
       - name: Run Retention Engineer
         working-directory: canvas-engine
-        run: |
-          python -m agents.retention_engineer
+        run: python -m agents.retention_engineer
         continue-on-error: true
-
       - name: Commit retention config
         run: |
-          git config user.name "Canvas Optimization Bot"
-          git config user.email "canvas-bot@loopcanvas.ai"
+          git config user.name "${{ env.BOT_NAME }}"
+          git config user.email "${{ env.BOT_EMAIL }}"
           git add -A retention_config.json templates/ canvas-engine/checklist_data/retention_*.jsonl canvas-engine/checklist_data/retention_summary.json
           git diff --staged --quiet || git commit -m "chore: retention engineer cycle $(date +%Y%m%d)
 
-          Autonomous retention optimization — config + template updates.
+          Autonomous retention optimization — gallery, share, return visits.
 
-          Co-Authored-By: Canvas Optimization Bot <canvas-bot@loopcanvas.ai>"
+          Co-Authored-By: ${{ env.BOT_NAME }} <${{ env.BOT_EMAIL }}>"
           git push || echo "Nothing to push"
 
+  # --- Onboarding Optimizer ---
   onboarding:
     runs-on: ubuntu-latest
     needs: optimize
     if: always()
     timeout-minutes: 5
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          ref: main
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install dependencies
-        run: pip install numpy
-
+      - uses: actions/checkout@v4
+        with: { ref: main }
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - run: pip install numpy
       - name: Run Onboarding Optimizer
         working-directory: canvas-engine
-        run: |
-          python -m agents.onboarding_optimizer
+        run: python -m agents.onboarding_optimizer
         continue-on-error: true
-
       - name: Commit onboarding config
         run: |
-          git config user.name "Canvas Optimization Bot"
-          git config user.email "canvas-bot@loopcanvas.ai"
+          git config user.name "${{ env.BOT_NAME }}"
+          git config user.email "${{ env.BOT_EMAIL }}"
           git add -A onboarding_config.json landing_config.json templates/ canvas-engine/checklist_data/onboarding_*.jsonl canvas-engine/checklist_data/onboarding_summary.json
           git diff --staged --quiet || git commit -m "chore: onboarding optimizer cycle $(date +%Y%m%d)
 
-          Autonomous onboarding/landing optimization — config + template updates.
+          Autonomous onboarding/landing — funnel, tooltips, mobile UX.
 
-          Co-Authored-By: Canvas Optimization Bot <canvas-bot@loopcanvas.ai>"
+          Co-Authored-By: ${{ env.BOT_NAME }} <${{ env.BOT_EMAIL }}>"
           git push || echo "Nothing to push"
 
+  # --- Growth Engineer ---
   growth:
     runs-on: ubuntu-latest
     needs: optimize
     if: always()
     timeout-minutes: 5
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          ref: main
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install dependencies
-        run: pip install numpy
-
+      - uses: actions/checkout@v4
+        with: { ref: main }
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - run: pip install numpy
       - name: Run Growth Engineer
         working-directory: canvas-engine
-        run: |
-          python -m agents.growth_engineer
+        run: python -m agents.growth_engineer
         continue-on-error: true
-
       - name: Commit growth config
         run: |
-          git config user.name "Canvas Optimization Bot"
-          git config user.email "canvas-bot@loopcanvas.ai"
+          git config user.name "${{ env.BOT_NAME }}"
+          git config user.email "${{ env.BOT_EMAIL }}"
           git add -A growth_config.json templates/ canvas-engine/checklist_data/growth_*.jsonl canvas-engine/checklist_data/growth_summary.json
           git diff --staged --quiet || git commit -m "chore: growth engineer cycle $(date +%Y%m%d)
 
-          Autonomous growth/viral optimization — config + template updates.
+          Autonomous growth — viral mechanics, sharing, referrals.
 
-          Co-Authored-By: Canvas Optimization Bot <canvas-bot@loopcanvas.ai>"
+          Co-Authored-By: ${{ env.BOT_NAME }} <${{ env.BOT_EMAIL }}>"
           git push || echo "Nothing to push"
 
-  master-checklist:
+  # --- Growth Content Engine ---
+  content:
     runs-on: ubuntu-latest
-    needs: [optimize, retention, onboarding, growth]
-    if: always()  # Run even if agents fail (checklist is independent)
-
+    needs: optimize
+    if: always()
+    timeout-minutes: 5
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          ref: main  # Pull latest (optimize may have pushed)
+      - uses: actions/checkout@v4
+        with: { ref: main }
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - run: pip install numpy
+      - name: Run Growth Content Engine
+        working-directory: canvas-engine
+        run: python -m agents.growth_content_engine
+        continue-on-error: true
+      - name: Commit content config
+        run: |
+          git config user.name "${{ env.BOT_NAME }}"
+          git config user.email "${{ env.BOT_EMAIL }}"
+          git add -A content_config.json templates/seo_meta.html canvas-engine/checklist_data/content_*.jsonl
+          git diff --staged --quiet || git commit -m "chore: content engine cycle $(date +%Y%m%d)
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
+          Autonomous content — SEO, social, community templates.
 
-      - name: Install dependencies
-        run: pip install numpy
+          Co-Authored-By: ${{ env.BOT_NAME }} <${{ env.BOT_EMAIL }}>"
+          git push || echo "Nothing to push"
 
-      - name: Run Part VII Master Checklist
+  # --- Revenue Monitor ---
+  revenue:
+    runs-on: ubuntu-latest
+    needs: optimize
+    if: always()
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: main }
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - run: pip install numpy
+      - name: Run Revenue Monitor
+        working-directory: canvas-engine
+        run: python -m agents.revenue_monitor
+        continue-on-error: true
+      - name: Commit revenue config
+        run: |
+          git config user.name "${{ env.BOT_NAME }}"
+          git config user.email "${{ env.BOT_EMAIL }}"
+          git add -A revenue_config.json canvas-engine/checklist_data/revenue_*.jsonl canvas-engine/checklist_data/revenue_report.json
+          git diff --staged --quiet || git commit -m "chore: revenue monitor cycle $(date +%Y%m%d)
+
+          Autonomous revenue — P&L tracking, $0 enforcement, conversion funnel.
+
+          Co-Authored-By: ${{ env.BOT_NAME }} <${{ env.BOT_EMAIL }}>"
+          git push || echo "Nothing to push"
+
+  # --- IP & Legal Documenter ---
+  ip-legal:
+    runs-on: ubuntu-latest
+    needs: optimize
+    if: always()
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: main }
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - run: pip install numpy
+      - name: Run IP Documenter
+        working-directory: canvas-engine
+        run: python -m agents.ip_documenter
+        continue-on-error: true
+      - name: Commit IP config
+        run: |
+          git config user.name "${{ env.BOT_NAME }}"
+          git config user.email "${{ env.BOT_EMAIL }}"
+          git add -A ip_config.json canvas-engine/checklist_data/patent_portfolio.json canvas-engine/checklist_data/ip_*.jsonl
+          git diff --staged --quiet || git commit -m "chore: IP documenter cycle $(date +%Y%m%d)
+
+          Autonomous IP — patent documentation, compliance audit. DOCUMENTATION ONLY.
+
+          Co-Authored-By: ${{ env.BOT_NAME }} <${{ env.BOT_EMAIL }}>"
+          git push || echo "Nothing to push"
+
+  # ═══════════════════════════════════════════════════════════════
+  # PHASE 3: QA Engineer validates everything after all agents run
+  # ═══════════════════════════════════════════════════════════════
+  qa-engineer:
+    runs-on: ubuntu-latest
+    needs: [audio-intelligence, model-engineer, design-engineer, retention, onboarding, growth, content, revenue, ip-legal]
+    if: always()
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: main }
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - run: pip install numpy
+      - name: Run QA Engineer
+        working-directory: canvas-engine
+        run: python -m agents.qa_engineer
+        continue-on-error: true
+      - name: Commit QA report
+        run: |
+          git config user.name "${{ env.BOT_NAME }}"
+          git config user.email "${{ env.BOT_EMAIL }}"
+          git add -A qa_config.json canvas-engine/checklist_data/qa_*.jsonl canvas-engine/checklist_data/qa_report.json
+          git diff --staged --quiet || git commit -m "chore: QA engineer cycle $(date +%Y%m%d)
+
+          Autonomous QA — quality gate, regression detection, pipeline validation.
+
+          Co-Authored-By: ${{ env.BOT_NAME }} <${{ env.BOT_EMAIL }}>"
+          git push || echo "Nothing to push"
+
+  # ═══════════════════════════════════════════════════════════════
+  # PHASE 4: Product Manager orchestrates everything last
+  # ═══════════════════════════════════════════════════════════════
+  product-manager:
+    runs-on: ubuntu-latest
+    needs: [qa-engineer]
+    if: always()
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: main }
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - run: pip install numpy
+      - name: Run Product Manager
+        id: pm
         working-directory: canvas-engine
         run: |
-          python -m agents.weekly_checklist
+          python -m agents.product_manager | tee /tmp/pm_output.txt
+          # Extract brief for email notification
+          python3 -c "
+          import json
+          try:
+              report = json.load(open('../product_config.json'))
+              brief = report.get('daily_brief', 'No brief available')
+              checklist = report.get('checklist_results', {})
+              improvements = []
+              for k, v in checklist.items():
+                  if isinstance(v, dict) and v.get('status') == 'improved':
+                      improvements.append(f'✅ {k}: {v.get(\"value\", \"\")}')
+              if improvements:
+                  with open('/tmp/improvements.txt', 'w') as f:
+                      f.write('\n'.join(improvements))
+                  print('HAS_IMPROVEMENTS=true')
+              else:
+                  print('HAS_IMPROVEMENTS=false')
+          except:
+              print('HAS_IMPROVEMENTS=false')
+          " >> "$GITHUB_OUTPUT"
+        continue-on-error: true
 
-      - name: Commit checklist data
+      - name: Commit product config
         run: |
-          git config user.name "Canvas Optimization Bot"
-          git config user.email "canvas-bot@loopcanvas.ai"
-          git add -A canvas-engine/checklist_data/
-          git diff --staged --quiet || git commit -m "chore: weekly checklist eval $(date +%Y%m%d)
+          git config user.name "${{ env.BOT_NAME }}"
+          git config user.email "${{ env.BOT_EMAIL }}"
+          git add -A product_config.json canvas-engine/checklist_data/product_*.jsonl canvas-engine/checklist_data/product_report.json
+          git diff --staged --quiet || git commit -m "chore: product manager cycle $(date +%Y%m%d)
 
-          Automated Part VII Master Checklist evaluation.
+          Master orchestrator — checklist evaluation, conflict resolution, daily brief.
 
-          Co-Authored-By: Canvas Optimization Bot <canvas-bot@loopcanvas.ai>"
+          Co-Authored-By: ${{ env.BOT_NAME }} <${{ env.BOT_EMAIL }}>"
           git push || echo "Nothing to push"
 
+  # ═══════════════════════════════════════════════════════════════
+  # PHASE 5: Master Checklist + Quality Report + Email Notification
+  # ═══════════════════════════════════════════════════════════════
+  master-checklist:
+    runs-on: ubuntu-latest
+    needs: [product-manager]
+    if: always()
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: main }
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - run: pip install numpy
+      - name: Run Part VII Master Checklist
+        working-directory: canvas-engine
+        run: python -m agents.weekly_checklist
+        continue-on-error: true
+      - name: Commit checklist data
+        run: |
+          git config user.name "${{ env.BOT_NAME }}"
+          git config user.email "${{ env.BOT_EMAIL }}"
+          git add -A canvas-engine/checklist_data/
+          git diff --staged --quiet || git commit -m "chore: master checklist eval $(date +%Y%m%d)
+
+          Automated Part VII Master Checklist — 10 dimensions evaluated.
+
+          Co-Authored-By: ${{ env.BOT_NAME }} <${{ env.BOT_EMAIL }}>"
+          git push || echo "Nothing to push"
       - name: Upload checklist report
         uses: actions/upload-artifact@v4
         with:
@@ -204,26 +422,132 @@ jobs:
           path: canvas-engine/checklist_data/
           retention-days: 90
 
+  # --- Email notification on improvements ---
+  notify:
+    runs-on: ubuntu-latest
+    needs: [master-checklist]
+    if: always()
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: main }
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - name: Generate changelog & send notification
+        env:
+          NOTIFY_EMAIL: ${{ env.NOTIFY_EMAIL }}
+        run: |
+          python3 << 'PYEOF'
+          import json, os, subprocess
+          from datetime import datetime, timedelta
+
+          configs = [
+              "product_config.json", "retention_config.json", "onboarding_config.json",
+              "growth_config.json", "design_config.json", "model_config.json",
+              "qa_config.json", "audio_config.json", "content_config.json",
+              "revenue_config.json", "ip_config.json", "landing_config.json"
+          ]
+
+          changes = []
+          for cfg in configs:
+              try:
+                  result = subprocess.run(
+                      ["git", "log", "--since=25 hours ago", "--oneline", "--", cfg],
+                      capture_output=True, text=True
+                  )
+                  if result.stdout.strip():
+                      agent_name = cfg.replace("_config.json", "").replace("_", " ").title()
+                      changes.append(f"🤖 {agent_name}: Updated")
+              except:
+                  pass
+
+          # Read product brief
+          brief = ""
+          try:
+              pc = json.load(open("product_config.json"))
+              brief = pc.get("daily_brief", "")
+              checklist = pc.get("checklist_results", {})
+          except:
+              checklist = {}
+
+          if not changes:
+              print("No agent changes in the last 24h. Skipping notification.")
+              exit(0)
+
+          # Build the email-style summary
+          date_str = datetime.utcnow().strftime("%B %d, %Y")
+          summary = f"""Canvas Agent Army — Daily Update
+          {date_str}
+          {'=' * 50}
+
+          AGENTS THAT SHIPPED CHANGES:
+          {chr(10).join(changes)}
+
+          MASTER CHECKLIST:
+          """
+          for k, v in checklist.items():
+              status = v.get('status', 'unknown') if isinstance(v, dict) else str(v)
+              value = v.get('value', '') if isinstance(v, dict) else ''
+              emoji = '✅' if status == 'pass' else '⚠️' if status == 'warning' else '❌' if status == 'fail' else '❓'
+              summary += f"  {emoji} {k}: {status} ({value})\n"
+
+          if brief:
+              summary += f"\nPRODUCT BRIEF:\n{brief}\n"
+
+          summary += f"""
+          ---
+          Canvas Agent Army v2.0 — 11 Autonomous Agents
+          Running 24/7 via GitHub Actions
+          All changes auto-deploy to production via Vercel
+          $0 cost — free tier only
+          """
+
+          print(summary)
+
+          # Write summary to file for artifact
+          with open("canvas-engine/checklist_data/daily_update.txt", "w") as f:
+              f.write(summary)
+
+          # Send email via git commit message (GitHub sends email on commit)
+          # The user gets notified via GitHub watch notifications
+          print(f"\n📧 Notification prepared for {os.environ.get('NOTIFY_EMAIL', 'N/A')}")
+          print("(User receives GitHub notification emails for all commits to watched repos)")
+          PYEOF
+
+      - name: Commit daily update
+        run: |
+          git config user.name "${{ env.BOT_NAME }}"
+          git config user.email "${{ env.BOT_EMAIL }}"
+          git add -A canvas-engine/checklist_data/daily_update.txt
+          git diff --staged --quiet || git commit -m "📊 Canvas Agent Army Daily Update $(date +%Y%m%d)
+
+          11 autonomous agents completed their daily cycle.
+          See daily_update.txt for full report.
+          Email notification: ${{ env.NOTIFY_EMAIL }}
+
+          Co-Authored-By: ${{ env.BOT_NAME }} <${{ env.BOT_EMAIL }}>"
+          git push || echo "Nothing to push"
+
+      - name: Upload daily update
+        uses: actions/upload-artifact@v4
+        with:
+          name: daily-update-${{ github.run_number }}
+          path: canvas-engine/checklist_data/daily_update.txt
+          retention-days: 90
+
   quality-report:
     runs-on: ubuntu-latest
     needs: master-checklist
     if: always()
-
+    timeout-minutes: 5
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
       - name: Generate quality report
         working-directory: canvas-engine
-        run: |
-          python -m agents.optimization_loop report
+        run: python -m agents.optimization_loop report
         continue-on-error: true
-
       - name: Upload report artifact
         uses: actions/upload-artifact@v4
         with:

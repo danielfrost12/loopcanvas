@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "phase": 1,
+  "content_targets": {
+    "daily_posts": 10,
+    "seo_articles_weekly": 5
+  },
+  "seo": {
+    "primary_keywords": ["spotify canvas maker", "ai music video", "spotify canvas generator", "music video ai", "loop video maker"],
+    "meta_title": "LoopCanvas — AI Spotify Canvas & Music Video Generator",
+    "meta_description": "Turn your music into living art. AI-powered Spotify Canvas videos that move with your sound. Free. No AI fingerprints.",
+    "og_image": "/mood_demos/ethereal.jpg"
+  },
+  "share_templates": {
+    "showcase": "Just turned my track into a cinematic canvas with @LoopCanvas \ud83c\udfac",
+    "artist_spotlight": "Artist spotlight: {artist} used LoopCanvas to create a {director}-style canvas for \"{track}\"",
+    "before_after": "Before: static album art. After: living, breathing visual that moves with the music."
+  },
+  "community": {
+    "discord_welcome": "Welcome to LoopCanvas! Drop your track and let's turn it into living art.",
+    "twitter_reply_templates": [
+      "Your music deserves visuals that breathe with it. Try LoopCanvas \u2014 it's free.",
+      "We'd love to see your track come alive as a canvas. Upload at loopcanvas.art"
+    ]
+  },
+  "last_updated": "",
+  "last_decision": ""
+}

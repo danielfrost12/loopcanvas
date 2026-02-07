@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "phase": 1,
+  "quality_gate": {
+    "minimum_score": 9.3,
+    "rejection_rate_target": 0.8,
+    "hard_rejection_flags": [
+      "ai_artifacts",
+      "morphing_faces",
+      "uncanny_valley",
+      "bad_color_grading",
+      "beat_sync_failure",
+      "loop_discontinuity",
+      "director_style_mismatch"
+    ]
+  },
+  "generation_params": {
+    "prompt_template": "cinematic, film grain, 35mm, directed by {director}, {mood} atmosphere, {genre} aesthetic",
+    "negative_prompts": "artificial, digital, CGI, AI-generated, plastic, smooth, overprocessed, stock footage, generic",
+    "cfg_scale": 7.5,
+    "generation_steps": 30,
+    "motion_intensity": 0.6,
+    "loop_smoothing_factor": 0.85,
+    "color_temperature": "neutral"
+  },
+  "director_weights": {
+    "spike_jonze": {"lora_weight": 0.7, "style_emphasis": "vulnerability_beauty"},
+    "hype_williams": {"lora_weight": 0.7, "style_emphasis": "mythological_mundane"},
+    "dave_meyers": {"lora_weight": 0.7, "style_emphasis": "kinetic_energy"},
+    "the_daniels": {"lora_weight": 0.7, "style_emphasis": "surreal_grounded"},
+    "khalil_joseph": {"lora_weight": 0.7, "style_emphasis": "poetic_documentary"}
+  },
+  "taste_layer": {
+    "enabled": false,
+    "genre_profiles": {}
+  },
+  "scoring_axes": {
+    "observer_neutrality": {"weight": 3.0, "minimum": 8.0},
+    "camera_humility": {"weight": 2.5, "minimum": 8.0},
+    "temporal_indifference": {"weight": 2.0, "minimum": 7.5},
+    "memory_texture": {"weight": 1.5, "minimum": 7.0},
+    "light_first_emotion": {"weight": 1.0, "minimum": 7.0}
+  },
+  "latency_targets": {
+    "generation_max_seconds": 30,
+    "iteration_max_seconds": 3
+  },
+  "last_updated": "",
+  "last_decision": ""
+}

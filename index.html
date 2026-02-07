@@ -7696,6 +7696,46 @@ initFluidSliders();
         // Template not available yet — agent hasn't written it
       }
     }
+
+    // ─── Design Engineer CSS Overrides ───────────────────────────
+    // The DesignEngineer agent writes design_overrides.css daily
+    // This injects it as a stylesheet so CSS changes auto-deploy
+    try {
+      const cssResp = await fetch('/templates/design_overrides.css');
+      if (cssResp.ok) {
+        const cssText = await cssResp.text();
+        if (cssText.trim()) {
+          const style = document.createElement('style');
+          style.id = 'lc-design-overrides';
+          style.textContent = cssText;
+          document.head.appendChild(style);
+          console.log('[LC Agents] Design overrides CSS loaded');
+        }
+      }
+    } catch (e) {
+      // Design engineer hasn't run yet — no CSS overrides
+    }
+
+    // ─── SEO Meta from Content Engine ───────────────────────────
+    try {
+      const seoResp = await fetch('/templates/seo_meta.html');
+      if (seoResp.ok) {
+        const seoHtml = await seoResp.text();
+        if (seoHtml.trim()) {
+          const seoDiv = document.createElement('div');
+          seoDiv.innerHTML = seoHtml;
+          seoDiv.querySelectorAll('meta, link').forEach(el => {
+            const existing = document.head.querySelector(`meta[property="${el.getAttribute('property')}"]`) ||
+                            document.head.querySelector(`meta[name="${el.getAttribute('name')}"]`);
+            if (existing) existing.remove();
+            document.head.appendChild(el.cloneNode(true));
+          });
+          console.log('[LC Agents] SEO meta tags loaded');
+        }
+      }
+    } catch (e) {
+      // Content engine hasn't run yet
+    }
   }
 
   // ─── 3. Funnel Tracking ──────────────────────────────────────

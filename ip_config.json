@@ -1,0 +1,69 @@
+{
+  "version": 1,
+  "phase": 1,
+  "status": "DOCUMENTATION_ONLY",
+  "filing_authority": "FOUNDER_ONLY",
+  "patent_portfolio": {
+    "P-001": {
+      "title": "Audio Emotional DNA Extraction",
+      "claim": "Method for extracting multi-dimensional emotional vectors from audio signals and mapping them to visual generation parameters in real-time",
+      "filing_cost": 320,
+      "status": "documented",
+      "last_updated": ""
+    },
+    "P-002": {
+      "title": "Directorial Intent Encoding",
+      "claim": "System for encoding cinematic directorial philosophies as controllable latent space parameters for video generation models",
+      "filing_cost": 320,
+      "status": "documented",
+      "last_updated": ""
+    },
+    "P-003": {
+      "title": "Seamless Audio-Synced Video Looping",
+      "claim": "Technique for generating video loops that are visually seamless AND rhythmically synchronized to audio beat structure",
+      "filing_cost": 320,
+      "status": "documented",
+      "last_updated": ""
+    },
+    "P-004": {
+      "title": "AI Artifact Detection & Regeneration",
+      "claim": "Automated system for detecting visual artifacts characteristic of AI-generated content and triggering targeted regeneration",
+      "filing_cost": 320,
+      "status": "documented",
+      "last_updated": ""
+    },
+    "P-005": {
+      "title": "Intent-Based Video Editing",
+      "claim": "Natural language interface for video editing that translates artistic intent into frame-accurate edit operations",
+      "filing_cost": 320,
+      "status": "documented",
+      "last_updated": ""
+    },
+    "P-006": {
+      "title": "Cultural-Genre Visual Mapping",
+      "claim": "System for mapping musical genre and cultural context to appropriate visual languages using crowd-sourced artist preferences",
+      "filing_cost": 320,
+      "status": "documented",
+      "last_updated": ""
+    },
+    "P-007": {
+      "title": "Progressive Canvas-to-Video Extension",
+      "claim": "Method for coherently extending short-form video loops into long-form music videos while maintaining visual and narrative consistency",
+      "filing_cost": 320,
+      "status": "documented",
+      "last_updated": ""
+    }
+  },
+  "total_filing_cost": 2240,
+  "training_data_compliance": {
+    "all_sources_licensed": true,
+    "audit_status": "clean",
+    "last_audit": ""
+  },
+  "competitor_watch": {
+    "last_scan": "",
+    "threats": []
+  },
+  "last_updated": "",
+  "last_decision": ""
+}

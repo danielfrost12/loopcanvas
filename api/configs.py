@@ -1,8 +1,7 @@
 """
-GET /api/configs — Serve merged JSON of all config files
-Reads from repo root: retention_config.json, onboarding_config.json,
-growth_config.json, landing_config.json
-$0 cost — local file reads only
+GET /api/configs — Serve merged JSON of ALL agent config files
+Canvas Agent Army v2.0 — 11 autonomous agents, all configs served here.
+$0 cost — local file reads only (Vercel serverless)
 """
 import json
 import os
@@ -16,15 +15,18 @@ CONFIG_FILES = {
     'onboarding': 'onboarding_config.json',
     'growth':     'growth_config.json',
     'landing':    'landing_config.json',
+    'design':     'design_config.json',
+    'model':      'model_config.json',
+    'qa':         'qa_config.json',
+    'audio':      'audio_config.json',
+    'content':    'content_config.json',
+    'revenue':    'revenue_config.json',
+    'ip':         'ip_config.json',
+    'product':    'product_config.json',
 }
 
 # Empty defaults if a config file is missing
-DEFAULTS = {
-    'retention':  {},
-    'onboarding': {},
-    'growth':     {},
-    'landing':    {},
-}
+DEFAULTS = {k: {} for k in CONFIG_FILES}
 
 
 class handler(BaseHTTPRequestHandler):

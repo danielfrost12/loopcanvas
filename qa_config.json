@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "last_run": "",
+  "overall_status": "unknown",
+  "checks": {
+    "api_health": {"status": "pending", "last_checked": ""},
+    "config_integrity": {"status": "pending", "last_checked": ""},
+    "template_integrity": {"status": "pending", "last_checked": ""},
+    "output_quality": {"status": "pending", "last_checked": "", "avg_score": 0.0},
+    "regression_detection": {"status": "pending", "last_checked": "", "regressions": []},
+    "pipeline_latency": {"status": "pending", "last_checked": "", "p95_generation": 0, "p95_iteration": 0},
+    "loop_quality": {"status": "pending", "last_checked": "", "seamlessness": 0.0},
+    "cost_compliance": {"status": "pending", "last_checked": "", "total_spend": 0.0},
+    "agent_health": {"status": "pending", "last_checked": "", "stale_agents": []},
+    "frontend_integration": {"status": "pending", "last_checked": ""}
+  },
+  "thresholds": {
+    "min_quality_score": 9.3,
+    "min_technical_score": 95,
+    "max_generation_seconds": 30,
+    "max_iteration_seconds": 3,
+    "min_loop_seamlessness": 0.95,
+    "max_spend": 0.0,
+    "max_agent_staleness_hours": 48
+  },
+  "last_updated": "",
+  "last_decision": ""
+}
