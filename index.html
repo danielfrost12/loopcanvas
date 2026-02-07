@@ -5204,11 +5204,11 @@ function ceShowModeBanner(mode, gpuError) {
     transition: opacity 0.3s ease; pointer-events: auto; cursor: pointer;
   `;
 
-  if (mode === 'demo') {
+  if (mode === 'error') {
     banner.style.background = 'rgba(231, 76, 60, 0.85)';
     banner.style.color = '#fff';
-    banner.textContent = '⚠ DEMO MODE — GPU server unreachable';
-    banner.title = gpuError || 'GPU server connection failed';
+    banner.textContent = '⚠ GPU ERROR — Generation failed';
+    banner.title = gpuError || 'GPU server error';
   } else if (mode === 'gpu') {
     banner.style.background = 'rgba(46, 204, 113, 0.85)';
     banner.style.color = '#fff';
@@ -5362,11 +5362,7 @@ async function handleFileUpload(input) {
       const analyzeData = await analyzeResp.json();
       const dna = analyzeData.emotional_dna || {};
 
-      // Check if we're in demo mode (GPU server unreachable)
-      if (analyzeData.mode === 'demo') {
-        console.warn('[LoopCanvas] GPU server unreachable, using demo mode. Error:', analyzeData.gpu_error);
-        ceShowModeBanner('demo', analyzeData.gpu_error);
-      } else if (analyzeData.mode === 'gpu') {
+      if (analyzeData.mode === 'gpu') {
         console.log('[LoopCanvas] GPU mode active — real analysis');
         ceShowModeBanner('gpu');
       }
@@ -5401,7 +5397,10 @@ async function handleFileUpload(input) {
 
     } catch (error) {
       console.error('Pipeline error:', error);
-      startDemoGeneration(currentFile.name);
+      ceSetStage('generate', 'done');
+      ceSetDetail('generate', 'GPU generation failed — ' + (error.message || 'server unreachable'));
+      document.getElementById('ce-status-text').textContent = 'ERROR';
+      ceShowModeBanner('error', error.message);
     }
   }
 }
@@ -5420,7 +5419,9 @@ async function fallbackToV1(jobId) {
   if (genResp.ok) {
     pollJobStatus(jobId);
   } else {
-    startDemoGeneration(currentFile.name);
+    ceSetStage('generate', 'done');
+    ceSetDetail('generate', 'GPU generation failed — server returned error');
+    document.getElementById('ce-status-text').textContent = 'ERROR';
   }
 }
 
@@ -5475,72 +5476,19 @@ function expandToMusicVideo() {
       }
       if (feedback) feedback.classList.remove('active');
       document.getElementById('ce-status-text').textContent = 'COMPLETE';
-    }).catch(() => {
-      // Demo mode extend
-      demoExtendToVideo();
+    }).catch((err) => {
+      if (feedback) feedback.classList.remove('active');
+      document.getElementById('ce-status-text').textContent = 'ERROR';
+      console.error('Extend failed:', err);
     });
   } else {
-    demoExtendToVideo();
+    // No job ID — GPU not connected
+    document.getElementById('ce-status-text').textContent = 'ERROR';
+    console.error('Cannot extend: no active GPU job');
   }
 }
 
-function demoExtendToVideo() {
-  const video = document.getElementById('ce-preview-video');
-  const feedback = document.getElementById('ce-iterate-feedback');
-  const label = document.getElementById('ce-iterate-label');
-  const extendBtn = document.querySelector('.ce-action[onclick*="expandToMusicVideo"]');
-
-  // Disable button immediately so user knows it was clicked
-  if (extendBtn) { extendBtn.style.opacity = '0.5'; extendBtn.style.pointerEvents = 'none'; extendBtn.innerHTML = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" style="width:18px;height:18px;animation:spin 1s linear infinite;"><circle cx="10" cy="10" r="7"/><path d="M10 3v4"/></svg> Extending...'; }
-
-  // Show extending feedback with blur
-  if (video) video.classList.add('iterating');
-  if (feedback) { label.textContent = 'Extending 7s canvas to full music video...'; feedback.classList.add('active'); }
-  document.getElementById('ce-status-text').textContent = 'EXTENDING';
-
-  // Progressive status updates
-  setTimeout(() => { if (label) label.textContent = 'Generating 30-second sequences...'; }, 2000);
-  setTimeout(() => { if (label) label.textContent = 'Scene 1 of 8 complete...'; }, 3500);
-  setTimeout(() => { if (label) label.textContent = 'Stitching scenes with beat-matched transitions...'; }, 5000);
-  setTimeout(() => { if (label) label.textContent = 'Applying cinematic color grade...'; }, 6500);
-  setTimeout(() => {
-    // Pick a DIFFERENT video than what's currently playing to show change
-    const allDemos = ['memory_in_motion_demo.mp4','analog_memory_demo.mp4','midnight_city_demo.mp4',
-      'concrete_heat_demo.mp4','desert_drive_demo.mp4','euphoric_drift_demo.mp4',
-      'ghost_room_demo.mp4','velvet_dark_demo.mp4','sunrise_departure_demo.mp4',
-      'afterglow_ritual_demo.mp4','neon_calm_demo.mp4','peak_transmission_demo.mp4'];
-    const current = video?.src || '';
-    let pick = allDemos[Math.floor(Math.random() * allDemos.length)];
-    // Ensure it's different from current
-    for (let i = 0; i < 5 && current.includes(pick); i++) {
-      pick = allDemos[Math.floor(Math.random() * allDemos.length)];
-    }
-
-    // Swap to the new video
-    video.src = `/mood_demos/${pick}?v=${Date.now()}`;
-    video.load();
-    video.play().catch(() => {});
-
-    // Reveal with animation
-    video.classList.remove('iterating');
-    video.classList.add('revealing');
-    setTimeout(() => video.classList.remove('revealing'), 800);
-
-    if (feedback) feedback.classList.remove('active');
-    document.getElementById('ce-status-text').textContent = 'COMPLETE';
-
-    // Update meta and button
-    const meta = document.getElementById('ce-track-meta');
-    if (meta) meta.textContent = 'Full music video — 3:24';
-    if (extendBtn) {
-      extendBtn.style.opacity = '1';
-      extendBtn.style.pointerEvents = '';
-      extendBtn.innerHTML = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" style="width:18px;height:18px;"><rect x="3" y="5" width="14" height="10" rx="2"/><polygon points="8,8 13,10 8,12"/></svg> Full Video Ready';
-      extendBtn.style.borderColor = 'var(--accent)';
-      extendBtn.style.color = 'var(--accent)';
-    }
-  }, 8000);
-}
+// demoExtendToVideo — REMOVED. No demo mode. GPU or nothing.
 
 // Fun loading messages by stage
 const FUN_MESSAGES = {
@@ -5670,11 +5618,6 @@ function pollJobStatus(jobId) {
       const job = await resp.json();
       const progress = job.progress || 0;
 
-      // Check mode on status response
-      if (job.mode === 'demo' && !document.getElementById('ce-mode-banner')) {
-        ceShowModeBanner('demo', job.gpu_error);
-      }
-
       // Update Canvas Engine progress bar
       document.getElementById('ce-generate-fill').style.width = `${progress}%`;
       ceSetDetail('generate', job.message || `Generating... ${progress}%`);
@@ -5722,10 +5665,9 @@ function pollJobStatus(jobId) {
       } else if (job.status === 'error' || job.status === 'dead') {
         stopFunMessages();
         ceSetStage('generate', 'done');
-        ceSetDetail('generate', 'Generation failed — using demo');
+        ceSetDetail('generate', 'Generation failed — ' + (job.message || 'GPU error'));
         document.getElementById('ce-status-text').textContent = 'ERROR';
         console.error('Job error:', job.message);
-        showResult(currentFile?.name || 'Track', null);
         return;
       }
 
@@ -5740,70 +5682,16 @@ function pollJobStatus(jobId) {
         return;
       }
       stopFunMessages();
-      showResult(currentFile?.name || 'Track', null);
+      ceSetStage('generate', 'done');
+      ceSetDetail('generate', 'Lost connection to GPU server');
+      document.getElementById('ce-status-text').textContent = 'ERROR';
     }
   };
 
   poll();
 }
 
-function startDemoGeneration(filename) {
-  // Demo mode — simulate the full Canvas Engine v3 pipeline
-  showCanvasEngine();
-
-  // Set track name immediately
-  const trackNameEl = document.getElementById('ce-track-name');
-  if (trackNameEl) trackNameEl.textContent = filename.replace(/\.(wav|mp3|flac|m4a)$/i, '').replace(/_/g, ' ');
-
-  const steps = [
-    { delay: 500,  fn: () => { ceSetStage('upload', 'done'); }},
-    { delay: 1500, fn: () => { ceSetStage('feel', 'active'); ceSetDetail('feel', 'Extracting emotional DNA...'); }},
-    { delay: 3000, fn: () => {
-      ceSetStage('feel', 'done');
-      ceSetDetail('feel', 'BPM: 122 — Key: Am — Energy: Ascending melancholy');
-    }},
-    { delay: 3500, fn: () => {
-      // Show director picker overlay with demo directions
-      ceShowDirections([
-        { id: 'lubezki', director_name: 'Emmanuel Lubezki', philosophy: 'Natural light, long takes, breathing camera', color_palette: ['#d4a574','#8b6914'], confidence: 0.94, director_style: 'lubezki' },
-        { id: 'spike_jonze', director_name: 'Spike Jonze', philosophy: 'Intimate framing, emotional authenticity', color_palette: ['#6b8e7b','#4a6741'], confidence: 0.87, director_style: 'spike_jonze' },
-        { id: 'khalil_joseph', director_name: 'Khalil Joseph', philosophy: 'Analog warmth, memory texture', color_palette: ['#2c1810','#8b4513'], confidence: 0.82, director_style: 'khalil_joseph' },
-      ]);
-    }},
-    // Auto-select after 3 seconds if user hasn't picked
-    { delay: 6500, fn: () => {
-      const overlay = document.getElementById('ce-directors-overlay');
-      if (overlay && overlay.style.display !== 'none') {
-        ceSelectDirection('lubezki', document.querySelector('.ce-dir-option'));
-      }
-    }},
-    { delay: 7000, fn: () => {
-      ceSetStage('generate', 'active');
-      ceSetDetail('generate', 'Generating SDXL frames...');
-    }},
-    { delay: 8000, fn: () => { document.getElementById('ce-generate-fill').style.width = '30%'; ceSetDetail('generate', 'Ken Burns motion applied...'); }},
-    { delay: 9500, fn: () => { document.getElementById('ce-generate-fill').style.width = '65%'; ceSetDetail('generate', 'Rendering seamless loop...'); }},
-    { delay: 11000, fn: () => { document.getElementById('ce-generate-fill').style.width = '100%'; ceSetStage('generate', 'done'); }},
-    { delay: 11500, fn: () => {
-      ceSetStage('validate', 'done');
-      ceShowQuality(9.4);
-      // Show a demo video matched to selected director
-      const selectedDir = document.querySelector('.ce-dir-option.selected');
-      const dirStyle = selectedDir?.dataset?.style || 'lubezki';
-      const directorVideos = {
-        'lubezki': ['memory_in_motion_demo.mp4','analog_memory_demo.mp4'],
-        'spike_jonze': ['euphoric_drift_demo.mp4','sunrise_departure_demo.mp4'],
-        'khalil_joseph': ['velvet_dark_demo.mp4','ghost_room_demo.mp4'],
-      };
-      const pool = directorVideos[dirStyle] || ['memory_in_motion_demo.mp4'];
-      const pick = pool[Math.floor(Math.random() * pool.length)];
-      ceShowVideo(`/mood_demos/${pick}?v=demo`);
-    }},
-    { delay: 14000, fn: () => { showResult(filename, null); }},
-  ];
-
-  steps.forEach(({ delay, fn }) => setTimeout(fn, delay));
-}
+// startDemoGeneration — REMOVED. No demo mode. GPU or nothing.
 
 function showResult(filename, jobData) {
   closeUploadModal();
@@ -5841,23 +5729,11 @@ function showResult(filename, jobData) {
   } else if (currentJobId) {
     pollJobStatus(currentJobId);
   } else {
-    // Demo mode — match video to selected director
-    const directorVideos = {
-      'lubezki': ['memory_in_motion_demo.mp4','analog_memory_demo.mp4','desert_drive_demo.mp4'],
-      'hype_williams': ['peak_transmission_demo.mp4','neon_calm_demo.mp4','concrete_heat_demo.mp4'],
-      'spike_jonze': ['euphoric_drift_demo.mp4','sunrise_departure_demo.mp4','afterglow_ritual_demo.mp4'],
-      'dave_meyers': ['concrete_heat_demo.mp4','peak_transmission_demo.mp4','euphoric_drift_demo.mp4'],
-      'khalil_joseph': ['velvet_dark_demo.mp4','ghost_room_demo.mp4','midnight_city_demo.mp4'],
-    };
-    const selectedDir = document.querySelector('.ce-dir-option.selected');
-    const dirStyle = selectedDir?.dataset?.style || '';
-    const pool = directorVideos[dirStyle] || ['midnight_city_demo.mp4','velvet_dark_demo.mp4','ghost_room_demo.mp4'];
-    const pick = pool[Math.floor(Math.random() * pool.length)];
-    ceShowVideo(`/mood_demos/${pick}?v=demo`);
-    ceShowQuality(9.4);
-    document.getElementById('ce-status-text').textContent = 'COMPLETE';
-    document.getElementById('ce-drawer').style.display = 'flex';
-    ceUpdateSuggestions();
+    // No job data and no job ID — GPU generation didn't produce output
+    document.getElementById('ce-status-text').textContent = 'ERROR';
+    ceSetStage('generate', 'done');
+    ceSetDetail('generate', 'No GPU output received');
+    console.error('showResult: no job data and no active job');
   }
 }
 
@@ -5904,73 +5780,24 @@ function ceSubmitIntent() {
       if (video) { video.classList.remove('iterating'); video.classList.add('revealing'); setTimeout(() => video.classList.remove('revealing'), 800); }
       if (feedback) feedback.classList.remove('active');
       if (statusText) statusText.textContent = 'COMPLETE';
-    }).catch(() => {
-      ceDemoIterate(intent);
+    }).catch((err) => {
+      if (video) { video.classList.remove('iterating'); }
+      if (feedback) feedback.classList.remove('active');
+      if (statusText) statusText.textContent = 'ERROR';
+      console.error('Iterate failed:', err);
     });
   } else {
-    // Demo mode — blur for 1.5s, then swap
-    setTimeout(() => ceDemoIterate(intent), 1500);
+    // No job ID — GPU not connected, can't iterate
+    if (video) { video.classList.remove('iterating'); }
+    if (feedback) feedback.classList.remove('active');
+    if (statusText) statusText.textContent = 'ERROR';
+    console.error('Cannot iterate: no active GPU job');
   }
 
   input.value = '';
 }
 
-function ceDemoIterate(intent) {
-  const allDemos = ['memory_in_motion_demo.mp4','analog_memory_demo.mp4','midnight_city_demo.mp4',
-    'concrete_heat_demo.mp4','desert_drive_demo.mp4','euphoric_drift_demo.mp4',
-    'ghost_room_demo.mp4','velvet_dark_demo.mp4','sunrise_departure_demo.mp4',
-    'afterglow_ritual_demo.mp4','neon_calm_demo.mp4','peak_transmission_demo.mp4'];
-
-  // Match intent to a video style — curated mapping
-  const warm = ['afterglow_ritual_demo.mp4','sunrise_departure_demo.mp4','analog_memory_demo.mp4'];
-  const dark = ['midnight_city_demo.mp4','velvet_dark_demo.mp4','ghost_room_demo.mp4'];
-  const energy = ['peak_transmission_demo.mp4','euphoric_drift_demo.mp4','concrete_heat_demo.mp4'];
-  const calm = ['memory_in_motion_demo.mp4','neon_calm_demo.mp4','desert_drive_demo.mp4'];
-
-  let pool = allDemos;
-  const lowerIntent = intent.toLowerCase();
-  if (lowerIntent.includes('warm') || lowerIntent.includes('golden') || lowerIntent.includes('sunrise') || lowerIntent.includes('warmer')) pool = warm;
-  else if (lowerIntent.includes('dark') || lowerIntent.includes('night') || lowerIntent.includes('tokyo') || lowerIntent.includes('3am') || lowerIntent.includes('darker')) pool = dark;
-  else if (lowerIntent.includes('energy') || lowerIntent.includes('fast') || lowerIntent.includes('intense') || lowerIntent.includes('hype')) pool = energy;
-  else if (lowerIntent.includes('calm') || lowerIntent.includes('memory') || lowerIntent.includes('slow') || lowerIntent.includes('dream') || lowerIntent.includes('dreamy')) pool = calm;
-  else if (lowerIntent.includes('grain') || lowerIntent.includes('film') || lowerIntent.includes('analog')) pool = ['analog_memory_demo.mp4','memory_in_motion_demo.mp4'];
-  else if (lowerIntent.includes('movement') || lowerIntent.includes('motion') || lowerIntent.includes('more motion')) pool = ['euphoric_drift_demo.mp4','peak_transmission_demo.mp4'];
-  else if (lowerIntent.includes('rain') || lowerIntent.includes('melancholy') || lowerIntent.includes('soaked')) pool = ['ghost_room_demo.mp4','midnight_city_demo.mp4','velvet_dark_demo.mp4'];
-  else if (lowerIntent.includes('neon') || lowerIntent.includes('street') || lowerIntent.includes('urban') || lowerIntent.includes('concrete')) pool = ['neon_calm_demo.mp4','concrete_heat_demo.mp4','midnight_city_demo.mp4'];
-
-  // Always pick one different from current
-  const current = document.getElementById('ce-preview-video')?.src || '';
-  let pick = pool[Math.floor(Math.random() * pool.length)];
-  if (current.includes(pick) && pool.length > 1) {
-    pick = pool[(pool.indexOf(pick) + 1) % pool.length];
-  }
-  // If still the same, try a third option
-  if (current.includes(pick) && pool.length > 2) {
-    pick = pool[(pool.indexOf(pick) + 1) % pool.length];
-  }
-
-  const video = document.getElementById('ce-preview-video');
-  const feedback = document.getElementById('ce-iterate-feedback');
-
-  // Load new video (ceShowVideo handles the src swap)
-  const cleanUrl = `/mood_demos/${pick}?v=${Date.now()}`;
-  video.src = cleanUrl;
-  video.load();
-  video.play().catch(() => {});
-
-  // Reveal animation — unblur with a pop
-  video.classList.remove('iterating');
-  video.classList.add('revealing');
-  setTimeout(() => video.classList.remove('revealing'), 800);
-
-  // Hide feedback, show complete
-  if (feedback) feedback.classList.remove('active');
-  document.getElementById('ce-status-text').textContent = 'COMPLETE';
-
-  // Update track meta to show what changed
-  const meta = document.getElementById('ce-track-meta');
-  if (meta) meta.textContent = `Applied: ${intent}`;
-}
+// ceDemoIterate — REMOVED. No demo mode. GPU or nothing.
 
 function ceUseSuggestion(el) {
   // Highlight the selected chip
