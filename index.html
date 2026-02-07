@@ -7584,8 +7584,12 @@ function renderMoodLibrary(moods) {
         isPlaying = false;
         updateIcons(false);
       } else {
-        video.play();
-        if (audio) audio.play();
+        // Load on demand if preload="none", then play
+        if (video.readyState === 0) video.load();
+        video.muted = false;
+        const vp = video.play();
+        if (vp && vp.catch) vp.catch(() => { video.muted = true; video.play().catch(() => {}); });
+        if (audio) { const ap = audio.play(); if (ap && ap.catch) ap.catch(() => {}); }
         card.classList.add('playing');
         isPlaying = true;
         updateIcons(true);
@@ -7595,14 +7599,18 @@ function renderMoodLibrary(moods) {
     // Loop video
     video.addEventListener('ended', () => {
       video.currentTime = 0;
-      video.play();
+      const p = video.play();
+      if (p && p.catch) p.catch(() => {});
     });
 
-    // Hover preview (muted)
+    // Hover preview (muted) — Safari-safe: catch rejected play promise
     card.addEventListener('mouseenter', () => {
       if (!isPlaying) {
         video.muted = true;
-        video.play();
+        // Load video on demand if preload="none"
+        if (video.readyState === 0) video.load();
+        const p = video.play();
+        if (p && p.catch) p.catch(() => {});
       }
     });
 
