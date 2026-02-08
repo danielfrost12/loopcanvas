@@ -21,6 +21,10 @@
     {
       "src": "mood_demos/**",
       "use": "@vercel/static"
+    },
+    {
+      "src": "docs/**",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
@@ -28,6 +32,8 @@
     { "src": "/cms/(.*)", "dest": "/cms/$1" },
     { "src": "/mood_demos/(.*)", "dest": "/mood_demos/$1" },
     { "src": "/admin", "dest": "/admin.html" },
+    { "src": "/docs/(.*)", "dest": "/docs/$1" },
+    { "src": "/docs", "dest": "/docs/index.html" },
     { "src": "/(.*)", "dest": "/index.html" }
   ],
   "env": {
