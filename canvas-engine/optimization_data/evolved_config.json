@@ -1,6 +1,6 @@
 {
-  "version": 1,
-  "updated_at": "2026-02-06T01:17:46.576424",
+  "version": 2,
+  "updated_at": "2026-02-08T05:06:14.346711",
   "style_performance": {
     "spike_jonze": {
       "avg_score": 8.63,
@@ -28,17 +28,11 @@
     }
   },
   "evolved_params": {},
-  "negative_prompt_additions": [
-    "ai generated look",
-    "morphing artifacts",
-    "plastic skin",
-    "unnaturally smooth"
-  ],
+  "negative_prompt_additions": [],
   "most_popular_style": "spike_jonze",
   "metrics": {
     "avg_quality": 8.63,
     "pass_rate": 0.0,
     "best_score": 8.63
-  },
-  "quality_minimum": 9.5
+  }
 }
