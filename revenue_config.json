@@ -1,24 +1,56 @@
 {
-  "version": 1,
+  "version": 2,
   "phase": 1,
   "cost_enforcement": {
     "hard_block": true,
-    "allowed_paid_apis": [],
-    "total_spend_this_month": 0.0,
-    "alert_threshold": 0.01,
-    "monthly_revenue": 0.0
+    "total_spend": 0.0,
+    "total_revenue": 0.0,
+    "profit": 0.0,
+    "status": "compliant"
   },
   "pricing_tiers": {
-    "free": {"price": 0, "canvases_per_month": 3, "watermark": true, "formats": ["spotify_canvas"]},
-    "artist": {"price": 9.99, "canvases_per_month": -1, "watermark": false, "formats": ["spotify_canvas", "apple_music", "tiktok"]},
-    "pro": {"price": 29.99, "canvases_per_month": -1, "watermark": false, "formats": "all", "features": ["4k_export", "music_video", "priority_generation"]},
-    "enterprise": {"price": "custom", "canvases_per_month": -1, "watermark": false, "formats": "all", "features": "all"}
+    "free": {
+      "price": 0,
+      "canvases_per_month": 3,
+      "watermark": true,
+      "formats": [
+        "spotify_canvas"
+      ]
+    },
+    "artist": {
+      "price": 9.99,
+      "canvases_per_month": -1,
+      "watermark": false,
+      "formats": [
+        "spotify_canvas",
+        "apple_music",
+        "tiktok"
+      ]
+    },
+    "pro": {
+      "price": 29.99,
+      "canvases_per_month": -1,
+      "watermark": false,
+      "formats": "all",
+      "features": [
+        "4k_export",
+        "music_video",
+        "priority_generation"
+      ]
+    },
+    "enterprise": {
+      "price": "custom",
+      "canvases_per_month": -1,
+      "watermark": false,
+      "formats": "all",
+      "features": "all"
+    }
   },
   "conversion_funnel": {
     "free_to_artist": 0.0,
-    "artist_to_pro": 0.0,
-    "pro_to_enterprise": 0.0,
-    "churn_rate": 0.0
+    "churn_rate": 0.0,
+    "mrr": 0.0,
+    "mrr_growth_rate": 0.0
   },
   "startup_credits": {
     "aws_activate": "pending",
@@ -26,6 +58,6 @@
     "azure_startups": "pending",
     "estimated_total": "$100K-$300K"
   },
-  "last_updated": "",
-  "last_decision": ""
+  "last_updated": "2026-02-08T05:06:29.021954Z",
+  "last_decision": "Phase 1: Pre-revenue. Enforcing $0 cost ceiling."
 }

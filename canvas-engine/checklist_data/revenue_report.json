@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-02-08T05:06:29.021954Z",
+  "phase": 1,
+  "mrr": 0.0,
+  "total_costs": 0.0,
+  "profit": 0.0,
+  "cost_status": "compliant",
+  "cost_alerts": [
+    "\u2705 $0 spend confirmed across all cost centers."
+  ],
+  "conversion_funnel": {
+    "total_users": 0,
+    "free_users": 0,
+    "paid_users": 0,
+    "free_to_paid_rate": 0.0,
+    "churn_rate": 0.0
+  },
+  "actions": []
+}
