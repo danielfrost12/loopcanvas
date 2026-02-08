@@ -397,6 +397,96 @@ class DirectorPhilosophyEngine:
                     "motion_intensity": 0.4,
                 }
             ),
+
+            DirectorStyle.GOLDEN_HOUR.value: DirectorPhilosophy(
+                name="Golden Hour",
+                style_id="golden_hour",
+                central_theme="Light as the protagonist — everything bathed in amber warmth",
+                emotional_approach="Gentle awe. The world is beautiful and fleeting.",
+                visual_metaphor_style="Natural light as divine presence, landscapes as emotional mirrors",
+                color_philosophy={
+                    "palette": "Warm ambers, soft golds, lifted shadows, no pure black",
+                    "temperature": "Warm — everything tilted toward sunrise/sunset",
+                    "saturation": 0.70,
+                    "contrast": 0.60,
+                },
+                lighting_approach="Golden hour only. Backlit subjects, lens flares, sun-kissed edges.",
+                camera_movement="Slow, floating. Lubezki-style natural drift.",
+                editing_rhythm="Long takes, gentle dissolves. Time feels suspended.",
+                texture_preference="Soft focus, lifted blacks, slight halation on highlights.",
+                emotion_to_visual={
+                    "warmth": {
+                        "approach": "Immerse in amber light",
+                        "colors": ["gold", "amber", "soft peach"],
+                        "motion": "slow drift, breathing",
+                        "lighting": "backlit, sun flares",
+                    },
+                    "hope": {
+                        "approach": "Light breaking through",
+                        "colors": ["gold", "cream", "sky blue"],
+                        "motion": "ascending, opening",
+                        "lighting": "sunrise, rays through atmosphere",
+                    },
+                    "nostalgia": {
+                        "approach": "Memory softened by time",
+                        "colors": ["amber", "faded warmth", "soft grain"],
+                        "motion": "slow, dreamlike",
+                        "lighting": "late afternoon, long shadows",
+                    },
+                },
+                default_params={
+                    "grain": 0.12,
+                    "blur": 1.0,
+                    "contrast": 0.60,
+                    "saturation": 0.70,
+                    "motion_intensity": 0.3,
+                }
+            ),
+
+            DirectorStyle.MIDNIGHT_DRIFT.value: DirectorPhilosophy(
+                name="Midnight Drift",
+                style_id="midnight_drift",
+                central_theme="Nocturnal calm — the city breathes differently after dark",
+                emotional_approach="Quiet confidence. Solitude as freedom, not loneliness.",
+                visual_metaphor_style="Urban night as emotional landscape, neon as punctuation",
+                color_philosophy={
+                    "palette": "Cool blues, deep purples, neon accents against shadow",
+                    "temperature": "Cool — midnight blues with warm neon counterpoints",
+                    "saturation": 0.75,
+                    "contrast": 0.85,
+                },
+                lighting_approach="Practical neon, streetlights, reflections on wet surfaces.",
+                camera_movement="Smooth, gliding. Night drive perspective.",
+                editing_rhythm="Unhurried, hypnotic. Cuts on mood shifts, not beats.",
+                texture_preference="Clean digital with subtle grain, neon bloom on highlights.",
+                emotion_to_visual={
+                    "solitude": {
+                        "approach": "Alone but not lonely — freedom in the dark",
+                        "colors": ["deep blue", "purple", "single neon accent"],
+                        "motion": "gliding, drifting forward",
+                        "lighting": "streetlights, car headlights, distant neon",
+                    },
+                    "longing": {
+                        "approach": "The city remembers what you can't forget",
+                        "colors": ["neon pink", "deep blue", "rain reflections"],
+                        "motion": "slow, searching",
+                        "lighting": "neon reflections on wet pavement",
+                    },
+                    "calm": {
+                        "approach": "Night as sanctuary",
+                        "colors": ["dark blue", "soft purple", "dim amber"],
+                        "motion": "barely moving, breathing",
+                        "lighting": "ambient, diffused, no harsh sources",
+                    },
+                },
+                default_params={
+                    "grain": 0.08,
+                    "blur": 0.6,
+                    "contrast": 0.85,
+                    "saturation": 0.75,
+                    "motion_intensity": 0.35,
+                }
+            ),
         }
 
     def get_director(self, style: str) -> Optional[DirectorPhilosophy]:
@@ -471,6 +561,22 @@ class DirectorPhilosophyEngine:
             + 0.25 * (0.5 - abs(valence))  # Emotionally complex
             + 0.25 * emotional_dna.get('warmth', 0.5)
             + 0.25 * 0.7  # Base score - works for most
+        )
+
+        # Golden Hour: Warm, hopeful, gentle energy
+        scores['golden_hour'] = (
+            0.35 * emotional_dna.get('warmth', 0.5)
+            + 0.25 * max(valence, 0)  # Positive valence
+            + 0.25 * (1 - arousal)  # Calmer
+            + 0.15 * emotional_dna.get('brightness', 0.5)
+        )
+
+        # Midnight Drift: Urban, cool, nocturnal calm
+        scores['midnight_drift'] = (
+            0.3 * (1 - emotional_dna.get('warmth', 0.5))  # Cooler
+            + 0.25 * (0.5 - abs(arousal - 0.4))  # Moderate energy
+            + 0.25 * genre.get('electronic', 0)
+            + 0.2 * (1 - emotional_dna.get('brightness', 0.5))  # Darker
         )
 
         # Find best match

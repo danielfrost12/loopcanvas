@@ -42,6 +42,7 @@ from pathlib import Path
 from datetime import datetime
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from socketserver import ThreadingMixIn
+import urllib.parse
 from urllib.parse import parse_qs, urlparse
 import threading
 import time
@@ -155,8 +156,18 @@ def parse_multipart(content_type: str, body: bytes):
     return result
 
 
+# ══════════════════════════════════════════════════════════════
+# Authentication
+# ══════════════════════════════════════════════════════════════
+from auth import CanvasAuth
+_canvas_auth = CanvasAuth()
+
+# Allowed origin for CORS (set via env or default to *)
+ALLOWED_ORIGIN = os.environ.get("LOOPCANVAS_ALLOWED_ORIGIN", "*")
+
+
 class LoopCanvasHandler(SimpleHTTPRequestHandler):
-    """HTTP handler with v1 + v2 API endpoints."""
+    """HTTP handler with v1 + v2 API endpoints + auth."""
 
     def do_POST(self):
         """Route POST requests."""
@@ -173,40 +184,65 @@ class LoopCanvasHandler(SimpleHTTPRequestHandler):
 
     def _route_post(self):
         """Internal POST routing."""
-        # === v2.0 endpoints ===
+        # === Auth routes (public — these ARE the login flow) ===
+        if self.path == "/auth/apple/callback":
+            self.handle_apple_callback()
+            return
+        elif self.path == "/auth/logout":
+            self.handle_logout()
+            return
+
+        # === v2.0 endpoints (require auth: session or API key) ===
         if self.path == "/api/v2/analyze":
+            if not _canvas_auth.require_auth(self): return
             self.handle_v2_analyze()
         elif self.path == "/api/v2/select":
+            if not _canvas_auth.require_auth(self): return
             self.handle_v2_select()
         elif self.path == "/api/v2/iterate":
+            if not _canvas_auth.require_auth(self): return
             self.handle_v2_iterate()
         elif self.path == "/api/v2/edit":
+            if not _canvas_auth.require_auth(self): return
             self.handle_v2_edit()
         elif self.path == "/api/v2/export":
+            if not _canvas_auth.require_auth(self): return
             self.handle_v2_export()
         elif self.path == "/api/v2/undo":
+            if not _canvas_auth.require_auth(self): return
             self.handle_v2_undo()
-        # === Queue endpoints (GPU worker communication) ===
+        # === Queue endpoints (require worker token) ===
         elif self.path == "/api/v2/queue/claim":
+            if not _canvas_auth.require_worker(self): return
             self.handle_queue_claim()
         elif self.path == "/api/v2/queue/progress":
+            if not _canvas_auth.require_worker(self): return
             self.handle_queue_progress()
         elif self.path == "/api/v2/queue/complete":
+            if not _canvas_auth.require_worker(self): return
             self.handle_queue_complete()
         elif self.path == "/api/v2/queue/fail":
+            if not _canvas_auth.require_worker(self): return
             self.handle_queue_fail()
         elif self.path == "/api/v2/queue/submit":
+            if not _canvas_auth.require_worker(self): return
             self.handle_queue_submit()
-        # === v1 endpoints (preserved) ===
+        # === v1 endpoints (require auth) ===
         elif self.path == "/api/upload":
+            if not _canvas_auth.require_auth(self): return
             self.handle_upload()
         elif self.path == "/api/generate":
+            if not _canvas_auth.require_auth(self): return
             self.handle_generate()
         elif self.path == "/api/regenerate":
+            if not _canvas_auth.require_auth(self): return
             self.handle_regenerate()
         elif self.path.startswith("/api/status/"):
+            if not _canvas_auth.require_auth(self): return
             self.handle_status()
+        # === Admin endpoints (require admin key) ===
         elif self.path == "/api/cms/save":
+            if not _canvas_auth.require_admin(self): return
             self.handle_cms_save()
         else:
             self.send_error(404)
@@ -228,7 +264,7 @@ class LoopCanvasHandler(SimpleHTTPRequestHandler):
         """Internal GET routing."""
         parsed = urlparse(self.path)
 
-        # === Health check (GPU liveness) ===
+        # === Public routes (no auth) ===
         if parsed.path == "/api/health":
             self.send_json_response({
                 "gpu": "live",
@@ -238,38 +274,146 @@ class LoopCanvasHandler(SimpleHTTPRequestHandler):
             })
             return
 
-        elif parsed.path == "/api/gpu/status":
-            self.send_json_response(get_gpu_status())
+        # === Auth routes (public) ===
+        elif parsed.path == "/auth/apple/login":
+            self.handle_apple_login()
+            return
+        elif parsed.path == "/auth/me":
+            self.handle_auth_me()
             return
 
+        # === Admin routes (require admin key) ===
+        elif parsed.path == "/api/gpu/status":
+            if not _canvas_auth.require_admin(self): return
+            self.send_json_response(get_gpu_status())
+            return
         elif parsed.path == "/api/admin/health":
+            if not _canvas_auth.require_admin(self): return
             self.handle_admin_health()
             return
 
-        # === v2.0 endpoints ===
+        # === v2.0 endpoints (require auth) ===
         if parsed.path.startswith("/api/v2/directions/"):
+            if not _canvas_auth.require_auth(self): return
             job_id = parsed.path.split("/")[-1]
             self.handle_v2_directions(job_id)
         elif parsed.path == "/api/v2/platforms":
+            if not _canvas_auth.require_auth(self): return
             self.handle_v2_platforms()
         elif parsed.path == "/api/v2/cost-report":
+            if not _canvas_auth.require_auth(self): return
             self.handle_v2_cost_report()
         elif parsed.path == "/api/v2/queue/stats":
+            if not _canvas_auth.require_admin(self): return
             self.handle_queue_stats()
         elif parsed.path == "/api/v2/seed/status":
+            if not _canvas_auth.require_admin(self): return
             self.handle_seed_status()
         elif parsed.path.startswith("/api/v2/status/"):
+            if not _canvas_auth.require_auth(self): return
             job_id = parsed.path.split("/")[-1]
             self.handle_v2_status(job_id)
-        # === v1 endpoints ===
+        # === v1 endpoints (require auth) ===
         elif parsed.path.startswith("/api/status/"):
+            if not _canvas_auth.require_auth(self): return
             job_id = parsed.path.split("/")[-1]
             self.handle_status_get(job_id)
+        # === Static files (public — docs, UI, outputs) ===
         elif parsed.path.startswith("/outputs/"):
             self.path = parsed.path
             super().do_GET()
+        elif parsed.path == "/docs" or parsed.path.startswith("/docs/"):
+            # Serve docs directory (fix: ensure /docs resolves to /docs/)
+            if parsed.path == "/docs":
+                self.send_response(301)
+                self.send_header("Location", "/docs/")
+                self.end_headers()
+            else:
+                self.path = parsed.path
+                super().do_GET()
         else:
             super().do_GET()
+
+    # ══════════════════════════════════════════════════════════════
+    # AUTH ENDPOINTS — Sign in with Apple + session management
+    # ══════════════════════════════════════════════════════════════
+
+    def handle_apple_login(self):
+        """GET /auth/apple/login — Redirect to Apple Sign In."""
+        auth_url = _canvas_auth.get_apple_auth_url()
+        self.send_response(302)
+        self.send_header("Location", auth_url)
+        self.end_headers()
+
+    def handle_apple_callback(self):
+        """POST /auth/apple/callback — Apple redirects here with auth code."""
+        content_length = int(self.headers.get('Content-Length', 0))
+        body = self.rfile.read(content_length).decode('utf-8')
+
+        # Apple POSTs form-encoded data
+        params = urllib.parse.parse_qs(body)
+        code = params.get("code", [None])[0]
+        state = params.get("state", [None])[0]
+        # Apple sends user info only on FIRST sign-in
+        user_data = params.get("user", [None])[0]
+
+        if not code:
+            self.send_json_error("Missing authorization code from Apple", 400)
+            return
+
+        # Exchange code for tokens
+        claims = _canvas_auth.exchange_apple_code(code)
+        if not claims:
+            self.send_json_error("Failed to verify Apple sign-in", 401)
+            return
+
+        apple_id = claims.get("sub", "")
+        email = claims.get("email", "")
+        name = ""
+
+        # Parse user info (only sent on first auth)
+        if user_data:
+            try:
+                user_info = json.loads(user_data)
+                name_info = user_info.get("name", {})
+                name = f"{name_info.get('firstName', '')} {name_info.get('lastName', '')}".strip()
+            except Exception:
+                pass
+
+        # Create session
+        session_token = _canvas_auth.create_session(apple_id, email, name)
+
+        # Redirect to app with session cookie
+        self.send_response(302)
+        cookie = f"canvas_session={session_token}; Path=/; HttpOnly; SameSite=Lax; Max-Age={30*24*60*60}"
+        # Add Secure flag when behind Cloudflare (HTTPS)
+        if self.headers.get("CF-Connecting-IP"):
+            cookie += "; Secure"
+        self.send_header("Set-Cookie", cookie)
+        self.send_header("Location", "/")
+        self.end_headers()
+
+    def handle_logout(self):
+        """POST /auth/logout — Destroy session."""
+        _canvas_auth.destroy_session(self)
+        self.send_response(302)
+        self.send_header("Set-Cookie", "canvas_session=; Path=/; HttpOnly; Max-Age=0")
+        self.send_header("Location", "/")
+        self.end_headers()
+
+    def handle_auth_me(self):
+        """GET /auth/me — Return current user info (or 401)."""
+        user = _canvas_auth.get_session(self)
+        if user:
+            self.send_json_response({
+                "authenticated": True,
+                "provider": "apple",
+                "apple_id": user.apple_id[:8] + "...",
+                "email": user.email,
+                "name": user.name,
+            })
+        else:
+            self.send_json_response({"authenticated": False}, 200)
 
     # ══════════════════════════════════════════════════════════════
     # ADMIN / OBSERVABILITY ENDPOINTS
@@ -1463,7 +1607,9 @@ class LoopCanvasHandler(SimpleHTTPRequestHandler):
             logger.error(f"JSON serialization error: {e}")
         self.send_response(status)
         self.send_header('Content-Type', 'application/json')
-        self.send_header('Access-Control-Allow-Origin', '*')
+        origin = self.headers.get('Origin', ALLOWED_ORIGIN) if ALLOWED_ORIGIN != '*' else '*'
+        self.send_header('Access-Control-Allow-Origin', origin)
+        self.send_header('Access-Control-Allow-Credentials', 'true')
         self.end_headers()
         self.wfile.write(body.encode())
 
@@ -1474,9 +1620,11 @@ class LoopCanvasHandler(SimpleHTTPRequestHandler):
     def do_OPTIONS(self):
         """Handle CORS preflight."""
         self.send_response(200)
-        self.send_header('Access-Control-Allow-Origin', '*')
+        origin = self.headers.get('Origin', ALLOWED_ORIGIN) if ALLOWED_ORIGIN != '*' else '*'
+        self.send_header('Access-Control-Allow-Origin', origin)
         self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Worker-Token')
+        self.send_header('Access-Control-Allow-Credentials', 'true')
         self.end_headers()
 
 

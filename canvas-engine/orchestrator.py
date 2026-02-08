@@ -524,10 +524,25 @@ class CanvasOrchestrator:
         if mode == "fast":
             cmd.append("--fast")
 
+        # Canvas-only: generate 1 clip for instant canvas delivery (~45s vs ~13 min)
+        if mode == "cloud":
+            cmd.append("--canvas-only")
+
         # Pass director params as environment variables
         env = os.environ.copy()
+        env["PYTHONUNBUFFERED"] = "1"  # Flush stdout so progress lines arrive immediately
         env["LOOPCANVAS_MODE"] = mode  # Ensure subprocess inherits the correct mode
         env["LOOPCANVAS_STYLE"] = style_name
+
+        # CRITICAL: Pass director identity so grammy.py uses correct visual DNA
+        env["LOOPCANVAS_DIRECTOR"] = selected.get('director_style', '')
+        env["LOOPCANVAS_DIRECTOR_NAME"] = selected.get('director_name', '')
+        env["LOOPCANVAS_DIRECTOR_PHILOSOPHY"] = selected.get('philosophy', '')
+        env["LOOPCANVAS_DIRECTOR_TEXTURE"] = selected.get('texture', '')
+        preview_prompt = selected.get('preview_prompt', '')
+        if preview_prompt:
+            env["LOOPCANVAS_DIRECTOR_PROMPT"] = preview_prompt
+
         params = selected.get('params', {})
         env["LOOPCANVAS_GRAIN"] = str(params.get('grain', 0.18))
         env["LOOPCANVAS_SATURATION"] = str(params.get('saturation', 0.75))
@@ -600,15 +615,20 @@ class CanvasOrchestrator:
                 if process.returncode != 0:
                     print(f"[Orchestrator] Pipeline exited {process.returncode} but output files exist — treating as success")
 
-                # Run quality gate
-                job.progress = 88
-                job.message = "Running quality gate..."
-                self._run_quality_gate(job)
+                if mode == "cloud":
+                    # Canvas-only fast path: skip quality gate and loop validation for speed
+                    job.progress = 90
+                    job.message = "Finalizing canvas..."
+                    print(f"[Orchestrator] Canvas-only: skipping quality/loop validation for speed")
+                else:
+                    # Full mode: run quality gate and loop validation
+                    job.progress = 88
+                    job.message = "Running quality gate..."
+                    self._run_quality_gate(job)
 
-                # Run loop validation
-                job.progress = 92
-                job.message = "Validating loop..."
-                self._run_loop_validation(job)
+                    job.progress = 92
+                    job.message = "Validating loop..."
+                    self._run_loop_validation(job)
 
                 # Finalize outputs
                 self._finalize_outputs(job)
