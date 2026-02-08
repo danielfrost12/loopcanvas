@@ -1,0 +1,461 @@
+{
+  "timestamp": "2026-02-08T05:06:50.851101",
+  "total_checks": 21,
+  "passed_checks": 16,
+  "failed_checks": 5,
+  "critical_failures": 1,
+  "overall_verdict": "FAIL",
+  "check_results": [
+    {
+      "check_id": "api_health_api_configs",
+      "check_name": "API Health: /api/configs",
+      "passed": false,
+      "severity": "warning",
+      "metric_value": 0.0,
+      "threshold": 200.0,
+      "details": {
+        "url": "http://localhost:3000/api/configs",
+        "status_code": 0,
+        "error": "[Errno 111] Connection refused"
+      },
+      "remediation": "Check that /api/configs is accessible and returns 2xx",
+      "timestamp": "2026-02-08T05:06:50.845814"
+    },
+    {
+      "check_id": "api_health_api_track",
+      "check_name": "API Health: /api/track",
+      "passed": false,
+      "severity": "warning",
+      "metric_value": 0.0,
+      "threshold": 200.0,
+      "details": {
+        "url": "http://localhost:3000/api/track",
+        "status_code": 0,
+        "error": "[Errno 111] Connection refused"
+      },
+      "remediation": "Check that /api/track is accessible and returns 2xx",
+      "timestamp": "2026-02-08T05:06:50.846075"
+    },
+    {
+      "check_id": "api_health_api_upload",
+      "check_name": "API Health: /api/upload",
+      "passed": false,
+      "severity": "warning",
+      "metric_value": 0.0,
+      "threshold": 200.0,
+      "details": {
+        "url": "http://localhost:3000/api/upload",
+        "status_code": 0,
+        "error": "[Errno 111] Connection refused"
+      },
+      "remediation": "Check that /api/upload is accessible and returns 2xx",
+      "timestamp": "2026-02-08T05:06:50.846317"
+    },
+    {
+      "check_id": "api_health_api_generate",
+      "check_name": "API Health: /api/generate",
+      "passed": false,
+      "severity": "warning",
+      "metric_value": 0.0,
+      "threshold": 200.0,
+      "details": {
+        "url": "http://localhost:3000/api/generate",
+        "status_code": 0,
+        "error": "[Errno 111] Connection refused"
+      },
+      "remediation": "Check that /api/generate is accessible and returns 2xx",
+      "timestamp": "2026-02-08T05:06:50.846558"
+    },
+    {
+      "check_id": "config_growth_config_json",
+      "check_name": "Config: growth_config.json",
+      "passed": false,
+      "severity": "critical",
+      "metric_value": 0.0,
+      "threshold": 1.0,
+      "details": {
+        "path": "/home/runner/work/loopcanvas/loopcanvas/growth_config.json",
+        "missing_keys": [
+          "share",
+          "referral",
+          "social_proof",
+          "watermark"
+        ],
+        "error": "Missing keys: share, referral, social_proof, watermark"
+      },
+      "remediation": "Fix or regenerate growth_config.json: Missing keys: share, referral, social_proof, watermark",
+      "timestamp": "2026-02-08T05:06:50.846690"
+    },
+    {
+      "check_id": "config_onboarding_config_json",
+      "check_name": "Config: onboarding_config.json",
+      "passed": true,
+      "severity": "info",
+      "metric_value": 1.0,
+      "threshold": 1.0,
+      "details": {
+        "path": "/home/runner/work/loopcanvas/loopcanvas/onboarding_config.json",
+        "missing_keys": [],
+        "error": ""
+      },
+      "remediation": "",
+      "timestamp": "2026-02-08T05:06:50.846770"
+    },
+    {
+      "check_id": "config_retention_config_json",
+      "check_name": "Config: retention_config.json",
+      "passed": true,
+      "severity": "info",
+      "metric_value": 1.0,
+      "threshold": 1.0,
+      "details": {
+        "path": "/home/runner/work/loopcanvas/loopcanvas/retention_config.json",
+        "missing_keys": [],
+        "error": ""
+      },
+      "remediation": "",
+      "timestamp": "2026-02-08T05:06:50.846833"
+    },
+    {
+      "check_id": "config_landing_config_json",
+      "check_name": "Config: landing_config.json",
+      "passed": true,
+      "severity": "info",
+      "metric_value": 1.0,
+      "threshold": 1.0,
+      "details": {
+        "path": "/home/runner/work/loopcanvas/loopcanvas/landing_config.json",
+        "missing_keys": [],
+        "error": ""
+      },
+      "remediation": "",
+      "timestamp": "2026-02-08T05:06:50.846889"
+    },
+    {
+      "check_id": "template_share_modal_html",
+      "check_name": "Template: share_modal.html",
+      "passed": true,
+      "severity": "info",
+      "metric_value": 7067.0,
+      "threshold": 1.0,
+      "details": {
+        "path": "/home/runner/work/loopcanvas/loopcanvas/templates/share_modal.html",
+        "size_bytes": 7067,
+        "error": ""
+      },
+      "remediation": "",
+      "timestamp": "2026-02-08T05:06:50.846917"
+    },
+    {
+      "check_id": "template_onboarding_tips_html",
+      "check_name": "Template: onboarding_tips.html",
+      "passed": true,
+      "severity": "info",
+      "metric_value": 4184.0,
+      "threshold": 1.0,
+      "details": {
+        "path": "/home/runner/work/loopcanvas/loopcanvas/templates/onboarding_tips.html",
+        "size_bytes": 4184,
+        "error": ""
+      },
+      "remediation": "",
+      "timestamp": "2026-02-08T05:06:50.846937"
+    },
+    {
+      "check_id": "template_return_banner_html",
+      "check_name": "Template: return_banner.html",
+      "passed": true,
+      "severity": "info",
+      "metric_value": 3661.0,
+      "threshold": 1.0,
+      "details": {
+        "path": "/home/runner/work/loopcanvas/loopcanvas/templates/return_banner.html",
+        "size_bytes": 3661,
+        "error": ""
+      },
+      "remediation": "",
+      "timestamp": "2026-02-08T05:06:50.846959"
+    },
+    {
+      "check_id": "template_gallery_component_html",
+      "check_name": "Template: gallery_component.html",
+      "passed": true,
+      "severity": "info",
+      "metric_value": 4064.0,
+      "threshold": 1.0,
+      "details": {
+        "path": "/home/runner/work/loopcanvas/loopcanvas/templates/gallery_component.html",
+        "size_bytes": 4064,
+        "error": ""
+      },
+      "remediation": "",
+      "timestamp": "2026-02-08T05:06:50.846976"
+    },
+    {
+      "check_id": "template_landing_hero_variant_html",
+      "check_name": "Template: landing_hero_variant.html",
+      "passed": true,
+      "severity": "info",
+      "metric_value": 2961.0,
+      "threshold": 1.0,
+      "details": {
+        "path": "/home/runner/work/loopcanvas/loopcanvas/templates/landing_hero_variant.html",
+        "size_bytes": 2961,
+        "error": ""
+      },
+      "remediation": "",
+      "timestamp": "2026-02-08T05:06:50.846992"
+    },
+    {
+      "check_id": "output_quality",
+      "check_name": "Output Quality Gate",
+      "passed": true,
+      "severity": "info",
+      "metric_value": 0.0,
+      "threshold": 9.3,
+      "details": {
+        "total_scored": 4,
+        "total_passed": 0,
+        "rejection_rate": 1.0,
+        "rejection_rate_healthy": false,
+        "avg_score_all": 8.142,
+        "avg_score_passed": 0.0,
+        "expected_rejection_range": "80-90%"
+      },
+      "remediation": "",
+      "timestamp": "2026-02-08T05:06:50.847191"
+    },
+    {
+      "check_id": "regression_detection",
+      "check_name": "Regression Detection",
+      "passed": true,
+      "severity": "info",
+      "metric_value": 0.0,
+      "threshold": 0.0,
+      "details": {
+        "regressions_found": 0,
+        "critical_regressions": 0,
+        "metrics_compared": 0
+      },
+      "remediation": "",
+      "timestamp": "2026-02-08T05:06:50.847338"
+    },
+    {
+      "check_id": "latency_new_generation",
+      "check_name": "Latency: New Generation (p95)",
+      "passed": true,
+      "severity": "info",
+      "metric_value": 0.0,
+      "threshold": 30.0,
+      "details": {
+        "p95": 0.0,
+        "count": 0,
+        "mean": 0.0
+      },
+      "remediation": "",
+      "timestamp": "2026-02-08T05:06:50.847365"
+    },
+    {
+      "check_id": "latency_iteration",
+      "check_name": "Latency: Iteration (p95)",
+      "passed": true,
+      "severity": "info",
+      "metric_value": 0.0,
+      "threshold": 3.0,
+      "details": {
+        "p95": 0.0,
+        "count": 0,
+        "mean": 0.0
+      },
+      "remediation": "",
+      "timestamp": "2026-02-08T05:06:50.847369"
+    },
+    {
+      "check_id": "loop_quality",
+      "check_name": "Loop Seamlessness",
+      "passed": true,
+      "severity": "info",
+      "metric_value": 1.0,
+      "threshold": 0.95,
+      "details": {
+        "total_loops": 4,
+        "seamless_count": 4,
+        "seamless_rate": 1.0,
+        "avg_loop_score": 6.39
+      },
+      "remediation": "",
+      "timestamp": "2026-02-08T05:06:50.847468"
+    },
+    {
+      "check_id": "cost_compliance",
+      "check_name": "Cost Compliance ($0 Rule)",
+      "passed": true,
+      "severity": "info",
+      "metric_value": 0.0,
+      "threshold": 0.0,
+      "details": {
+        "total_spend": 0.0,
+        "blocked_cost_events": 0
+      },
+      "remediation": "",
+      "timestamp": "2026-02-08T05:06:50.850810"
+    },
+    {
+      "check_id": "agent_health",
+      "check_name": "Agent Health (all agents within 48h)",
+      "passed": true,
+      "severity": "info",
+      "metric_value": 0.0,
+      "threshold": 8.0,
+      "details": {
+        "healthy_agents": [],
+        "stale_agents": [],
+        "missing_agents": [],
+        "total_tracked": 0,
+        "staleness_cutoff_hours": 48
+      },
+      "remediation": "",
+      "timestamp": "2026-02-08T05:06:50.850916"
+    },
+    {
+      "check_id": "artist_satisfaction",
+      "check_name": "Artist Satisfaction (first batch acceptance)",
+      "passed": true,
+      "severity": "info",
+      "metric_value": 0.0,
+      "threshold": 0.7,
+      "details": {
+        "note": "No direction selection data available"
+      },
+      "remediation": "",
+      "timestamp": "2026-02-08T05:06:50.850935"
+    }
+  ],
+  "output_scores": [
+    {
+      "job_id": "seed_1_10",
+      "overall_score": 8.142,
+      "technical_score": 81.4,
+      "axis_scores": {
+        "observer_neutrality": 8.63,
+        "camera_humility": 8.2,
+        "temporal_indifference": 7.77,
+        "memory_texture": 7.94,
+        "light_first_emotion": 7.59
+      },
+      "hard_flags_passed": {
+        "no_ai_artifacts": true,
+        "no_morphing_faces": true,
+        "no_uncanny_valley": true,
+        "cinematic_color_grading": true,
+        "beat_sync_accuracy": true,
+        "seamless_looping": true,
+        "director_style_match": true
+      },
+      "passed": false,
+      "rejection_reasons": [
+        "SCORE_BELOW_MIN: 8.14 < 9.3",
+        "TECHNICAL_BELOW_MIN: 81.4 < 95"
+      ],
+      "timestamp": "2026-02-08T05:06:50.847105"
+    },
+    {
+      "job_id": "seed_1_11",
+      "overall_score": 8.142,
+      "technical_score": 81.4,
+      "axis_scores": {
+        "observer_neutrality": 8.63,
+        "camera_humility": 8.2,
+        "temporal_indifference": 7.77,
+        "memory_texture": 7.94,
+        "light_first_emotion": 7.59
+      },
+      "hard_flags_passed": {
+        "no_ai_artifacts": true,
+        "no_morphing_faces": true,
+        "no_uncanny_valley": true,
+        "cinematic_color_grading": true,
+        "beat_sync_accuracy": true,
+        "seamless_looping": true,
+        "director_style_match": true
+      },
+      "passed": false,
+      "rejection_reasons": [
+        "SCORE_BELOW_MIN: 8.14 < 9.3",
+        "TECHNICAL_BELOW_MIN: 81.4 < 95"
+      ],
+      "timestamp": "2026-02-08T05:06:50.847121"
+    },
+    {
+      "job_id": "seed_1_12",
+      "overall_score": 8.142,
+      "technical_score": 81.4,
+      "axis_scores": {
+        "observer_neutrality": 8.63,
+        "camera_humility": 8.2,
+        "temporal_indifference": 7.77,
+        "memory_texture": 7.94,
+        "light_first_emotion": 7.59
+      },
+      "hard_flags_passed": {
+        "no_ai_artifacts": true,
+        "no_morphing_faces": true,
+        "no_uncanny_valley": true,
+        "cinematic_color_grading": true,
+        "beat_sync_accuracy": true,
+        "seamless_looping": true,
+        "director_style_match": true
+      },
+      "passed": false,
+      "rejection_reasons": [
+        "SCORE_BELOW_MIN: 8.14 < 9.3",
+        "TECHNICAL_BELOW_MIN: 81.4 < 95"
+      ],
+      "timestamp": "2026-02-08T05:06:50.847136"
+    },
+    {
+      "job_id": "seed_1_17",
+      "overall_score": 8.142,
+      "technical_score": 81.4,
+      "axis_scores": {
+        "observer_neutrality": 8.63,
+        "camera_humility": 8.2,
+        "temporal_indifference": 7.77,
+        "memory_texture": 7.94,
+        "light_first_emotion": 7.59
+      },
+      "hard_flags_passed": {
+        "no_ai_artifacts": true,
+        "no_morphing_faces": true,
+        "no_uncanny_valley": true,
+        "cinematic_color_grading": true,
+        "beat_sync_accuracy": true,
+        "seamless_looping": true,
+        "director_style_match": true
+      },
+      "passed": false,
+      "rejection_reasons": [
+        "SCORE_BELOW_MIN: 8.14 < 9.3",
+        "TECHNICAL_BELOW_MIN: 81.4 < 95"
+      ],
+      "timestamp": "2026-02-08T05:06:50.847146"
+    }
+  ],
+  "regressions": [],
+  "pipeline_health": {
+    "quality_analysis": {
+      "status": "ok",
+      "total_outputs": 4,
+      "passed_outputs": 0,
+      "rejection_rate": 1.0,
+      "avg_quality_score": 8.63,
+      "median_quality_score": 8.63,
+      "min_quality_score": 8.63,
+      "max_quality_score": 8.63,
+      "stdev": 0.0
+    },
+    "api_base": "http://localhost:3000",
+    "checked_at": "2026-02-08T05:06:50.851092"
+  },
+  "summary": "QA Report: 16/21 checks passed. 1 CRITICAL failures require immediate attention. Scored 4 outputs: 0 passed quality gate (100% rejection rate)."
+}
