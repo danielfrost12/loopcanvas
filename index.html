@@ -5518,15 +5518,27 @@ async function handleFileUpload(input) {
         body: JSON.stringify({ job_id: currentJobId })
       });
 
+      let analyzeData;
       if (!analyzeResp.ok) {
-        console.log('v2 analyze unavailable, falling back to v1');
-        ceSetStage('feel', 'done');
-        ceSetDetail('feel', 'Analysis complete');
-        await fallbackToV1(currentJobId);
-        return;
+        // v2 analyze failed — retry once, then show error (no silent v1 fallback)
+        console.warn('v2 analyze failed, retrying...');
+        const retryResp = await fetch('/api/v2/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ job_id: currentJobId })
+        });
+        if (!retryResp.ok) {
+          ceSetStage('feel', 'done');
+          ceSetDetail('feel', 'Analysis unavailable — GPU server may be offline');
+          ceSetStage('generate', 'done');
+          ceSetDetail('generate', 'Cannot generate without audio analysis');
+          document.getElementById('ce-status-text').textContent = 'OFFLINE';
+          return;
+        }
+        analyzeData = await retryResp.json();
+      } else {
+        analyzeData = await analyzeResp.json();
       }
-
-      const analyzeData = await analyzeResp.json();
       const dna = analyzeData.emotional_dna || {};
 
       if (analyzeData.mode === 'gpu') {
@@ -5559,7 +5571,10 @@ async function handleFileUpload(input) {
         ceShowDirections(analyzeData.directions);
         currentEmotionalDna = dna;
       } else {
-        await fallbackToV1(currentJobId);
+        // No directions returned but analysis succeeded — auto-select observed_moment
+        ceSetDetail('direct', 'Auto-selecting: Observed Moment');
+        currentEmotionalDna = dna;
+        await selectDirection('dir_0_observed_moment');
       }
 
     } catch (error) {
@@ -5572,25 +5587,8 @@ async function handleFileUpload(input) {
   }
 }
 
-async function fallbackToV1(jobId) {
-  ceSetStage('direct', 'done');
-  ceSetDetail('direct', 'Using default director');
-  ceSetStage('generate', 'active');
-  ceSetDetail('generate', 'Starting video generation...');
-
-  const genResp = await fetch('/api/generate', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ job_id: jobId })
-  });
-  if (genResp.ok) {
-    pollJobStatus(jobId);
-  } else {
-    ceSetStage('generate', 'done');
-    ceSetDetail('generate', 'GPU generation failed — server returned error');
-    document.getElementById('ce-status-text').textContent = 'ERROR';
-  }
-}
+// v1 fallback removed — all generation goes through v2 director pipeline
+// Every canvas gets a matched director, never falls back to directorless generation
 
 function showDirectionPicker(directions, emotionalDna) {
   // Legacy compat — now handled by Canvas Engine view
@@ -5611,7 +5609,10 @@ async function selectDirection(directionId) {
     });
 
     if (!selectResp.ok) {
-      await fallbackToV1(currentJobId);
+      const errData = await selectResp.json().catch(() => ({}));
+      ceSetStage('generate', 'done');
+      ceSetDetail('generate', errData.error || 'Director selection failed — try again');
+      document.getElementById('ce-status-text').textContent = 'ERROR';
       return;
     }
 
@@ -5621,7 +5622,9 @@ async function selectDirection(directionId) {
     pollJobStatus(currentJobId);
   } catch (error) {
     console.error('Select error:', error);
-    await fallbackToV1(currentJobId);
+    ceSetStage('generate', 'done');
+    ceSetDetail('generate', 'Generation failed — ' + (error.message || 'server unreachable'));
+    document.getElementById('ce-status-text').textContent = 'ERROR';
   }
 }
 

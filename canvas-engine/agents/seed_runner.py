@@ -275,7 +275,8 @@ class SeedRunner:
         # Apply params as env vars (including director style hint)
         env = os.environ.copy()
         env["LOOPCANVAS_MODE"] = "fast"
-        env["LOOPCANVAS_DIRECTOR_STYLE"] = style
+        env["LOOPCANVAS_DIRECTOR"] = style  # Must match grammy.py's env var name
+        env["LOOPCANVAS_DIRECTOR_STYLE"] = style  # Legacy compat
         env["LOOPCANVAS_PIPELINE_STYLE"] = STYLE_TO_PIPELINE.get(style, "memory_in_motion")
         env["LOOPCANVAS_GRAIN"] = str(params.get("grain", 0.18))
         env["LOOPCANVAS_SATURATION"] = str(params.get("saturation", 0.75))

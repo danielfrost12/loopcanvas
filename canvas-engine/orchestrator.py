@@ -611,24 +611,63 @@ class CanvasOrchestrator:
             has_assets = any((output_dir_path / "assets").glob("*.mp4")) if (output_dir_path / "assets").exists() else False
 
             if process.returncode == 0 or has_canvas or has_video:
-                # Pipeline produced output — finalize regardless of exit code
+                # Pipeline produced output
                 if process.returncode != 0:
                     print(f"[Orchestrator] Pipeline exited {process.returncode} but output files exist — treating as success")
 
-                if mode == "cloud":
-                    # Canvas-only fast path: skip quality gate and loop validation for speed
-                    job.progress = 90
-                    job.message = "Finalizing canvas..."
-                    print(f"[Orchestrator] Canvas-only: skipping quality/loop validation for speed")
-                else:
-                    # Full mode: run quality gate and loop validation
-                    job.progress = 88
-                    job.message = "Running quality gate..."
-                    self._run_quality_gate(job)
+                # ALWAYS validate quality and loops — no exceptions.
+                # The artist deserves the same standard whether it's a 7s canvas or full video.
+                # "Would a label pay $50K for this?" If not, regenerate.
+                job.progress = 88
+                job.message = "Validating quality..."
+                self._run_quality_gate(job)
 
-                    job.progress = 92
-                    job.message = "Validating loop..."
+                job.progress = 90
+                job.message = "Validating loop..."
+                self._run_loop_validation(job)
+
+                # Quality enforcement: regenerate if below minimum
+                quality_passed = True
+                if job.quality_score and not job.quality_score.get('passed', True):
+                    quality_passed = False
+                    score = job.quality_score.get('overall_score', 0)
+                    print(f"[Orchestrator] ✗ Quality {score:.1f}/10 below {self.quality_minimum} minimum")
+
+                attempt = 1
+                while not quality_passed and attempt < self.max_regeneration_attempts:
+                    attempt += 1
+                    score = job.quality_score.get('overall_score', 0)
+                    print(f"[Orchestrator] Regenerating (attempt {attempt}/{self.max_regeneration_attempts}) — score {score:.1f} < {self.quality_minimum}")
+                    job.progress = 60
+                    job.message = f"Refining quality (attempt {attempt})..."
+
+                    # Re-run grammy pipeline
+                    retry_process = subprocess.Popen(
+                        cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                        text=True, cwd=str(pipeline_script.parent), env=env,
+                    )
+                    for line in retry_process.stdout:
+                        line = line.strip()
+                        if line:
+                            print(f"[Orchestrator regen {attempt}] {line}")
+                    retry_process.wait()
+
+                    # Re-validate
+                    job.progress = 88
+                    job.message = f"Re-validating (attempt {attempt})..."
+                    self._run_quality_gate(job)
                     self._run_loop_validation(job)
+
+                    if job.quality_score and job.quality_score.get('passed', False):
+                        quality_passed = True
+                        print(f"[Orchestrator] ✓ Attempt {attempt} passed quality gate ({job.quality_score.get('overall_score', 0):.1f}/10)")
+                    else:
+                        new_score = job.quality_score.get('overall_score', 0) if job.quality_score else 0
+                        print(f"[Orchestrator] ✗ Attempt {attempt} still below minimum ({new_score:.1f}/10)")
+
+                if not quality_passed:
+                    # Ship best effort but flag it
+                    print(f"[Orchestrator] ⚠ Shipping after {self.max_regeneration_attempts} attempts — best available quality")
 
                 # Finalize outputs
                 self._finalize_outputs(job)
@@ -655,12 +694,31 @@ class CanvasOrchestrator:
     # ──────────────────────────────────────────────────────────────
 
     def _run_quality_gate(self, job: CanvasJob):
-        """Run the quality gate on generated output"""
-        output_dir = Path(job.output_dir)
-        canvas_path = output_dir / "spotify_canvas_7s_9x16.mp4"
+        """Run the quality gate on generated output.
 
+        First checks if grammy.py already wrote a quality_score.json (it now does
+        even in canvas-only mode). If so, uses that. Otherwise runs our own evaluation.
+        """
+        output_dir = Path(job.output_dir)
+
+        # Check if grammy.py already scored this
+        score_file = output_dir / "quality_score.json"
+        if score_file.exists():
+            try:
+                import json
+                with open(score_file) as f:
+                    existing_score = json.load(f)
+                if 'error' not in existing_score:
+                    job.quality_score = existing_score
+                    passed = existing_score.get('passed', False)
+                    total = existing_score.get('total', 0)
+                    print(f"[Orchestrator] Quality score from pipeline: {total:.0f}/100 ({'PASS' if passed else 'FAIL'})")
+                    return
+            except Exception:
+                pass  # Fall through to our own evaluation
+
+        canvas_path = output_dir / "spotify_canvas_7s_9x16.mp4"
         if not canvas_path.exists():
-            # Try web version
             canvas_path = output_dir / "spotify_canvas_web.mp4"
 
         if not canvas_path.exists():

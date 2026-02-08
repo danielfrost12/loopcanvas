@@ -1309,6 +1309,19 @@ class LoopCanvasHandler(SimpleHTTPRequestHandler):
             env["LOOPCANVAS_CONTRAST"] = str(params.get('contrast', 1.1))
             env["LOOPCANVAS_TEMPERATURE"] = str(params.get('temperature', 5500))
 
+            # Pass director from original generation so regen keeps the same visual DNA
+            selected_dir = job.get("selected_direction", "")
+            if selected_dir and "directions" in job:
+                for d in job["directions"]:
+                    if d["id"] == selected_dir:
+                        env["LOOPCANVAS_DIRECTOR"] = d.get("director_style", "")
+                        env["LOOPCANVAS_DIRECTOR_NAME"] = d.get("director_name", "")
+                        env["LOOPCANVAS_DIRECTOR_PHILOSOPHY"] = d.get("philosophy", "")
+                        env["LOOPCANVAS_DIRECTOR_TEXTURE"] = d.get("texture", "")
+                        break
+            if "LOOPCANVAS_DIRECTOR" not in env:
+                env["LOOPCANVAS_DIRECTOR"] = "observed_moment"
+
             regen_dir = output_dir / "regen"
             regen_dir.mkdir(exist_ok=True)
 
@@ -1422,41 +1435,13 @@ class LoopCanvasHandler(SimpleHTTPRequestHandler):
             self.send_json_error(str(e), 500)
 
     def handle_generate(self):
-        """Start generation for an uploaded file (v1 legacy — direct pipeline)."""
-        try:
-            content_length = int(self.headers.get('Content-Length', 0))
-            body = self.rfile.read(content_length).decode('utf-8')
-            data = json.loads(body)
-
-            job_id = data.get('job_id')
-            if not job_id or job_id not in active_jobs:
-                self.send_json_error("Invalid job ID", 400)
-                return
-
-            job = active_jobs[job_id]
-            if job["status"] not in ["uploaded", "error"]:
-                self.send_json_error("Job already processing", 400)
-                return
-
-            job["status"] = "generating"
-            job["progress"] = 10
-            job["message"] = "Starting video generation..."
-
-            thread = threading.Thread(
-                target=self.run_pipeline,
-                args=(job_id,),
-                daemon=True
-            )
-            thread.start()
-
-            self.send_json_response({
-                "success": True,
-                "job_id": job_id,
-                "status": "generating",
-            })
-
-        except Exception as e:
-            self.send_json_error(str(e), 500)
+        """DEPRECATED: v1 direct pipeline — now redirects through v2 director path.
+        All generation must go through /api/v2/analyze → /api/v2/select to ensure
+        every canvas gets a matched director instead of defaulting to Wong Kar-wai."""
+        self.send_json_error(
+            "v1 /api/generate is deprecated. Use /api/v2/analyze then /api/v2/select for director-matched generation.",
+            410  # 410 Gone
+        )
 
     def handle_status_get(self, job_id):
         """Get status of a generation job."""
@@ -1467,123 +1452,9 @@ class LoopCanvasHandler(SimpleHTTPRequestHandler):
         job = active_jobs[job_id]
         self.send_json_response(job)
 
-    def run_pipeline(self, job_id):
-        """Run the Grammy pipeline for a job (v1 legacy)."""
-        job = active_jobs[job_id]
-
-        try:
-            output_dir = OUTPUT_DIR / job_id
-            output_dir.mkdir(exist_ok=True)
-
-            job["output_dir"] = str(output_dir)
-            job["progress"] = 20
-            job["message"] = "Analyzing audio..."
-
-            cmd = [
-                sys.executable,
-                str(PIPELINE_SCRIPT),
-                "--audio", job["upload_path"],
-                "--out", str(output_dir),
-            ]
-
-            if os.environ.get("LOOPCANVAS_MODE") == "fast":
-                cmd.append("--fast")
-
-            process = subprocess.Popen(
-                cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
-                text=True,
-                cwd=str(PIPELINE_SCRIPT.parent),
-            )
-
-            for line in process.stdout:
-                line = line.strip()
-                print(f"[Pipeline {job_id}] {line}")
-
-                if "[1/7]" in line or "Transcribing" in line:
-                    job["progress"] = 15
-                    job["message"] = "Transcribing lyrics..."
-                elif "[2/7]" in line or "Audio structure" in line:
-                    job["progress"] = 25
-                    job["message"] = "Analyzing audio structure..."
-                elif "[3/7]" in line or "Semantic" in line:
-                    job["progress"] = 35
-                    job["message"] = "Understanding mood and vibe..."
-                elif "[4/7]" in line or "Deriving concept" in line:
-                    job["progress"] = 45
-                    job["message"] = "Building visual concept..."
-                elif "[5/7]" in line or "cut plan" in line:
-                    job["progress"] = 50
-                    job["message"] = "Planning video cuts..."
-                elif "[6/7]" in line or "Acquiring" in line:
-                    job["progress"] = 55
-                    job["message"] = "Generating visual assets..."
-                elif "OK (local)" in line or "OK:" in line:
-                    job["progress"] = min(job["progress"] + 5, 75)
-                    job["message"] = "Creating clips..."
-                elif "[7/7]" in line or "Rendering outputs" in line:
-                    job["progress"] = 80
-                    job["message"] = "Rendering final video..."
-                elif "Canvas:" in line:
-                    job["progress"] = 90
-                    job["message"] = "Finalizing canvas..."
-                elif "PIPELINE COMPLETE" in line:
-                    job["progress"] = 95
-                    job["message"] = "Almost done..."
-                elif "Canvas complete" in line:
-                    job["progress"] = 90
-                    job["message"] = "Finalizing..."
-
-            process.wait()
-
-            if process.returncode == 0:
-                canvas_path = output_dir / "spotify_canvas_7s_9x16.mp4"
-                video_path = output_dir / "full_music_video_9x16.mp4"
-                concept_path = output_dir / "concept.json"
-
-                if canvas_path.exists():
-                    fixed_canvas = output_dir / "spotify_canvas_web.mp4"
-                    result = subprocess.run([
-                        "ffmpeg", "-y",
-                        "-i", str(canvas_path),
-                        "-c:v", "libx264", "-profile:v", "baseline",
-                        "-level", "3.0", "-pix_fmt", "yuv420p",
-                        "-movflags", "+faststart",
-                        "-c:a", "aac", "-b:a", "128k",
-                        str(fixed_canvas)
-                    ], capture_output=True, text=True)
-
-                    if result.returncode != 0:
-                        print(f"FFmpeg re-encode failed: {result.stderr}")
-                        shutil.copy(canvas_path, fixed_canvas)
-
-                    job["status"] = "complete"
-                    job["progress"] = 100
-                    job["message"] = "Generation complete!"
-                    job["outputs"] = {
-                        "canvas": f"/outputs/{job_id}/spotify_canvas_web.mp4",
-                        "full_video": f"/outputs/{job_id}/full_music_video_9x16.mp4" if video_path.exists() else None,
-                        "concept": f"/outputs/{job_id}/concept.json" if concept_path.exists() else None,
-                    }
-
-                    if concept_path.exists():
-                        with open(concept_path) as f:
-                            concept = json.load(f)
-                            job["track_info"] = {
-                                "theme": concept.get("theme", "unknown"),
-                                "thesis": concept.get("thesis", ""),
-                            }
-                else:
-                    job["status"] = "error"
-                    job["message"] = "Pipeline completed but no output files found"
-            else:
-                job["status"] = "error"
-                job["message"] = f"Pipeline failed with code {process.returncode}"
-
-        except Exception as e:
-            job["status"] = "error"
-            job["message"] = str(e)
+    # run_pipeline (v1 legacy) REMOVED — all generation now goes through
+    # orchestrator.select_direction_and_generate() which passes director env vars.
+    # This ensures every canvas gets a matched director instead of always Wong Kar-wai.
 
     # ══════════════════════════════════════════════════════════════
     # UTILS

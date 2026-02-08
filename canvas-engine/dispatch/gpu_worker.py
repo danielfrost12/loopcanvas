@@ -298,6 +298,8 @@ class GPUWorker:
                 'wong_kar_wai': 'midnight_city',
                 'the_daniels': 'euphoric_drift',
                 'observed_moment': 'memory_in_motion',
+                'golden_hour': 'sunrise_departure',
+                'midnight_drift': 'neon_calm',
             }
             style = style_map.get(
                 direction.get('director_style', ''), 'memory_in_motion'
@@ -312,6 +314,16 @@ class GPUWorker:
             env["LOOPCANVAS_CONTRAST"] = str(params.get('contrast', 0.80))
             env["LOOPCANVAS_BLUR"] = str(params.get('blur', 1.0))
             env["LOOPCANVAS_MOTION_INTENSITY"] = str(params.get('motion_intensity', 0.4))
+
+            # CRITICAL: Pass director identity so grammy.py uses correct visual DNA
+            # Without this, grammy.py falls into mood-based fallback (always Wong Kar-wai)
+            env["LOOPCANVAS_DIRECTOR"] = direction.get('director_style', '')
+            env["LOOPCANVAS_DIRECTOR_NAME"] = direction.get('director_name', '')
+            env["LOOPCANVAS_DIRECTOR_PHILOSOPHY"] = direction.get('philosophy', '')
+            env["LOOPCANVAS_DIRECTOR_TEXTURE"] = direction.get('texture', '')
+            preview_prompt = direction.get('preview_prompt', '')
+            if preview_prompt:
+                env["LOOPCANVAS_DIRECTOR_PROMPT"] = preview_prompt
 
             # Run pipeline
             process = subprocess.Popen(
