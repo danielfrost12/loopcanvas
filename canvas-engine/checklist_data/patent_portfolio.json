@@ -1,61 +1,117 @@
 {
-  "version": 2,
-  "phase": 3,
-  "status": "DOCUMENTATION_ONLY",
-  "filing_authority": "FOUNDER_ONLY",
-  "patent_portfolio": {
-    "P-001": {
+  "title": "Canvas Patent Portfolio \u2014 DOCUMENTATION ONLY",
+  "status": "READY_TO_FILE_ON_FOUNDER_APPROVAL",
+  "last_updated": "2026-02-09T05:04:18.005688Z",
+  "total_innovations": 7,
+  "total_filing_cost": 2240,
+  "filing_cost_note": "Micro entity rate, $320 per provisional patent application",
+  "filing_authority": "Founder must explicitly authorize each filing",
+  "patents": [
+    {
+      "id": "P-001",
       "title": "Audio Emotional DNA Extraction",
       "claim": "Method for extracting multi-dimensional emotional vectors from audio signals and mapping them to visual generation parameters in real-time",
       "status": "filing_ready",
       "last_updated": "2026-02-09T05:04:18.005544Z",
-      "filing_cost": 320
+      "filing_cost": 320,
+      "evidence_files": [
+        "canvas-engine/audio/audio_analyzer.py",
+        "canvas-engine/agents/audio_intelligence.py"
+      ],
+      "evidence_exists": [
+        true,
+        true
+      ],
+      "key_innovation": "Multi-layer audio analysis: BPM, key, emotion valence/arousal/tension/release mapped to visual parameters"
     },
-    "P-002": {
+    {
+      "id": "P-002",
       "title": "Directorial Intent Encoding",
       "claim": "System for encoding cinematic directorial philosophies as controllable latent space parameters for video generation models",
       "status": "filing_ready",
       "last_updated": "2026-02-09T05:04:18.005544Z",
-      "filing_cost": 320
+      "filing_cost": 320,
+      "evidence_files": [
+        "canvas-engine/director/philosophy_engine.py",
+        "canvas-engine/agents/model_engineer.py"
+      ],
+      "evidence_exists": [
+        true,
+        true
+      ],
+      "key_innovation": "Director DNA: philosophy, color theory, camera movement, emotional intent encoded as LoRA weights"
     },
-    "P-003": {
+    {
+      "id": "P-003",
       "title": "Seamless Audio-Synced Video Looping",
       "claim": "Technique for generating video loops that are visually seamless AND rhythmically synchronized to audio beat structure",
       "status": "filing_ready",
       "last_updated": "2026-02-09T05:04:18.005544Z",
-      "filing_cost": 320
+      "filing_cost": 320,
+      "evidence_files": [
+        "canvas-engine/loop/seamless_loop.py"
+      ],
+      "evidence_exists": [
+        true
+      ],
+      "key_innovation": "Loop via shared emotional state, not shared pixels. Forward-only, no reverse playback."
     },
-    "P-004": {
+    {
+      "id": "P-004",
       "title": "AI Artifact Detection & Regeneration",
       "claim": "Automated system for detecting visual artifacts characteristic of AI-generated content and triggering targeted regeneration",
       "status": "filing_ready",
       "last_updated": "2026-02-09T05:04:18.005544Z",
-      "filing_cost": 320
+      "filing_cost": 320,
+      "evidence_files": [
+        "canvas-engine/quality_gate_wrapper.py",
+        "canvas-engine/agents/qa_engineer.py"
+      ],
+      "evidence_exists": [
+        true,
+        true
+      ],
+      "key_innovation": "Multi-axis quality scoring (Observer Neutrality, Camera Humility, etc.) with 9.3/10 minimum threshold"
     },
-    "P-005": {
+    {
+      "id": "P-005",
       "title": "Intent-Based Video Editing",
       "claim": "Natural language interface for video editing that translates artistic intent into frame-accurate edit operations",
       "status": "documented",
       "last_updated": "2026-02-09T05:04:18.005544Z",
-      "filing_cost": 320
+      "filing_cost": 320,
+      "evidence_files": [],
+      "evidence_exists": [],
+      "key_innovation": "'Make it feel more like a memory' \u2192 specific color, motion, framing parameter adjustments"
     },
-    "P-006": {
+    {
+      "id": "P-006",
       "title": "Cultural-Genre Visual Mapping",
       "claim": "System for mapping musical genre and cultural context to appropriate visual languages using crowd-sourced artist preferences",
       "status": "filing_ready",
       "last_updated": "2026-02-09T05:04:18.005544Z",
-      "filing_cost": 320
+      "filing_cost": 320,
+      "evidence_files": [
+        "canvas-engine/agents/audio_intelligence.py"
+      ],
+      "evidence_exists": [
+        true
+      ],
+      "key_innovation": "Taste Layer: cultural fluency across 10 genres with artist preference learning"
     },
-    "P-007": {
+    {
+      "id": "P-007",
       "title": "Progressive Canvas-to-Video Extension",
       "claim": "Method for coherently extending short-form video loops into long-form music videos while maintaining visual and narrative consistency",
       "status": "documented",
       "last_updated": "2026-02-09T05:04:18.005544Z",
-      "filing_cost": 320
+      "filing_cost": 320,
+      "evidence_files": [],
+      "evidence_exists": [],
+      "key_innovation": "8-second canvas \u2192 30s \u2192 60s \u2192 full music video with same visual language"
     }
-  },
-  "total_filing_cost": 2240,
-  "training_data_compliance": {
+  ],
+  "compliance": {
     "audit_timestamp": "2026-02-09T05:04:18.005699Z",
     "all_sources_licensed": true,
     "flags": [],
@@ -86,11 +142,5 @@
       }
     },
     "audit_status": "clean"
-  },
-  "competitor_watch": {
-    "last_scan": "",
-    "threats": []
-  },
-  "last_updated": "2026-02-09T05:04:18.005688Z",
-  "last_decision": "Phase 3: 5/7 filing-ready. Competitor scanning. Training data: all sources licensed. \u2705 Filing authority: FOUNDER ONLY. No patents filed."
+  }
 }
