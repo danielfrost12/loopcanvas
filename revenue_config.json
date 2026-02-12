@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 4,
   "phase": 1,
   "cost_enforcement": {
     "hard_block": true,
@@ -58,6 +58,6 @@
     "azure_startups": "pending",
     "estimated_total": "$100K-$300K"
   },
-  "last_updated": "2026-02-11T05:06:25.821519Z",
+  "last_updated": "2026-02-12T05:01:39.190106Z",
   "last_decision": "Phase 1: Pre-revenue. Enforcing $0 cost ceiling."
 }
