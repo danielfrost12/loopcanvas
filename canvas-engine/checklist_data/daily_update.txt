@@ -1,5 +1,5 @@
 Canvas Agent Army — Daily Update
-February 11, 2026
+February 12, 2026
 ==================================================
 
 AGENTS THAT SHIPPED CHANGES:
@@ -29,7 +29,7 @@ MASTER CHECKLIST:
   ⚠️ agent_health: warning (0.75)
 
 PRODUCT BRIEF:
-Canvas Agent Army — Daily Brief (February 11, 2026)
+Canvas Agent Army — Daily Brief (February 12, 2026)
 =======================================================
 Master Checklist: 5/10 passing, 0 failing, 2 unknown
 
@@ -51,7 +51,7 @@ Master Checklist: 5/10 passing, 0 failing, 2 unknown
 
 Phase Advances (7):
   🚀 retention_engineer: Initialized for first cycle
-  🚀 onboarding_optimizer: Phase 1 → Phase 2 (auto-advanced, 4d stale)
+  🚀 onboarding_optimizer: Phase 1 → Phase 2 (auto-advanced, 5d stale)
   🚀 growth_engineer: Initialized for first cycle
   🚀 design_engineer: Initialized for first cycle
   🚀 qa_engineer: Initialized for first cycle
