@@ -28,9 +28,12 @@ class handler(BaseHTTPRequestHandler):
         import urllib.request
         import urllib.error
 
+        api_key = os.environ.get('GPU_API_KEY', '')
         headers = {
             "Bypass-Tunnel-Reminder": "true",
         }
+        if api_key:
+            headers["Authorization"] = f"Bearer {api_key}"
 
         body = None
         if method == "POST":

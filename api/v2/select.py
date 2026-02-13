@@ -26,12 +26,14 @@ class handler(BaseHTTPRequestHandler):
             import urllib.request
             import urllib.error
             try:
+                api_key = os.environ.get('GPU_API_KEY', '')
                 req = urllib.request.Request(
                     f"{gen_server}/api/v2/select",
                     data=json.dumps(data).encode(),
                     headers={
                         "Content-Type": "application/json",
                         "Bypass-Tunnel-Reminder": "true",
+                        **({"Authorization": f"Bearer {api_key}"} if api_key else {}),
                     },
                     method="POST"
                 )

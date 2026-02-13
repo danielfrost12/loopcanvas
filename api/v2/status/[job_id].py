@@ -39,10 +39,14 @@ class handler(BaseHTTPRequestHandler):
             import urllib.request
             import urllib.error
             try:
+                api_key = os.environ.get('GPU_API_KEY', '')
+                hdrs = {"Bypass-Tunnel-Reminder": "true"}
+                if api_key:
+                    hdrs["Authorization"] = f"Bearer {api_key}"
                 req = urllib.request.Request(
                     f"{gen_server}/api/v2/status/{job_id}",
                     method="GET",
-                    headers={"Bypass-Tunnel-Reminder": "true"},
+                    headers=hdrs,
                 )
                 with urllib.request.urlopen(req, timeout=30) as resp:
                     result = json.loads(resp.read())
