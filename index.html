@@ -4256,7 +4256,7 @@ select {
     <h1>Turn a 7-second canvas into a full-length, custom music video.</h1>
 
     <!-- Subhead -->
-    <p class="hero-tagline">Upload your track, get an AI-built Spotify-style canvas in seconds — then expand it into a full music video that matches your mood, your sound, and your world.</p>
+    <p class="hero-tagline">Upload your track, get an AI-directed Spotify Canvas in under two minutes — a cinematic loop that matches your mood, your sound, and your world.</p>
 
     <!-- Phone inserted here on mobile via JS — below the promise, as proof -->
     <div class="hero-phone-slot" id="hero-phone-slot"></div>
@@ -4523,9 +4523,9 @@ select {
           <svg viewBox="0 0 24 24" fill="#1DB954" style="width:18px;height:18px;"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
           Export Canvas
         </button>
-        <button class="ce-action" onclick="expandToMusicVideo()">
+        <button class="ce-action" style="opacity:0.4;cursor:default;" onclick="event.preventDefault();" title="Coming soon">
           <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" style="width:18px;height:18px;"><rect x="3" y="5" width="14" height="10" rx="2"/><polygon points="8,8 13,10 8,12"/></svg>
-          Extend to Video
+          Full Video — Soon
         </button>
         <button class="ce-action ce-action-more" onclick="ceShowExportAll()">
           <svg viewBox="0 0 20 20" fill="currentColor" style="width:18px;height:18px;"><circle cx="4" cy="10" r="2"/><circle cx="10" cy="10" r="2"/><circle cx="16" cy="10" r="2"/></svg>
@@ -5980,8 +5980,8 @@ function ceExport(platform) {
   const fmt = formats[platform] || formats.spotify;
 
   // Get the current video source from the canvas editor preview
-  const video = document.getElementById('ce-video');
-  if (video && video.src) {
+  const video = document.getElementById('ce-preview-video');
+  if (video && video.src && video.src !== window.location.href) {
     // Create download link
     const a = document.createElement('a');
     a.href = video.src;
@@ -7035,16 +7035,9 @@ function openExportModal() {
     previewVideo.poster = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 1280"><rect fill="%23111"/><text x="360" y="640" text-anchor="middle" fill="%23666" font-family="system-ui" font-size="24">Not ready yet</text></svg>';
   }
 
-  // Check trial status
-  const remaining = getTrialExports();
-  if (remaining > 0) {
-    trialView.style.display = 'block';
-    paidView.style.display = 'none';
-    trialCount.textContent = remaining;
-  } else {
-    trialView.style.display = 'none';
-    paidView.style.display = 'block';
-  }
+  // Beta: all exports are free
+  trialView.style.display = 'block';
+  paidView.style.display = 'none';
 
   modal.classList.add('active');
 }
@@ -7060,18 +7053,8 @@ function selectExportOption(option) {
 }
 
 function exportFree() {
-  if (useTrialExport()) {
-    actualDownload();
-    closeExportModal();
-    // Update count for next time
-    const remaining = getTrialExports();
-    if (remaining === 0) {
-      // Show a message about trial ending
-      setTimeout(() => {
-        alert('You\'ve used all your free exports! Upgrade for unlimited exports.');
-      }, 500);
-    }
-  }
+  actualDownload();
+  closeExportModal();
 }
 
 function proceedToPayment() {
@@ -7724,11 +7707,11 @@ initBottomTabBar();
       <video id="export-preview-video" autoplay loop muted playsinline></video>
     </div>
     <div class="export-content">
-      <!-- Free Trial State (first 3 exports) -->
+      <!-- Beta: free exports -->
       <div id="export-trial-view">
-        <div class="trial-badge">FREE EXPORT</div>
+        <div class="trial-badge">FREE BETA</div>
         <h2>Your canvas is ready</h2>
-        <p class="trial-remaining"><span id="trial-count">3</span> free exports remaining</p>
+        <p class="trial-remaining">Free during beta</p>
         <button class="btn btn-hero-cta export-cta" onclick="exportFree()">
           Export Free
         </button>
@@ -7773,7 +7756,7 @@ initBottomTabBar();
     <div class="footer-brand">Loop<span>Canvas</span></div>
     <div class="footer-links">
       <a href="#moods">Styles</a>
-      <a href="/docs/">API Docs</a>
+      <a href="#proof">About</a>
       <a href="mailto:support@loopcanvas.com">Support</a>
     </div>
     <p class="footer-copy">Built for artists, by artists. LoopCanvas 2026.</p>
