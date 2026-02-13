@@ -1,0 +1,155 @@
+{
+  "emotion_to_visual": {
+    "valence": {
+      "desc": "Color warmth: low valence = cool blues/grays, high = warm golds/ambers",
+      "low": {
+        "color_temp": "cool",
+        "palette": [
+          "#1a1a2e",
+          "#16213e",
+          "#0f3460"
+        ],
+        "mood": "melancholic"
+      },
+      "mid": {
+        "color_temp": "neutral",
+        "palette": [
+          "#2d3436",
+          "#636e72",
+          "#b2bec3"
+        ],
+        "mood": "contemplative"
+      },
+      "high": {
+        "color_temp": "warm",
+        "palette": [
+          "#f9ca24",
+          "#f0932b",
+          "#eb4d4b"
+        ],
+        "mood": "euphoric"
+      }
+    },
+    "arousal": {
+      "desc": "Motion intensity: low = gentle drift, high = rapid cuts/energy",
+      "low": {
+        "motion": 0.15,
+        "cut_freq": 0.1,
+        "camera": "static"
+      },
+      "mid": {
+        "motion": 0.45,
+        "cut_freq": 0.3,
+        "camera": "slow_drift"
+      },
+      "high": {
+        "motion": 0.75,
+        "cut_freq": 0.5,
+        "camera": "tracking"
+      }
+    },
+    "tension": {
+      "desc": "Visual complexity: low = minimal, high = layered/dense",
+      "low": {
+        "complexity": 0.2,
+        "depth_layers": 1,
+        "negative_space": 0.7
+      },
+      "mid": {
+        "complexity": 0.5,
+        "depth_layers": 2,
+        "negative_space": 0.4
+      },
+      "high": {
+        "complexity": 0.8,
+        "depth_layers": 3,
+        "negative_space": 0.15
+      }
+    },
+    "release": {
+      "desc": "Spatial openness: low = tight framing, high = wide/expansive",
+      "low": {
+        "framing": "close_up",
+        "focal_length": 85,
+        "depth_of_field": "shallow"
+      },
+      "mid": {
+        "framing": "medium",
+        "focal_length": 50,
+        "depth_of_field": "moderate"
+      },
+      "high": {
+        "framing": "wide",
+        "focal_length": 24,
+        "depth_of_field": "deep"
+      }
+    }
+  },
+  "genre_visual_language": {
+    "hip_hop": {
+      "prompt_modifier": "urban cinematography, high contrast, gritty texture, 35mm film",
+      "negative_modifier": "pastoral, soft focus, countryside, gentle",
+      "color_palette": "high_contrast",
+      "motion_style": "kinetic"
+    },
+    "electronic": {
+      "prompt_modifier": "neon lighting, clean geometry, pulsing light, club aesthetic",
+      "negative_modifier": "organic, rustic, vintage, warm tones",
+      "color_palette": "neon_cool",
+      "motion_style": "pulsing"
+    },
+    "indie": {
+      "prompt_modifier": "film grain, muted tones, golden hour, lo-fi, art house cinema",
+      "negative_modifier": "flashy, neon, corporate, polished, digital",
+      "color_palette": "muted_warm",
+      "motion_style": "gentle_drift"
+    },
+    "pop": {
+      "prompt_modifier": "vibrant, saturated colors, dynamic movement, polished aesthetic",
+      "negative_modifier": "gritty, dark, moody, desaturated, rough",
+      "color_palette": "vibrant_saturated",
+      "motion_style": "dynamic"
+    },
+    "r_and_b": {
+      "prompt_modifier": "warm golden light, intimate framing, velvet texture, sensual",
+      "negative_modifier": "harsh, cold, clinical, sterile, bright",
+      "color_palette": "warm_rich",
+      "motion_style": "smooth_languid"
+    },
+    "country": {
+      "prompt_modifier": "earth tones, natural light, wide landscape, americana, golden hour",
+      "negative_modifier": "urban, neon, futuristic, synthetic, digital",
+      "color_palette": "earth_tones",
+      "motion_style": "steady_unhurried"
+    },
+    "rock": {
+      "prompt_modifier": "dark saturated, raw energy, concert lighting, analog grain",
+      "negative_modifier": "gentle, soft, pastel, calm, clean",
+      "color_palette": "dark_saturated",
+      "motion_style": "aggressive_raw"
+    },
+    "latin": {
+      "prompt_modifier": "warm vivid colors, rhythmic movement, lush, tropical, sun-drenched",
+      "negative_modifier": "cold, sterile, monochrome, industrial, minimal",
+      "color_palette": "warm_vivid",
+      "motion_style": "rhythmic_flowing"
+    },
+    "k_pop": {
+      "prompt_modifier": "pastel and neon, precise framing, glossy, clean aesthetic",
+      "negative_modifier": "gritty, dirty, rough, organic, vintage",
+      "color_palette": "pastel_neon",
+      "motion_style": "precise_choreographed"
+    },
+    "afrobeats": {
+      "prompt_modifier": "golden warm light, flowing movement, organic, community, celebration",
+      "negative_modifier": "cold, dark, isolating, mechanical, sterile",
+      "color_palette": "golden_warm",
+      "motion_style": "flowing_joyful"
+    }
+  },
+  "genre_satisfaction": {
+    "unknown": 8.63
+  },
+  "taste_score": 0.04000000000000001,
+  "last_updated": "2026-02-13T04:56:23.805233Z"
+}

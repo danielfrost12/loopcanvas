@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "phase": 1,
   "emotion_mapping": {
     "valence_to_color_warmth": true,
@@ -8,20 +8,70 @@
     "release_to_spatial_openness": true
   },
   "genre_profiles": {
-    "hip_hop": {"color_palette": "high_contrast", "motion": "kinetic", "texture": "gritty", "cultural_ref": "street_art"},
-    "electronic": {"color_palette": "neon_cool", "motion": "pulsing", "texture": "clean", "cultural_ref": "rave_culture"},
-    "indie": {"color_palette": "muted_warm", "motion": "gentle", "texture": "film_grain", "cultural_ref": "art_house"},
-    "pop": {"color_palette": "vibrant_saturated", "motion": "dynamic", "texture": "polished", "cultural_ref": "mainstream"},
-    "r_and_b": {"color_palette": "warm_rich", "motion": "smooth", "texture": "velvet", "cultural_ref": "intimate"},
-    "country": {"color_palette": "earth_tones", "motion": "steady", "texture": "natural", "cultural_ref": "americana"},
-    "rock": {"color_palette": "dark_saturated", "motion": "aggressive", "texture": "raw", "cultural_ref": "rebellion"},
-    "latin": {"color_palette": "warm_vivid", "motion": "rhythmic", "texture": "lush", "cultural_ref": "tropicalia"},
-    "k_pop": {"color_palette": "pastel_neon", "motion": "precise", "texture": "glossy", "cultural_ref": "idol_culture"},
-    "afrobeats": {"color_palette": "golden_warm", "motion": "flowing", "texture": "organic", "cultural_ref": "diaspora"}
+    "hip_hop": {
+      "color_palette": "high_contrast",
+      "motion": "kinetic",
+      "texture": "gritty",
+      "cultural_ref": "street_art"
+    },
+    "electronic": {
+      "color_palette": "neon_cool",
+      "motion": "pulsing",
+      "texture": "clean",
+      "cultural_ref": "rave_culture"
+    },
+    "indie": {
+      "color_palette": "muted_warm",
+      "motion": "gentle",
+      "texture": "film_grain",
+      "cultural_ref": "art_house"
+    },
+    "pop": {
+      "color_palette": "vibrant_saturated",
+      "motion": "dynamic",
+      "texture": "polished",
+      "cultural_ref": "mainstream"
+    },
+    "r_and_b": {
+      "color_palette": "warm_rich",
+      "motion": "smooth",
+      "texture": "velvet",
+      "cultural_ref": "intimate"
+    },
+    "country": {
+      "color_palette": "earth_tones",
+      "motion": "steady",
+      "texture": "natural",
+      "cultural_ref": "americana"
+    },
+    "rock": {
+      "color_palette": "dark_saturated",
+      "motion": "aggressive",
+      "texture": "raw",
+      "cultural_ref": "rebellion"
+    },
+    "latin": {
+      "color_palette": "warm_vivid",
+      "motion": "rhythmic",
+      "texture": "lush",
+      "cultural_ref": "tropicalia"
+    },
+    "k_pop": {
+      "color_palette": "pastel_neon",
+      "motion": "precise",
+      "texture": "glossy",
+      "cultural_ref": "idol_culture"
+    },
+    "afrobeats": {
+      "color_palette": "golden_warm",
+      "motion": "flowing",
+      "texture": "organic",
+      "cultural_ref": "diaspora"
+    }
   },
   "taste_layer": {
     "enabled": false,
-    "cultural_fluency_score": 0.0,
+    "cultural_fluency_score": 0.04000000000000001,
     "artist_preference_signals": 0
   },
   "detection_accuracy": {
@@ -31,6 +81,6 @@
     "emotion": 0.0,
     "beat_sync": 0.0
   },
-  "last_updated": "",
-  "last_decision": ""
+  "last_updated": "2026-02-13T04:56:23.805011Z",
+  "last_decision": "Phase 1 (accuracy 0%): Focus on baseline BPM/key detection. Taste layer: nascent (4% fluency)."
 }
