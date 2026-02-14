@@ -1,5 +1,5 @@
 Canvas Agent Army — Daily Update
-February 13, 2026
+February 14, 2026
 ==================================================
 
 AGENTS THAT SHIPPED CHANGES:
@@ -26,10 +26,10 @@ MASTER CHECKLIST:
   ✅ music_match: pass (0.0)
   ⚠️ patent_docs: warning (2)
   ❓ revenue_growth: pre_launch (0.0)
-  ⚠️ agent_health: warning (0.6666666666666666)
+  ⚠️ agent_health: warning (0.75)
 
 PRODUCT BRIEF:
-Canvas Agent Army — Daily Brief (February 13, 2026)
+Canvas Agent Army — Daily Brief (February 14, 2026)
 =======================================================
 Master Checklist: 5/10 passing, 0 failing, 2 unknown
 
@@ -46,12 +46,12 @@ Master Checklist: 5/10 passing, 0 failing, 2 unknown
   ⚠️ patent_docs: warning (value=2, threshold=7)
      → Prioritize patent documentation agents.
   ❓ revenue_growth: pre_launch (value=0.0, threshold=0.2)
-  ⚠️ agent_health: warning (value=0.6666666666666666, threshold=0.995)
-     → Stale agents: onboarding_optimizer, model_engineer, ip_documenter, landing
+  ⚠️ agent_health: warning (value=0.75, threshold=0.995)
+     → Stale agents: onboarding_optimizer, model_engineer, landing
 
 Phase Advances (6):
   🚀 retention_engineer: Initialized for first cycle
-  🚀 onboarding_optimizer: Phase 1 → Phase 2 (auto-advanced, 6d stale)
+  🚀 onboarding_optimizer: Phase 1 → Phase 2 (auto-advanced, 7d stale)
   🚀 growth_engineer: Initialized for first cycle
   🚀 design_engineer: Initialized for first cycle
   🚀 qa_engineer: Initialized for first cycle
