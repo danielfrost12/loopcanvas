@@ -500,9 +500,9 @@ class CanvasOrchestrator:
             print(f"[Orchestrator] Using local mode ({mode}) for job {job_id}")
 
         # Build pipeline command with director params
-        pipeline_script = str(ROOT_DIR / "loopcanvas_grammy.py")
+        pipeline_script = ROOT_DIR / "loopcanvas_grammy.py"
         cmd = [
-            sys.executable, pipeline_script,
+            sys.executable, str(pipeline_script),
             "--audio", job.audio_path,
             "--out", output_dir,
         ]
