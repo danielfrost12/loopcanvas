@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-02-14T04:44:43.271476",
+  "timestamp": "2026-02-15T04:57:58.337510",
   "total_checks": 21,
   "passed_checks": 16,
   "failed_checks": 5,
@@ -19,7 +19,7 @@
         "error": "[Errno 111] Connection refused"
       },
       "remediation": "Check that /api/configs is accessible and returns 2xx",
-      "timestamp": "2026-02-14T04:44:43.267170"
+      "timestamp": "2026-02-15T04:57:58.332291"
     },
     {
       "check_id": "api_health_api_track",
@@ -34,7 +34,7 @@
         "error": "[Errno 111] Connection refused"
       },
       "remediation": "Check that /api/track is accessible and returns 2xx",
-      "timestamp": "2026-02-14T04:44:43.267405"
+      "timestamp": "2026-02-15T04:57:58.332682"
     },
     {
       "check_id": "api_health_api_upload",
@@ -49,7 +49,7 @@
         "error": "[Errno 111] Connection refused"
       },
       "remediation": "Check that /api/upload is accessible and returns 2xx",
-      "timestamp": "2026-02-14T04:44:43.267587"
+      "timestamp": "2026-02-15T04:57:58.332946"
     },
     {
       "check_id": "api_health_api_generate",
@@ -64,7 +64,7 @@
         "error": "[Errno 111] Connection refused"
       },
       "remediation": "Check that /api/generate is accessible and returns 2xx",
-      "timestamp": "2026-02-14T04:44:43.267762"
+      "timestamp": "2026-02-15T04:57:58.333216"
     },
     {
       "check_id": "config_growth_config_json",
@@ -84,7 +84,7 @@
         "error": "Missing keys: share, referral, social_proof, watermark"
       },
       "remediation": "Fix or regenerate growth_config.json: Missing keys: share, referral, social_proof, watermark",
-      "timestamp": "2026-02-14T04:44:43.267866"
+      "timestamp": "2026-02-15T04:57:58.333328"
     },
     {
       "check_id": "config_onboarding_config_json",
@@ -99,7 +99,7 @@
         "error": ""
       },
       "remediation": "",
-      "timestamp": "2026-02-14T04:44:43.267928"
+      "timestamp": "2026-02-15T04:57:58.333407"
     },
     {
       "check_id": "config_retention_config_json",
@@ -114,7 +114,7 @@
         "error": ""
       },
       "remediation": "",
-      "timestamp": "2026-02-14T04:44:43.267972"
+      "timestamp": "2026-02-15T04:57:58.333492"
     },
     {
       "check_id": "config_landing_config_json",
@@ -129,7 +129,7 @@
         "error": ""
       },
       "remediation": "",
-      "timestamp": "2026-02-14T04:44:43.268013"
+      "timestamp": "2026-02-15T04:57:58.333554"
     },
     {
       "check_id": "template_share_modal_html",
@@ -144,7 +144,7 @@
         "error": ""
       },
       "remediation": "",
-      "timestamp": "2026-02-14T04:44:43.268033"
+      "timestamp": "2026-02-15T04:57:58.333582"
     },
     {
       "check_id": "template_onboarding_tips_html",
@@ -159,7 +159,7 @@
         "error": ""
       },
       "remediation": "",
-      "timestamp": "2026-02-14T04:44:43.268048"
+      "timestamp": "2026-02-15T04:57:58.333602"
     },
     {
       "check_id": "template_return_banner_html",
@@ -174,7 +174,7 @@
         "error": ""
       },
       "remediation": "",
-      "timestamp": "2026-02-14T04:44:43.268064"
+      "timestamp": "2026-02-15T04:57:58.333623"
     },
     {
       "check_id": "template_gallery_component_html",
@@ -189,7 +189,7 @@
         "error": ""
       },
       "remediation": "",
-      "timestamp": "2026-02-14T04:44:43.268107"
+      "timestamp": "2026-02-15T04:57:58.333640"
     },
     {
       "check_id": "template_landing_hero_variant_html",
@@ -204,7 +204,7 @@
         "error": ""
       },
       "remediation": "",
-      "timestamp": "2026-02-14T04:44:43.268121"
+      "timestamp": "2026-02-15T04:57:58.333657"
     },
     {
       "check_id": "output_quality",
@@ -217,7 +217,7 @@
         "note": "No canvas results in last 7 days"
       },
       "remediation": "",
-      "timestamp": "2026-02-14T04:44:43.268193"
+      "timestamp": "2026-02-15T04:57:58.333743"
     },
     {
       "check_id": "regression_detection",
@@ -232,7 +232,7 @@
         "metrics_compared": 0
       },
       "remediation": "",
-      "timestamp": "2026-02-14T04:44:43.268292"
+      "timestamp": "2026-02-15T04:57:58.333880"
     },
     {
       "check_id": "latency_new_generation",
@@ -247,7 +247,7 @@
         "mean": 0.0
       },
       "remediation": "",
-      "timestamp": "2026-02-14T04:44:43.268321"
+      "timestamp": "2026-02-15T04:57:58.333912"
     },
     {
       "check_id": "latency_iteration",
@@ -262,7 +262,7 @@
         "mean": 0.0
       },
       "remediation": "",
-      "timestamp": "2026-02-14T04:44:43.268324"
+      "timestamp": "2026-02-15T04:57:58.333916"
     },
     {
       "check_id": "loop_quality",
@@ -275,7 +275,7 @@
         "note": "No loop data available"
       },
       "remediation": "",
-      "timestamp": "2026-02-14T04:44:43.268380"
+      "timestamp": "2026-02-15T04:57:58.333995"
     },
     {
       "check_id": "cost_compliance",
@@ -289,7 +289,7 @@
         "blocked_cost_events": 0
       },
       "remediation": "",
-      "timestamp": "2026-02-14T04:44:43.271300"
+      "timestamp": "2026-02-15T04:57:58.337276"
     },
     {
       "check_id": "agent_health",
@@ -306,7 +306,7 @@
         "staleness_cutoff_hours": 48
       },
       "remediation": "",
-      "timestamp": "2026-02-14T04:44:43.271384"
+      "timestamp": "2026-02-15T04:57:58.337385"
     },
     {
       "check_id": "artist_satisfaction",
@@ -319,7 +319,7 @@
         "note": "No direction selection data available"
       },
       "remediation": "",
-      "timestamp": "2026-02-14T04:44:43.271399"
+      "timestamp": "2026-02-15T04:57:58.337405"
     }
   ],
   "output_scores": [],
@@ -330,7 +330,7 @@
       "total_outputs": 0
     },
     "api_base": "http://localhost:3000",
-    "checked_at": "2026-02-14T04:44:43.271472"
+    "checked_at": "2026-02-15T04:57:58.337506"
   },
   "summary": "QA Report: 16/21 checks passed. 1 CRITICAL failures require immediate attention."
 }
