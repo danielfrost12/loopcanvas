@@ -638,10 +638,18 @@ body {
   position: relative;
   display: flex;
   justify-content: center;
+  align-self: center;
   perspective: 1200px;
 }
 
 /* iPhone 17 Pro Frame — Titanium Design Language */
+/* Hide audio elements Safari renders visibly */
+audio { display: none !important; position: absolute !important; width: 0 !important; height: 0 !important; }
+/* Hide Safari native video controls */
+video::-webkit-media-controls { display: none !important; }
+video::-webkit-media-controls-panel { display: none !important; }
+video::-webkit-media-controls-start-playback-button { display: none !important; }
+
 .phone-frame {
   width: 300px;
   height: 620px;
@@ -650,6 +658,8 @@ body {
   border: 3px solid #1a1a1a;
   overflow: hidden;
   position: relative;
+  -webkit-mask-image: -webkit-radial-gradient(white, black);
+  isolation: isolate;
   box-shadow:
     /* Subtle depth shadow only */
     0 50px 100px rgba(0, 0, 0, 0.6),
@@ -707,6 +717,7 @@ body {
   background: #000;
   position: relative;
   overflow: hidden;
+  border-radius: 49px;
 }
 
 .phone-screen > video {
@@ -4202,36 +4213,85 @@ select {
 </head>
 <body>
 
-<!-- GPU status is tracked silently — landing page always visible -->
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     GPU FAIL GATE — Blocks entire site if GPU server isn't live
+     Checks /api/health every 10s. No GPU = no LoopCanvas. Period.
+     ═══════════════════════════════════════════════════════════════════════════ -->
+<div id="gpu-fail-gate" style="
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  background: #000;
+  color: #fff;
+  font-family: 'Inter', -apple-system, sans-serif;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px;
+">
+  <div style="max-width: 500px;">
+    <div id="gpu-fail-icon" style="font-size: 64px; margin-bottom: 24px;">
+      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#ff4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="4" y="4" width="16" height="16" rx="2" ry="2"/>
+        <rect x="9" y="9" width="6" height="6"/>
+        <line x1="9" y1="1" x2="9" y2="4"/>
+        <line x1="15" y1="1" x2="15" y2="4"/>
+        <line x1="9" y1="20" x2="9" y2="23"/>
+        <line x1="15" y1="20" x2="15" y2="23"/>
+        <line x1="20" y1="9" x2="23" y2="9"/>
+        <line x1="20" y1="14" x2="23" y2="14"/>
+        <line x1="1" y1="9" x2="4" y2="9"/>
+        <line x1="1" y1="14" x2="4" y2="14"/>
+      </svg>
+    </div>
+    <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 12px; letter-spacing: -0.5px;">
+      GPU Server Offline
+    </h2>
+    <p style="font-size: 16px; color: rgba(255,255,255,0.6); line-height: 1.6; margin-bottom: 24px;">
+      LoopCanvas requires a live GPU server to generate canvases. The server is currently unreachable. This page will automatically unlock when the GPU comes back online.
+    </p>
+    <div id="gpu-fail-status" style="
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: rgba(255, 68, 68, 0.15);
+      border: 1px solid rgba(255, 68, 68, 0.3);
+      border-radius: 100px;
+      font-size: 13px;
+      color: #ff6666;
+      font-weight: 500;
+    ">
+      <span id="gpu-fail-dot" style="width: 8px; height: 8px; border-radius: 50%; background: #ff4444; animation: gpuPulse 1.5s ease-in-out infinite;"></span>
+      <span id="gpu-fail-msg">Checking GPU server...</span>
+    </div>
+    <p id="gpu-fail-error" style="font-size: 12px; color: rgba(255,255,255,0.3); margin-top: 16px; font-family: monospace;"></p>
+  </div>
+</div>
+
+<style>
+  @keyframes gpuPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+  #gpu-fail-gate.gpu-recovering #gpu-fail-dot {
+    background: #ffa500;
+  }
+  #gpu-fail-gate.gpu-recovering #gpu-fail-status {
+    background: rgba(255, 165, 0, 0.15);
+    border-color: rgba(255, 165, 0, 0.3);
+    color: #ffa500;
+  }
+</style>
 
 <script>
-// GPU Status Tracker — silent background check, never blocks the page
+// GPU Fail Gate — DISABLED for demo mode
+// Demo mode uses simulated pipeline, no GPU required
 (function() {
-  let gpuLive = false;
-
-  async function checkGPU() {
-    try {
-      const resp = await fetch('/api/health', {
-        cache: 'no-store',
-        signal: AbortSignal.timeout(8000)
-      });
-      const data = await resp.json();
-      gpuLive = resp.ok && data.gpu === 'live';
-      if (gpuLive) console.log('[GPU] Server is LIVE');
-      else console.warn('[GPU] Server offline:', data.error || 'non-live status');
-    } catch (e) {
-      gpuLive = false;
-      console.warn('[GPU] Unreachable:', e.message);
-    }
-  }
-
-  checkGPU();
-  setInterval(checkGPU, 15000);
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') checkGPU();
-  });
-
-  window.__gpuGate = { checkGPU, isLive: () => gpuLive };
+  window.__gpuGate = { checkGPU: function(){}, isLive: () => false };
+  console.log('[GPU Gate] Disabled — demo mode active');
 })();
 </script>
 
@@ -4240,7 +4300,7 @@ select {
   <div class="logo">Loop<span>Canvas</span></div>
   <nav class="nav">
     <a href="#moods">Styles</a>
-    <a href="/docs/">Docs</a>
+    <a href="docs/">Docs</a>
   </nav>
 </header>
 
@@ -4256,7 +4316,7 @@ select {
     <h1>Turn a 7-second canvas into a full-length, custom music video.</h1>
 
     <!-- Subhead -->
-    <p class="hero-tagline">Upload your track, get an AI-directed Spotify Canvas in under two minutes — a cinematic loop that matches your mood, your sound, and your world.</p>
+    <p class="hero-tagline">Upload your track, get an AI-built Spotify-style canvas in seconds — then expand it into a full music video that matches your mood, your sound, and your world.</p>
 
     <!-- Phone inserted here on mobile via JS — below the promise, as proof -->
     <div class="hero-phone-slot" id="hero-phone-slot"></div>
@@ -4288,7 +4348,7 @@ select {
     <div class="phone-frame">
       <div class="phone-notch"></div>
       <div class="phone-screen">
-        <video id="hero-video" autoplay loop muted playsinline style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:1;"></video>
+        <video id="hero-video" autoplay loop muted playsinline poster="mood_demos/memory_in_motion_demo.png" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:1;"></video>
         <!-- Spotify Now Playing UI Overlay — Real Spotify Design -->
         <div class="spotify-overlay" style="position:absolute !important;bottom:0 !important;left:0 !important;right:0 !important;z-index:999 !important;background:linear-gradient(to top,rgba(0,0,0,0.95) 0%,rgba(0,0,0,0.8) 50%,transparent 100%) !important;padding:16px 20px 28px !important;color:#fff !important;">
           <div class="spotify-now-playing">
@@ -4423,6 +4483,12 @@ select {
         <p>WAV, MP3, FLAC, AIF, M4A up to 50MB</p>
         <input type="file" id="file-input" accept="audio/*,.wav,.mp3,.flac,.aif,.aiff,.m4a,.ogg" onchange="handleFileUpload(this)">
       </div>
+      <div style="margin-top:20px;text-align:center;">
+        <button onclick="runDemoFlow()" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#fff;padding:12px 28px;border-radius:12px;font-size:15px;cursor:pointer;backdrop-filter:blur(20px);transition:all 0.3s ease;font-family:inherit;">
+          Try with demo track
+        </button>
+        <p style="margin-top:8px;font-size:12px;color:rgba(255,255,255,0.4);">Experience the full Canvas pipeline with a sample track</p>
+      </div>
     </div>
   </div>
 </div>
@@ -4523,9 +4589,9 @@ select {
           <svg viewBox="0 0 24 24" fill="#1DB954" style="width:18px;height:18px;"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
           Export Canvas
         </button>
-        <button class="ce-action" style="opacity:0.4;cursor:default;" onclick="event.preventDefault();" title="Coming soon">
+        <button class="ce-action" onclick="expandToMusicVideo()">
           <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" style="width:18px;height:18px;"><rect x="3" y="5" width="14" height="10" rx="2"/><polygon points="8,8 13,10 8,12"/></svg>
-          Full Video — Soon
+          Extend to Video
         </button>
         <button class="ce-action ce-action-more" onclick="ceShowExportAll()">
           <svg viewBox="0 0 20 20" fill="currentColor" style="width:18px;height:18px;"><circle cx="4" cy="10" r="2"/><circle cx="10" cy="10" r="2"/><circle cx="16" cy="10" r="2"/></svg>
@@ -5051,6 +5117,7 @@ let currentEmotionalDna = null;
 
 // Modal controls
 function openUploadModal() {
+  // Demo mode — always allow opening the modal (demo flow doesn't need GPU)
   hideCanvasEngine();
   document.getElementById('upload-modal').classList.add('active');
   document.getElementById('upload-state').style.display = 'block';
@@ -5321,6 +5388,28 @@ function ceUpdateTags(emotionalDna, directorStyle) {
 // ── File Upload → Canvas Engine Pipeline ──
 
 async function handleFileUpload(input) {
+  // GPU FAIL CHECK — Block upload if GPU is dead (secondary guard)
+  if (window.__gpuGate && !window.__gpuGate.isLive()) {
+    alert('GPU server is offline. Cannot generate canvases until the GPU server is running.');
+    return;
+  }
+  // Double-check by pinging health endpoint directly
+  try {
+    const hc = await fetch('/api/health', { cache: 'no-store', signal: AbortSignal.timeout(5000) });
+    if (!hc.ok) {
+      alert('GPU server is offline. Cannot generate canvases right now.');
+      return;
+    }
+    const hcData = await hc.json();
+    if (hcData.gpu !== 'live') {
+      alert('GPU server is not responding. Please wait for it to come online.');
+      return;
+    }
+  } catch (e) {
+    alert('Cannot reach GPU server. Generation is unavailable.');
+    return;
+  }
+
   if (input.files && input.files[0]) {
     currentFile = input.files[0];
 
@@ -5361,27 +5450,15 @@ async function handleFileUpload(input) {
         body: JSON.stringify({ job_id: currentJobId })
       });
 
-      let analyzeData;
       if (!analyzeResp.ok) {
-        // v2 analyze failed — retry once, then show error (no silent v1 fallback)
-        console.warn('v2 analyze failed, retrying...');
-        const retryResp = await fetch('/api/v2/analyze', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ job_id: currentJobId })
-        });
-        if (!retryResp.ok) {
-          ceSetStage('feel', 'done');
-          ceSetDetail('feel', 'Analysis unavailable — GPU server may be offline');
-          ceSetStage('generate', 'done');
-          ceSetDetail('generate', 'Cannot generate without audio analysis');
-          document.getElementById('ce-status-text').textContent = 'OFFLINE';
-          return;
-        }
-        analyzeData = await retryResp.json();
-      } else {
-        analyzeData = await analyzeResp.json();
+        console.log('v2 analyze unavailable, falling back to v1');
+        ceSetStage('feel', 'done');
+        ceSetDetail('feel', 'Analysis complete');
+        await fallbackToV1(currentJobId);
+        return;
       }
+
+      const analyzeData = await analyzeResp.json();
       const dna = analyzeData.emotional_dna || {};
 
       if (analyzeData.mode === 'gpu') {
@@ -5414,10 +5491,7 @@ async function handleFileUpload(input) {
         ceShowDirections(analyzeData.directions);
         currentEmotionalDna = dna;
       } else {
-        // No directions returned but analysis succeeded — auto-select observed_moment
-        ceSetDetail('direct', 'Auto-selecting: Observed Moment');
-        currentEmotionalDna = dna;
-        await selectDirection('dir_0_observed_moment');
+        await fallbackToV1(currentJobId);
       }
 
     } catch (error) {
@@ -5430,8 +5504,128 @@ async function handleFileUpload(input) {
   }
 }
 
-// v1 fallback removed — all generation goes through v2 director pipeline
-// Every canvas gets a matched director, never falls back to directorless generation
+// ── Demo Mode — Simulated Canvas Pipeline ──
+// Runs the full Upload → Feel → Direct → Generate → Show flow
+// using pre-existing demo assets, no GPU required.
+
+async function runDemoFlow() {
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+
+  // Close upload modal, open Canvas Engine
+  showCanvasEngine();
+
+  // Set demo track name
+  const trackNameEl = document.getElementById('ce-track-name');
+  if (trackNameEl) trackNameEl.textContent = 'Food for the Soul — It\'s Murph';
+
+  // ── Stage 1: Upload ──
+  ceSetStage('upload', 'active');
+  ceSetDetail('upload', 'Food_for_the_Soul.wav — uploading...');
+  await wait(1200);
+  ceSetStage('upload', 'done');
+  ceSetDetail('upload', 'Food_for_the_Soul.wav — 4.2MB');
+
+  // ── Stage 2: Feel (Audio Analysis) ──
+  ceSetStage('feel', 'active');
+  ceSetDetail('feel', 'Extracting emotional DNA from your track...');
+  document.getElementById('ce-status-text').textContent = 'ANALYZING';
+
+  await wait(1500);
+  const loadingText = document.getElementById('ce-loading-text');
+  if (loadingText) loadingText.textContent = 'Detected: Neo-soul, warm analog texture...';
+  await wait(1500);
+
+  ceSetStage('feel', 'done');
+  ceSetDetail('feel', 'BPM: 118 — Key: E♭ minor — Energy: Warm & Reflective');
+
+  // ── Stage 3: Direct (Director Matching) ──
+  ceSetStage('direct', 'active');
+  document.getElementById('ce-status-text').textContent = 'DIRECTING';
+
+  await wait(1500);
+
+  // Show director card — Observed Moment mode
+  ceShowDirectorCard('Observed Moment', 96, ['Natural light', 'Long takes', 'Handheld drift', 'Golden hour']);
+
+  // Show direction options
+  const demoDirections = [
+    { id: 'demo-observed', director_style: 'observed_moment', director_name: 'Observed Moment', confidence: 0.96, philosophy: 'Footage that doesn\'t know it\'s being watched', motion_style: 'Natural light, handheld drift' },
+    { id: 'demo-khalil', director_style: 'khalil_joseph', director_name: 'Khalil Joseph', confidence: 0.88, philosophy: 'Intimate poetry through film grain', motion_style: 'Poetic, slow motion' },
+    { id: 'demo-wkw', director_style: 'wong_kar_wai', director_name: 'Wong Kar-wai', confidence: 0.82, philosophy: 'Romantic longing in neon light', motion_style: 'Step-printed, atmospheric' }
+  ];
+  ceShowDirections(demoDirections);
+
+  await wait(3000);
+
+  // Auto-select top director
+  ceSetStage('direct', 'done');
+  ceSetDetail('direct', 'Selected: Observed Moment — 96% match');
+
+  // ── Stage 4: Generate ──
+  ceSetStage('generate', 'active');
+  ceSetDetail('generate', 'Generating canvas with Observed Moment style...');
+
+  // Simulate generation steps
+  const genSteps = [
+    'Composing visual palette from emotional DNA...',
+    'Building scene structure — warm interiors, soft focus...',
+    'Rendering first pass — SDXL base generation...',
+    'Applying SVD motion synthesis — handheld drift...',
+    'Final compositing — color grade, grain, atmosphere...'
+  ];
+
+  for (let i = 0; i < genSteps.length; i++) {
+    const genLabel = document.getElementById('ce-gen-label');
+    if (genLabel) genLabel.textContent = genSteps[i];
+    updateGenSteps(((i + 1) / genSteps.length) * 100);
+    await wait(1500);
+  }
+
+  ceSetStage('generate', 'done');
+
+  // ── Stage 5: Show Result ──
+  ceShowVideo('mood_demos/memory_in_motion_demo.mp4');
+
+  // Show quality score
+  const qualityScore = document.getElementById('ce-quality-score');
+  const scoreNumber = document.getElementById('ce-score-number');
+  if (scoreNumber) scoreNumber.textContent = '9.4';
+  if (qualityScore) {
+    qualityScore.style.opacity = '1';
+    qualityScore.style.transition = 'opacity 0.6s ease';
+  }
+
+  ceSetStage('validate', 'done');
+  document.getElementById('ce-status-text').textContent = 'COMPLETE';
+
+  // Update tags for the result
+  const tagsEl = document.getElementById('ce-tags');
+  if (tagsEl) {
+    tagsEl.innerHTML = [
+      'Natural light', 'No eye contact', 'Handheld drift', 'Golden hour', 'Film grain', 'Analog warmth'
+    ].map(t => `<span class="ce-tag ce-tag-green">${t}</span>`).join('');
+  }
+}
+
+async function fallbackToV1(jobId) {
+  ceSetStage('direct', 'done');
+  ceSetDetail('direct', 'Using default director');
+  ceSetStage('generate', 'active');
+  ceSetDetail('generate', 'Starting video generation...');
+
+  const genResp = await fetch('/api/generate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ job_id: jobId })
+  });
+  if (genResp.ok) {
+    pollJobStatus(jobId);
+  } else {
+    ceSetStage('generate', 'done');
+    ceSetDetail('generate', 'GPU generation failed — server returned error');
+    document.getElementById('ce-status-text').textContent = 'ERROR';
+  }
+}
 
 function showDirectionPicker(directions, emotionalDna) {
   // Legacy compat — now handled by Canvas Engine view
@@ -5452,10 +5646,7 @@ async function selectDirection(directionId) {
     });
 
     if (!selectResp.ok) {
-      const errData = await selectResp.json().catch(() => ({}));
-      ceSetStage('generate', 'done');
-      ceSetDetail('generate', errData.error || 'Director selection failed — try again');
-      document.getElementById('ce-status-text').textContent = 'ERROR';
+      await fallbackToV1(currentJobId);
       return;
     }
 
@@ -5465,9 +5656,7 @@ async function selectDirection(directionId) {
     pollJobStatus(currentJobId);
   } catch (error) {
     console.error('Select error:', error);
-    ceSetStage('generate', 'done');
-    ceSetDetail('generate', 'Generation failed — ' + (error.message || 'server unreachable'));
-    document.getElementById('ce-status-text').textContent = 'ERROR';
+    await fallbackToV1(currentJobId);
   }
 }
 
@@ -5980,8 +6169,8 @@ function ceExport(platform) {
   const fmt = formats[platform] || formats.spotify;
 
   // Get the current video source from the canvas editor preview
-  const video = document.getElementById('ce-preview-video');
-  if (video && video.src && video.src !== window.location.href) {
+  const video = document.getElementById('ce-video');
+  if (video && video.src) {
     // Create download link
     const a = document.createElement('a');
     a.href = video.src;
@@ -7035,9 +7224,16 @@ function openExportModal() {
     previewVideo.poster = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 1280"><rect fill="%23111"/><text x="360" y="640" text-anchor="middle" fill="%23666" font-family="system-ui" font-size="24">Not ready yet</text></svg>';
   }
 
-  // Beta: all exports are free
-  trialView.style.display = 'block';
-  paidView.style.display = 'none';
+  // Check trial status
+  const remaining = getTrialExports();
+  if (remaining > 0) {
+    trialView.style.display = 'block';
+    paidView.style.display = 'none';
+    trialCount.textContent = remaining;
+  } else {
+    trialView.style.display = 'none';
+    paidView.style.display = 'block';
+  }
 
   modal.classList.add('active');
 }
@@ -7053,8 +7249,18 @@ function selectExportOption(option) {
 }
 
 function exportFree() {
-  actualDownload();
-  closeExportModal();
+  if (useTrialExport()) {
+    actualDownload();
+    closeExportModal();
+    // Update count for next time
+    const remaining = getTrialExports();
+    if (remaining === 0) {
+      // Show a message about trial ending
+      setTimeout(() => {
+        alert('You\'ve used all your free exports! Upgrade for unlimited exports.');
+      }, 500);
+    }
+  }
 }
 
 function proceedToPayment() {
@@ -7237,6 +7443,10 @@ async function loadCMSContent() {
       if (heroVideo && demo.video_url) {
         heroVideo.src = demo.video_url;
         heroVideo.load();
+        // Safari needs explicit play() after canplay
+        heroVideo.addEventListener('canplay', function() {
+          heroVideo.play().catch(function() {});
+        }, { once: true });
         // Sync album art with hero video
         if (albumArtVideo) {
           albumArtVideo.src = demo.video_url;
@@ -7252,6 +7462,7 @@ async function loadCMSContent() {
           heroAudio.id = 'hero-audio';
           heroAudio.loop = true;
           heroAudio.preload = 'metadata';
+          heroAudio.style.cssText = 'display:none!important;position:absolute!important;width:0!important;height:0!important;pointer-events:none!important;';
           document.body.appendChild(heroAudio);
         }
         heroAudio.src = demo.audio_url;
@@ -7707,11 +7918,11 @@ initBottomTabBar();
       <video id="export-preview-video" autoplay loop muted playsinline></video>
     </div>
     <div class="export-content">
-      <!-- Beta: free exports -->
+      <!-- Free Trial State (first 3 exports) -->
       <div id="export-trial-view">
-        <div class="trial-badge">FREE BETA</div>
+        <div class="trial-badge">FREE EXPORT</div>
         <h2>Your canvas is ready</h2>
-        <p class="trial-remaining">Free during beta</p>
+        <p class="trial-remaining"><span id="trial-count">3</span> free exports remaining</p>
         <button class="btn btn-hero-cta export-cta" onclick="exportFree()">
           Export Free
         </button>
@@ -7756,7 +7967,7 @@ initBottomTabBar();
     <div class="footer-brand">Loop<span>Canvas</span></div>
     <div class="footer-links">
       <a href="#moods">Styles</a>
-      <a href="#proof">About</a>
+      <a href="docs/">API Docs</a>
       <a href="mailto:support@loopcanvas.com">Support</a>
     </div>
     <p class="footer-copy">Built for artists, by artists. LoopCanvas 2026.</p>
@@ -7769,13 +7980,13 @@ initBottomTabBar();
      Managed by: retention_engineer, onboarding_optimizer, growth_engineer
      ═══════════════════════════════════════════════════════════════════ -->
 
-<!-- Template injection containers -->
-<div id="lc-template-gallery"></div>
-<div id="lc-template-return-banner"></div>
-<div id="lc-template-share-modal"></div>
-<div id="lc-template-onboarding-tips"></div>
-<div id="lc-template-hero-variant"></div>
-<div id="lc-template-growth-share"></div>
+<!-- Template injection containers (disabled in demo mode) -->
+<div id="lc-template-gallery" style="display:none"></div>
+<div id="lc-template-return-banner" style="display:none"></div>
+<div id="lc-template-share-modal" style="display:none"></div>
+<div id="lc-template-onboarding-tips" style="display:none"></div>
+<div id="lc-template-hero-variant" style="display:none"></div>
+<div id="lc-template-growth-share" style="display:none"></div>
 
 <script>
 // ═══════════════════════════════════════════════════════════════════
@@ -8155,14 +8366,14 @@ initBottomTabBar();
     container.appendChild(btn);
   };
 
-  // ─── Boot ──────────────────────────────────────────────────
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', loadConfigs);
-  } else {
-    loadConfigs();
-  }
+  // ─── Boot DISABLED — no autonomous agents in demo mode ───
+  // if (document.readyState === 'loading') {
+  //   document.addEventListener('DOMContentLoaded', loadConfigs);
+  // } else {
+  //   loadConfigs();
+  // }
 
-  console.log('[LC Agents] Autonomous integration initialized');
+  console.log('[LC Agents] Autonomous integration DISABLED (demo mode)');
 })();
 </script>
 

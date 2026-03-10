@@ -6,6 +6,7 @@ queue_data/
 audio_demos/
 canvas-engine/
 deploy/
+docs/
 server.py
 regenerate_demos.py
 server.log

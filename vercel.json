@@ -8,7 +8,6 @@
     { "src": "mood_demos/**", "use": "@vercel/static" },
     { "src": "audio_previews/**", "use": "@vercel/static" },
     { "src": "templates/**", "use": "@vercel/static" },
-    { "src": "docs/**", "use": "@vercel/static" },
     { "src": "*_config.json", "use": "@vercel/static" }
   ],
   "routes": [
@@ -28,9 +27,6 @@
     { "src": "/mood_demos/(.*)", "dest": "/mood_demos/$1" },
     { "src": "/audio_previews/(.*)", "dest": "/audio_previews/$1" },
     { "src": "/admin", "dest": "/admin.html" },
-    { "src": "/docs", "dest": "/docs/index.html" },
-    { "src": "/docs/", "dest": "/docs/index.html" },
-    { "src": "/docs/(.+)", "dest": "/docs/$1" },
     {
       "src": "/api/(.*)",
       "headers": {
@@ -40,7 +36,6 @@
       },
       "continue": true
     },
-    { "handle": "filesystem" },
     { "src": "/(.*)", "dest": "/index.html" }
   ],
   "env": {

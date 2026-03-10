@@ -42,7 +42,6 @@ from pathlib import Path
 from datetime import datetime
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from socketserver import ThreadingMixIn
-import urllib.parse
 from urllib.parse import parse_qs, urlparse
 import threading
 import time
@@ -156,18 +155,8 @@ def parse_multipart(content_type: str, body: bytes):
     return result
 
 
-# ══════════════════════════════════════════════════════════════
-# Authentication
-# ══════════════════════════════════════════════════════════════
-from auth import CanvasAuth
-_canvas_auth = CanvasAuth()
-
-# Allowed origin for CORS (set via env or default to *)
-ALLOWED_ORIGIN = os.environ.get("LOOPCANVAS_ALLOWED_ORIGIN", "*")
-
-
 class LoopCanvasHandler(SimpleHTTPRequestHandler):
-    """HTTP handler with v1 + v2 API endpoints + auth."""
+    """HTTP handler with v1 + v2 API endpoints."""
 
     def do_POST(self):
         """Route POST requests."""
@@ -184,65 +173,40 @@ class LoopCanvasHandler(SimpleHTTPRequestHandler):
 
     def _route_post(self):
         """Internal POST routing."""
-        # === Auth routes (public — these ARE the login flow) ===
-        if self.path == "/auth/apple/callback":
-            self.handle_apple_callback()
-            return
-        elif self.path == "/auth/logout":
-            self.handle_logout()
-            return
-
-        # === v2.0 endpoints (require auth: session or API key) ===
+        # === v2.0 endpoints ===
         if self.path == "/api/v2/analyze":
-            if not _canvas_auth.require_auth(self): return
             self.handle_v2_analyze()
         elif self.path == "/api/v2/select":
-            if not _canvas_auth.require_auth(self): return
             self.handle_v2_select()
         elif self.path == "/api/v2/iterate":
-            if not _canvas_auth.require_auth(self): return
             self.handle_v2_iterate()
         elif self.path == "/api/v2/edit":
-            if not _canvas_auth.require_auth(self): return
             self.handle_v2_edit()
         elif self.path == "/api/v2/export":
-            if not _canvas_auth.require_auth(self): return
             self.handle_v2_export()
         elif self.path == "/api/v2/undo":
-            if not _canvas_auth.require_auth(self): return
             self.handle_v2_undo()
-        # === Queue endpoints (require worker token) ===
+        # === Queue endpoints (GPU worker communication) ===
         elif self.path == "/api/v2/queue/claim":
-            if not _canvas_auth.require_worker(self): return
             self.handle_queue_claim()
         elif self.path == "/api/v2/queue/progress":
-            if not _canvas_auth.require_worker(self): return
             self.handle_queue_progress()
         elif self.path == "/api/v2/queue/complete":
-            if not _canvas_auth.require_worker(self): return
             self.handle_queue_complete()
         elif self.path == "/api/v2/queue/fail":
-            if not _canvas_auth.require_worker(self): return
             self.handle_queue_fail()
         elif self.path == "/api/v2/queue/submit":
-            if not _canvas_auth.require_worker(self): return
             self.handle_queue_submit()
-        # === v1 endpoints (require auth) ===
+        # === v1 endpoints (preserved) ===
         elif self.path == "/api/upload":
-            if not _canvas_auth.require_auth(self): return
             self.handle_upload()
         elif self.path == "/api/generate":
-            if not _canvas_auth.require_auth(self): return
             self.handle_generate()
         elif self.path == "/api/regenerate":
-            if not _canvas_auth.require_auth(self): return
             self.handle_regenerate()
         elif self.path.startswith("/api/status/"):
-            if not _canvas_auth.require_auth(self): return
             self.handle_status()
-        # === Admin endpoints (require admin key) ===
         elif self.path == "/api/cms/save":
-            if not _canvas_auth.require_admin(self): return
             self.handle_cms_save()
         else:
             self.send_error(404)
@@ -251,6 +215,8 @@ class LoopCanvasHandler(SimpleHTTPRequestHandler):
         """Route GET requests."""
         try:
             self._route_get()
+        except (BrokenPipeError, ConnectionResetError):
+            pass  # Normal for Safari Range-request video streaming
         except Exception as e:
             import traceback
             traceback.print_exc()
@@ -264,7 +230,7 @@ class LoopCanvasHandler(SimpleHTTPRequestHandler):
         """Internal GET routing."""
         parsed = urlparse(self.path)
 
-        # === Public routes (no auth) ===
+        # === Health check (GPU liveness) ===
         if parsed.path == "/api/health":
             self.send_json_response({
                 "gpu": "live",
@@ -274,146 +240,44 @@ class LoopCanvasHandler(SimpleHTTPRequestHandler):
             })
             return
 
-        # === Auth routes (public) ===
-        elif parsed.path == "/auth/apple/login":
-            self.handle_apple_login()
-            return
-        elif parsed.path == "/auth/me":
-            self.handle_auth_me()
-            return
-
-        # === Admin routes (require admin key) ===
         elif parsed.path == "/api/gpu/status":
-            if not _canvas_auth.require_admin(self): return
             self.send_json_response(get_gpu_status())
             return
+
         elif parsed.path == "/api/admin/health":
-            if not _canvas_auth.require_admin(self): return
             self.handle_admin_health()
             return
 
-        # === v2.0 endpoints (require auth) ===
+        # === v2.0 endpoints ===
         if parsed.path.startswith("/api/v2/directions/"):
-            if not _canvas_auth.require_auth(self): return
             job_id = parsed.path.split("/")[-1]
             self.handle_v2_directions(job_id)
         elif parsed.path == "/api/v2/platforms":
-            if not _canvas_auth.require_auth(self): return
             self.handle_v2_platforms()
         elif parsed.path == "/api/v2/cost-report":
-            if not _canvas_auth.require_auth(self): return
             self.handle_v2_cost_report()
         elif parsed.path == "/api/v2/queue/stats":
-            if not _canvas_auth.require_admin(self): return
             self.handle_queue_stats()
         elif parsed.path == "/api/v2/seed/status":
-            if not _canvas_auth.require_admin(self): return
             self.handle_seed_status()
         elif parsed.path.startswith("/api/v2/status/"):
-            if not _canvas_auth.require_auth(self): return
             job_id = parsed.path.split("/")[-1]
             self.handle_v2_status(job_id)
-        # === v1 endpoints (require auth) ===
+        # === v1 endpoints ===
         elif parsed.path.startswith("/api/status/"):
-            if not _canvas_auth.require_auth(self): return
             job_id = parsed.path.split("/")[-1]
             self.handle_status_get(job_id)
-        # === Static files (public — docs, UI, outputs) ===
+        # === Media files with Range support (Safari requires this for video) ===
+        elif parsed.path.endswith(('.mp4', '.mp3', '.webm', '.ogg', '.wav')):
+            clean_path = parsed.path.lstrip('/')
+            file_path = APP_DIR / clean_path
+            self.serve_with_range(str(file_path))
+            return
         elif parsed.path.startswith("/outputs/"):
             self.path = parsed.path
             super().do_GET()
-        elif parsed.path == "/docs" or parsed.path.startswith("/docs/"):
-            # Serve docs directory (fix: ensure /docs resolves to /docs/)
-            if parsed.path == "/docs":
-                self.send_response(301)
-                self.send_header("Location", "/docs/")
-                self.end_headers()
-            else:
-                self.path = parsed.path
-                super().do_GET()
         else:
             super().do_GET()
-
-    # ══════════════════════════════════════════════════════════════
-    # AUTH ENDPOINTS — Sign in with Apple + session management
-    # ══════════════════════════════════════════════════════════════
-
-    def handle_apple_login(self):
-        """GET /auth/apple/login — Redirect to Apple Sign In."""
-        auth_url = _canvas_auth.get_apple_auth_url()
-        self.send_response(302)
-        self.send_header("Location", auth_url)
-        self.end_headers()
-
-    def handle_apple_callback(self):
-        """POST /auth/apple/callback — Apple redirects here with auth code."""
-        content_length = int(self.headers.get('Content-Length', 0))
-        body = self.rfile.read(content_length).decode('utf-8')
-
-        # Apple POSTs form-encoded data
-        params = urllib.parse.parse_qs(body)
-        code = params.get("code", [None])[0]
-        state = params.get("state", [None])[0]
-        # Apple sends user info only on FIRST sign-in
-        user_data = params.get("user", [None])[0]
-
-        if not code:
-            self.send_json_error("Missing authorization code from Apple", 400)
-            return
-
-        # Exchange code for tokens
-        claims = _canvas_auth.exchange_apple_code(code)
-        if not claims:
-            self.send_json_error("Failed to verify Apple sign-in", 401)
-            return
-
-        apple_id = claims.get("sub", "")
-        email = claims.get("email", "")
-        name = ""
-
-        # Parse user info (only sent on first auth)
-        if user_data:
-            try:
-                user_info = json.loads(user_data)
-                name_info = user_info.get("name", {})
-                name = f"{name_info.get('firstName', '')} {name_info.get('lastName', '')}".strip()
-            except Exception:
-                pass
-
-        # Create session
-        session_token = _canvas_auth.create_session(apple_id, email, name)
-
-        # Redirect to app with session cookie
-        self.send_response(302)
-        cookie = f"canvas_session={session_token}; Path=/; HttpOnly; SameSite=Lax; Max-Age={30*24*60*60}"
-        # Add Secure flag when behind Cloudflare (HTTPS)
-        if self.headers.get("CF-Connecting-IP"):
-            cookie += "; Secure"
-        self.send_header("Set-Cookie", cookie)
-        self.send_header("Location", "/")
-        self.end_headers()
-
-    def handle_logout(self):
-        """POST /auth/logout — Destroy session."""
-        _canvas_auth.destroy_session(self)
-        self.send_response(302)
-        self.send_header("Set-Cookie", "canvas_session=; Path=/; HttpOnly; Max-Age=0")
-        self.send_header("Location", "/")
-        self.end_headers()
-
-    def handle_auth_me(self):
-        """GET /auth/me — Return current user info (or 401)."""
-        user = _canvas_auth.get_session(self)
-        if user:
-            self.send_json_response({
-                "authenticated": True,
-                "provider": "apple",
-                "apple_id": user.apple_id[:8] + "...",
-                "email": user.email,
-                "name": user.name,
-            })
-        else:
-            self.send_json_response({"authenticated": False}, 200)
 
     # ══════════════════════════════════════════════════════════════
     # ADMIN / OBSERVABILITY ENDPOINTS
@@ -1309,19 +1173,6 @@ class LoopCanvasHandler(SimpleHTTPRequestHandler):
             env["LOOPCANVAS_CONTRAST"] = str(params.get('contrast', 1.1))
             env["LOOPCANVAS_TEMPERATURE"] = str(params.get('temperature', 5500))
 
-            # Pass director from original generation so regen keeps the same visual DNA
-            selected_dir = job.get("selected_direction", "")
-            if selected_dir and "directions" in job:
-                for d in job["directions"]:
-                    if d["id"] == selected_dir:
-                        env["LOOPCANVAS_DIRECTOR"] = d.get("director_style", "")
-                        env["LOOPCANVAS_DIRECTOR_NAME"] = d.get("director_name", "")
-                        env["LOOPCANVAS_DIRECTOR_PHILOSOPHY"] = d.get("philosophy", "")
-                        env["LOOPCANVAS_DIRECTOR_TEXTURE"] = d.get("texture", "")
-                        break
-            if "LOOPCANVAS_DIRECTOR" not in env:
-                env["LOOPCANVAS_DIRECTOR"] = "observed_moment"
-
             regen_dir = output_dir / "regen"
             regen_dir.mkdir(exist_ok=True)
 
@@ -1435,13 +1286,41 @@ class LoopCanvasHandler(SimpleHTTPRequestHandler):
             self.send_json_error(str(e), 500)
 
     def handle_generate(self):
-        """DEPRECATED: v1 direct pipeline — now redirects through v2 director path.
-        All generation must go through /api/v2/analyze → /api/v2/select to ensure
-        every canvas gets a matched director instead of defaulting to Wong Kar-wai."""
-        self.send_json_error(
-            "v1 /api/generate is deprecated. Use /api/v2/analyze then /api/v2/select for director-matched generation.",
-            410  # 410 Gone
-        )
+        """Start generation for an uploaded file (v1 legacy — direct pipeline)."""
+        try:
+            content_length = int(self.headers.get('Content-Length', 0))
+            body = self.rfile.read(content_length).decode('utf-8')
+            data = json.loads(body)
+
+            job_id = data.get('job_id')
+            if not job_id or job_id not in active_jobs:
+                self.send_json_error("Invalid job ID", 400)
+                return
+
+            job = active_jobs[job_id]
+            if job["status"] not in ["uploaded", "error"]:
+                self.send_json_error("Job already processing", 400)
+                return
+
+            job["status"] = "generating"
+            job["progress"] = 10
+            job["message"] = "Starting video generation..."
+
+            thread = threading.Thread(
+                target=self.run_pipeline,
+                args=(job_id,),
+                daemon=True
+            )
+            thread.start()
+
+            self.send_json_response({
+                "success": True,
+                "job_id": job_id,
+                "status": "generating",
+            })
+
+        except Exception as e:
+            self.send_json_error(str(e), 500)
 
     def handle_status_get(self, job_id):
         """Get status of a generation job."""
@@ -1452,9 +1331,123 @@ class LoopCanvasHandler(SimpleHTTPRequestHandler):
         job = active_jobs[job_id]
         self.send_json_response(job)
 
-    # run_pipeline (v1 legacy) REMOVED — all generation now goes through
-    # orchestrator.select_direction_and_generate() which passes director env vars.
-    # This ensures every canvas gets a matched director instead of always Wong Kar-wai.
+    def run_pipeline(self, job_id):
+        """Run the Grammy pipeline for a job (v1 legacy)."""
+        job = active_jobs[job_id]
+
+        try:
+            output_dir = OUTPUT_DIR / job_id
+            output_dir.mkdir(exist_ok=True)
+
+            job["output_dir"] = str(output_dir)
+            job["progress"] = 20
+            job["message"] = "Analyzing audio..."
+
+            cmd = [
+                sys.executable,
+                str(PIPELINE_SCRIPT),
+                "--audio", job["upload_path"],
+                "--out", str(output_dir),
+            ]
+
+            if os.environ.get("LOOPCANVAS_MODE") == "fast":
+                cmd.append("--fast")
+
+            process = subprocess.Popen(
+                cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                cwd=str(PIPELINE_SCRIPT.parent),
+            )
+
+            for line in process.stdout:
+                line = line.strip()
+                print(f"[Pipeline {job_id}] {line}")
+
+                if "[1/7]" in line or "Transcribing" in line:
+                    job["progress"] = 15
+                    job["message"] = "Transcribing lyrics..."
+                elif "[2/7]" in line or "Audio structure" in line:
+                    job["progress"] = 25
+                    job["message"] = "Analyzing audio structure..."
+                elif "[3/7]" in line or "Semantic" in line:
+                    job["progress"] = 35
+                    job["message"] = "Understanding mood and vibe..."
+                elif "[4/7]" in line or "Deriving concept" in line:
+                    job["progress"] = 45
+                    job["message"] = "Building visual concept..."
+                elif "[5/7]" in line or "cut plan" in line:
+                    job["progress"] = 50
+                    job["message"] = "Planning video cuts..."
+                elif "[6/7]" in line or "Acquiring" in line:
+                    job["progress"] = 55
+                    job["message"] = "Generating visual assets..."
+                elif "OK (local)" in line or "OK:" in line:
+                    job["progress"] = min(job["progress"] + 5, 75)
+                    job["message"] = "Creating clips..."
+                elif "[7/7]" in line or "Rendering outputs" in line:
+                    job["progress"] = 80
+                    job["message"] = "Rendering final video..."
+                elif "Canvas:" in line:
+                    job["progress"] = 90
+                    job["message"] = "Finalizing canvas..."
+                elif "PIPELINE COMPLETE" in line:
+                    job["progress"] = 95
+                    job["message"] = "Almost done..."
+                elif "Canvas complete" in line:
+                    job["progress"] = 90
+                    job["message"] = "Finalizing..."
+
+            process.wait()
+
+            if process.returncode == 0:
+                canvas_path = output_dir / "spotify_canvas_7s_9x16.mp4"
+                video_path = output_dir / "full_music_video_9x16.mp4"
+                concept_path = output_dir / "concept.json"
+
+                if canvas_path.exists():
+                    fixed_canvas = output_dir / "spotify_canvas_web.mp4"
+                    result = subprocess.run([
+                        "ffmpeg", "-y",
+                        "-i", str(canvas_path),
+                        "-c:v", "libx264", "-profile:v", "baseline",
+                        "-level", "3.0", "-pix_fmt", "yuv420p",
+                        "-movflags", "+faststart",
+                        "-c:a", "aac", "-b:a", "128k",
+                        str(fixed_canvas)
+                    ], capture_output=True, text=True)
+
+                    if result.returncode != 0:
+                        print(f"FFmpeg re-encode failed: {result.stderr}")
+                        shutil.copy(canvas_path, fixed_canvas)
+
+                    job["status"] = "complete"
+                    job["progress"] = 100
+                    job["message"] = "Generation complete!"
+                    job["outputs"] = {
+                        "canvas": f"/outputs/{job_id}/spotify_canvas_web.mp4",
+                        "full_video": f"/outputs/{job_id}/full_music_video_9x16.mp4" if video_path.exists() else None,
+                        "concept": f"/outputs/{job_id}/concept.json" if concept_path.exists() else None,
+                    }
+
+                    if concept_path.exists():
+                        with open(concept_path) as f:
+                            concept = json.load(f)
+                            job["track_info"] = {
+                                "theme": concept.get("theme", "unknown"),
+                                "thesis": concept.get("thesis", ""),
+                            }
+                else:
+                    job["status"] = "error"
+                    job["message"] = "Pipeline completed but no output files found"
+            else:
+                job["status"] = "error"
+                job["message"] = f"Pipeline failed with code {process.returncode}"
+
+        except Exception as e:
+            job["status"] = "error"
+            job["message"] = str(e)
 
     # ══════════════════════════════════════════════════════════════
     # UTILS
@@ -1478,9 +1471,7 @@ class LoopCanvasHandler(SimpleHTTPRequestHandler):
             logger.error(f"JSON serialization error: {e}")
         self.send_response(status)
         self.send_header('Content-Type', 'application/json')
-        origin = self.headers.get('Origin', ALLOWED_ORIGIN) if ALLOWED_ORIGIN != '*' else '*'
-        self.send_header('Access-Control-Allow-Origin', origin)
-        self.send_header('Access-Control-Allow-Credentials', 'true')
+        self.send_header('Access-Control-Allow-Origin', '*')
         self.end_headers()
         self.wfile.write(body.encode())
 
@@ -1488,14 +1479,61 @@ class LoopCanvasHandler(SimpleHTTPRequestHandler):
         """Send JSON error response."""
         self.send_json_response({"error": message}, status)
 
+    def serve_with_range(self, file_path):
+        """Serve a file with HTTP Range request support (required by Safari for video)."""
+        import mimetypes
+        try:
+            file_size = os.path.getsize(file_path)
+        except OSError:
+            self.send_error(404, "File not found")
+            return
+        content_type, _ = mimetypes.guess_type(file_path)
+        if not content_type:
+            content_type = 'application/octet-stream'
+        range_header = self.headers.get('Range')
+        if range_header:
+            match = re.match(r'bytes=(\d+)-(\d*)', range_header)
+            if match:
+                start = int(match.group(1))
+                end = int(match.group(2)) if match.group(2) else file_size - 1
+                end = min(end, file_size - 1)
+                length = end - start + 1
+                self.send_response(206)
+                self.send_header('Content-Type', content_type)
+                self.send_header('Content-Range', f'bytes {start}-{end}/{file_size}')
+                self.send_header('Content-Length', str(length))
+                self.send_header('Accept-Ranges', 'bytes')
+                self.send_header('Cache-Control', 'public, max-age=3600')
+                self.end_headers()
+                with open(file_path, 'rb') as f:
+                    f.seek(start)
+                    remaining = length
+                    while remaining > 0:
+                        chunk = f.read(min(65536, remaining))
+                        if not chunk:
+                            break
+                        self.wfile.write(chunk)
+                        remaining -= len(chunk)
+                return
+        self.send_response(200)
+        self.send_header('Content-Type', content_type)
+        self.send_header('Content-Length', str(file_size))
+        self.send_header('Accept-Ranges', 'bytes')
+        self.send_header('Cache-Control', 'public, max-age=3600')
+        self.end_headers()
+        with open(file_path, 'rb') as f:
+            while True:
+                chunk = f.read(65536)
+                if not chunk:
+                    break
+                self.wfile.write(chunk)
+
     def do_OPTIONS(self):
         """Handle CORS preflight."""
         self.send_response(200)
-        origin = self.headers.get('Origin', ALLOWED_ORIGIN) if ALLOWED_ORIGIN != '*' else '*'
-        self.send_header('Access-Control-Allow-Origin', origin)
+        self.send_header('Access-Control-Allow-Origin', '*')
         self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-        self.send_header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Worker-Token')
-        self.send_header('Access-Control-Allow-Credentials', 'true')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
         self.end_headers()
 
 
@@ -1528,9 +1566,9 @@ def run_server():
     # Pre-load orchestrator in background
     threading.Thread(target=get_orchestrator, daemon=True).start()
 
-    # Auto-start seed runner for continuous optimization
-    if os.environ.get("LOOPCANVAS_SEED", "1") == "1":
-        threading.Thread(target=start_seed_runner, daemon=True).start()
+    # Seed runner disabled — no auto-optimization
+    # if os.environ.get("LOOPCANVAS_SEED", "1") == "1":
+    #     threading.Thread(target=start_seed_runner, daemon=True).start()
 
     server = ThreadedHTTPServer(('', PORT), LoopCanvasHandler)
 

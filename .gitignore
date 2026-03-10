@@ -35,11 +35,6 @@ Thumbs.db
 *.ckpt
 *.safetensors
 
-# Auth secrets (API keys, user data, Apple private keys)
-keys.json
-users.json
-*.p8
-
 # Temp
 tmp/
 temp/
